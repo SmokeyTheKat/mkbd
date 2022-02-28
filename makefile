@@ -1,7 +1,8 @@
 PREFIX=~/.local
 
 CC=g++
-CFLAGS=-Wall -Werror -Wno-sign-compare -I./include/ -D__LINUX_ALSA__ `pkg-config gtkmm-3.0 --cflags --libs` -lasound -lpthread -llodepng -g
+#CFLAGS=-Wall -Werror -Wno-sign-compare -I./include/ -I/home/william/Programs/VSSynth/include/ -D__LINUX_ALSA__ `pkg-config gtkmm-3.0 --cflags --libs` -lasound -lpthread -llodepng -g -lSDL2
+CFLAGS=-Wno-sign-compare -I./include/ -I/home/william/Programs/VSSynth/include/ -D__LINUX_ALSA__ `pkg-config gtkmm-3.0 --cflags --libs` -lasound -lpthread -llodepng -g -lSDL2
 TARGET=./mkbd
 BUILDDIR=build
 SRCDIR=src

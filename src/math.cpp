@@ -12,3 +12,11 @@ double roundTo(double value, double to) {
 		return value - std::fmod(value, to);
 	else return value + (to - std::fmod(value, to));
 }
+
+bool isAbout(double value, double about, double threshold) {
+	return (value > about - threshold) && (value < about + threshold);
+}
+
+double freqToRad(double freq) {
+	return 2.0 * 3.1415926535 * freq;
+}

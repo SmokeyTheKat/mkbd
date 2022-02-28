@@ -60,8 +60,8 @@ Keyboard::Keyboard(int port) {
 }
 
 Keyboard::~Keyboard(void) {
-//    delete rtmIn;
-//    delete rtmOut;
+	delete rtmIn;
+	delete rtmOut;
 }
 
 KeyboardMessage Keyboard::getMessage(void) const {
