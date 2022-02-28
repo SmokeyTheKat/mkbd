@@ -51,6 +51,8 @@ public:
 
 	std::function<void(KeyboardRecorder* rcdr)> onBeat = 0;
 	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onMessage = 0;
+	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onPadDown = 0;
+	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onPadUp = 0;
 	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onKeyDown = 0;
 	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onKeyUp = 0;
 	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onSoftPedalDown = 0;

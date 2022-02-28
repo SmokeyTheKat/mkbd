@@ -79,9 +79,6 @@ static void drawLine(int width, const char* style) {
 }
 
 static void drawSheet(KeyboardRecorder* rcdr) {
-//    std::cout << "\x1b[2J\x1b[1;1H\n\n";
-//    std::cout << "\x1b[35;1H" << getChord(rcdr) << "\n";
-//    return;
 	std::cout << "\x1b[2J\x1b[1;1H\n\n";
 
 	int width = 170;
@@ -134,9 +131,6 @@ static void drawSheet(KeyboardRecorder* rcdr) {
 	double barLength = 60.0 / (double)rcdr->getBpm() * 4.0;
 	double fullLength = barLength * 4;
 	double startTime = std::floor(rcdr->getTime() / fullLength) * fullLength;
-//    double startTime = keys.size() > 0
-//                            ? std::floor(keys.front().time / fullLength) * fullLength
-//                            : std::floor(rcdr->getTime() / fullLength) * fullLength;
 
 	double now = roundTo(rcdr->getTime() - startTime, barLength / 4.0);
 
@@ -147,7 +141,6 @@ static void drawSheet(KeyboardRecorder* rcdr) {
 	std::cout << "\x1b[0m\n";
 
 	if (keys.size() == 0) return;
-//    return;
 
 	for (int i = 0; i < keys.size(); i++) {
 		Key key = keys[i];
@@ -155,8 +148,6 @@ static void drawSheet(KeyboardRecorder* rcdr) {
 		double time = roundTo(key.time - startTime, barLength / 4.0 / 4.0);
 		time = key.time - startTime;
 		if (time > fullLength) {
-//            keys.erase(keys.begin(), keys.begin() + i);
-//            drawSheet(rcdr);
 			break;
 		}
 		if (key.id % 2 == 0) std::cout << "\x1b[9m";
@@ -169,81 +160,125 @@ static void drawSheet(KeyboardRecorder* rcdr) {
 	std::cout << "\x1b[35;1H" << getChord(rcdr) << "\n";
 }
 
-int main(int argc, char** argv) {
-	srand(time(0));
-//    auto app = Gtk::Application::create(argc, argv, "org.gtkmm.example");
-//    MainWindow mainWindow;
-//    return app->run(mainWindow);
-//
-//    return 0;
+void looperSetLoop(KeyboardRecorder* rcdr) {
+	static int isRecording = false;
+	isRecording = !isRecording;
 
+	if (isRecording) {
+		rcdr->clear();
+		return;
+	}
+
+	std::vector<KeyboardMessage> rcdrMsgs = rcdr->getMessages();
+	std::vector<KeyboardMessage> msgs = rcdrMsgs;
+
+	double barLength = 60.0 / (double)rcdr->getBpm() * 4.0;
+	double fullLength = barLength * 4;
+	double firstKeyTime = 0;
+
+	for (auto m : msgs) {
+		if (m.getType() == KBD_MSG_KEY) {
+			firstKeyTime = m.stamp;
+			break;
+		}
+	}
+
+	double startTime = std::floor(firstKeyTime / fullLength) * fullLength;
+
+	for (auto m : msgs) {
+		if (m.stamp < startTime) continue;
+		if (m.data.size() >= 3) {
+			rcdr->addTimedCallback([m](KeyboardRecorder* rcdr) {
+				rcdr->getKeyboard()->sendMessage(m);
+			}, m.stamp - startTime, fullLength);
+		}
+	}
+}
+
+void runLooper(void) {
 	Keyboard piano(chooseKeyboard());
 
-	int bpm = 60;
-
-	bpm = chooseBpm(piano);
-
-	AudioPlayer ap;
-	ap.start();
+	int bpm = chooseBpm(piano);
 
 	KeyboardRecorder recorder(&piano, bpm);
 
 	recorder.onBeat = [](KeyboardRecorder* rcdr) {
-//        drawSheet(rcdr);
+		drawSheet(rcdr);
 	};
+
+	recorder.onSoftPedalDown = [](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		rcdr->stop();
+	};
+
+	recorder.onKeyDown = [](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		drawSheet(rcdr);
+	};
+
+	recorder.onMiddlePedalDown = [](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		looperSetLoop(rcdr);
+	};
+
+	recorder.onPadDown = [](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		if (msg[1] != 16) return;
+		rcdr->getMessages().pop_back();
+		looperSetLoop(rcdr);
+	};
+
+	recorder.record(0);
+}
+
+void runSynth(void) {
+	Keyboard piano(chooseKeyboard());
+
+	AudioPlayer ap;
+	ap.start();
+
+	KeyboardRecorder recorder(&piano, 120);
 
 	recorder.onSoftPedalDown = [&ap](KeyboardRecorder* rcdr, KeyboardMessage msg) {
 		ap.stop();
 		rcdr->stop();
 	};
 
+	recorder.onPadDown = [&ap](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		if (msg[1] != 16) return;
+		ap.stop();
+		rcdr->stop();
+	};
+
 	recorder.onKeyDown = [&ap](KeyboardRecorder* rcdr, KeyboardMessage msg) {
-		ap.addSample(std::pow(std::pow(2.0, 1.0/12.0), msg[1] - 69) * 440, rmap(msg[2], 0, 127, 0, 10));
-//        std::cout << std::pow(std::pow(2.0, 1.0/12.0), msg[1] - 69) * 440 << " " << rmap(msg[2], 0, 127, 0, 4) << "\n";
-//        drawSheet(rcdr);
+		ap.addSample(std::pow(std::pow(2.0, 1.0/12.0), msg[1] - 69) * 440, rmap(msg[2], 0, 127, 0, 50));
 	};
 
 	recorder.onKeyUp = [&ap](KeyboardRecorder* rcdr, KeyboardMessage msg) {
 		ap.removeSample(std::pow(std::pow(2.0, 1.0/12.0), msg[1] - 69) * 440);
 	};
 
-	recorder.onMiddlePedalDown = [](KeyboardRecorder* rcdr, KeyboardMessage msg) {
-		drawSheet(rcdr);
-		static int isRecording = false;
-		isRecording = !isRecording;
+	recorder.record(0);
+}
 
-		if (isRecording) {
-			rcdr->clear();
-			return;
+void runRawView(void) {
+	Keyboard piano(chooseKeyboard());
+
+	KeyboardRecorder recorder(&piano, 120);
+
+	recorder.onMessage = [](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		if (msg.data.size() == 0) return;
+		for (byte i : msg.data) {
+			std::cout << (int)i << ", ";
 		}
-
-		std::vector<KeyboardMessage> rcdrMsgs = rcdr->getMessages();
-		std::vector<KeyboardMessage> msgs = rcdrMsgs;
-
-		double barLength = 60.0 / (double)rcdr->getBpm() * 4.0;
-		double fullLength = barLength * 4;
-		double firstKeyTime = 0;
-
-		for (auto m : msgs) {
-			if (m.getType() == KBD_MSG_KEY) {
-				firstKeyTime = m.stamp;
-				break;
-			}
-		}
-
-		double startTime = std::floor(firstKeyTime / fullLength) * fullLength;
-
-		for (auto m : msgs) {
-			if (m.stamp < startTime) continue;
-			if (m.data.size() >= 3) {
-				rcdr->addTimedCallback([m](KeyboardRecorder* rcdr) {
-					rcdr->getKeyboard()->sendMessage(m);
-				}, m.stamp - startTime, fullLength);
-			}
-		}
+		std::cout << "\n";
 	};
 
-	std::vector<Key> notes = recorder.record(0);
-	
+	recorder.record(0);
+}
+
+int main(int argc, char** argv) {
+	srand(time(0));
+
+	runSynth();
+//    runRawView();
+//    runLooper();
+
 	return 0;
 }

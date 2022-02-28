@@ -27,7 +27,7 @@ int AudioPlayer::addSample(double freq, double gain) {
 	samples.push_back(AudioSample(freq, gain));
 	int id = samples.size() - 1;
 
-	std::cout << "add: " << samples.size() << "\n";
+	std::cout << "add: " << samples.size() << " t: " << samples[id].t << "\n";
 
 	mtx.unlock();
 	return id;
@@ -50,6 +50,7 @@ void AudioPlayer::removeSample(double freq) {
 		AudioSample& as = samples[i];
 		if (as.et == 0)
 			as.et = as.t;
+		std::cout << "et: " << as.et << " t: " << as.t << "\n";
 	//    samples.erase(samples.begin() + i);
 	}
 
@@ -114,7 +115,7 @@ void AudioPlayer::playSamples(void) {
 			sampleChange = false;
 		}
 
-		for (int i = 0; i < audioSpec.freq / 2; i++) {
+		for (int i = 0; i < audioSpec.freq / 3; i++) {
 			int16_t sample = 0;
 			for (int j = 0; j < samples.size(); j++) {
 				auto& s = samples[j];
@@ -133,8 +134,9 @@ void AudioPlayer::playSamples(void) {
 							  0.25 * Waves::sine(s.t, s.freq * 4.0) +
 							  0.125 * Waves::sine(s.t, s.freq * 8.0))) * s.gain;// * damp(s.t);
 
-				if (s.et != 0) {
-					double dp = damp(s.t);
+				if (j == 0 && s.et != 0) {
+					double dp = damp(s.t - s.et);
+//                    std::cout << j << ": " << s.t << " " << s.et << "\n";
 					value *= dp;
 					if (dp < 0.01) {
 						samples.erase(samples.begin() + j, samples.begin() + j + 1);

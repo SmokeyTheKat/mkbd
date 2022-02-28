@@ -13,7 +13,7 @@ class AudioPlayer {
 		double t = 0;
 		double et = 0;
 		inline AudioSample(double freq, double gain)
-			: freq(freq / 441.0), gain(gain * 100.0) {};
+			: freq(freq / 441.0), gain(gain * 100.0), t(0) {};
 	};
 
 	std::vector<AudioSample> samples;

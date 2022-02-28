@@ -67,6 +67,9 @@ public:
 	inline int getKeyCount(void) const { return 88; };
 
 	static std::vector<KeyboardInfo> getKeyboards(void);
+
+private:
+	void adjustMessage(std::vector<byte>& msg) const;
 };
 
 #endif

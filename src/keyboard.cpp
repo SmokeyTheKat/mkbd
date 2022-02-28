@@ -64,12 +64,19 @@ Keyboard::~Keyboard(void) {
 	delete rtmOut;
 }
 
+void Keyboard::adjustMessage(std::vector<byte>& msg) const {
+	if (msg.size() == 3) {
+		if (msg[0] == KBD_MSG_KEY && msg[2] == 0) {
+			msg[0] = KBD_MSG_KEY_UP;
+		}
+	}
+}
+
 KeyboardMessage Keyboard::getMessage(void) const {
 	std::vector<byte> message;
 	double stamp = rtmIn->getMessage(&message);
-	if (message.size() == 3)
-		return KeyboardMessage(message, stamp);
-	else return KeyboardMessage();
+	adjustMessage(message);
+	return KeyboardMessage(message, stamp);
 }
 
 void Keyboard::sendMessage(const KeyboardMessage& msg) const {

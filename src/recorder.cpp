@@ -22,8 +22,11 @@ void KeyboardRecorder::handleMessage(KeyboardMessage msg) {
 	switch (msg.getType()) {
 		case KBD_MSG_KEY_UP: {
 			keyboard->setKeyState(msg[1], 0);
-			runMsgCallback(onKeyUp);
 			messages.push_back(msg);
+			runMsgCallback(onKeyUp);
+			if ((msg[1] >= 16 && msg[1] <= 23) || (msg[1] >= 32 && msg[1] <= 39)) {
+				runMsgCallback(onPadUp);
+			}
 		} break;
 		case KBD_MSG_KEY: {
 			if (starting == true) {
@@ -33,16 +36,13 @@ void KeyboardRecorder::handleMessage(KeyboardMessage msg) {
 			}
 			starting = false;
 
-			if (msg[2] == 0) {
-				msg.setType(KBD_MSG_KEY_UP);
-				keyboard->setKeyState(msg[1], 0);
-				runMsgCallback(onKeyUp);
-				messages.push_back(msg);
-			} else {
-				keyboard->setKeyState(msg[1], 1);
-				notes.push_back(Key(msg[1], msg[2], timer.now()));
-				runMsgCallback(onKeyDown);
-				messages.push_back(msg);
+			keyboard->setKeyState(msg[1], 1);
+			notes.push_back(Key(msg[1], msg[2], timer.now()));
+			messages.push_back(msg);
+
+			runMsgCallback(onKeyDown);
+			if ((msg[1] >= 16 && msg[1] <= 23) || (msg[1] >= 32 && msg[1] <= 39)) {
+				runMsgCallback(onPadDown);
 			}
 		} break;
 		case KBD_MSG_PEDAL: {
