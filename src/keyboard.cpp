@@ -49,19 +49,19 @@ Key::Key(byte key, byte velocity, double time) {
 }
 
 Keyboard::Keyboard(int port) {
-	this->port = port;
+	mPort = port;
 
-	rtmIn = new RtMidiIn();
-	rtmIn->openPort(port);
-	rtmIn->ignoreTypes(false, false, false);
+	mRtmIn = new RtMidiIn();
+	mRtmIn->openPort(port);
+	mRtmIn->ignoreTypes(false, false, false);
 
-	rtmOut = new RtMidiOut();
-	rtmOut->openPort(port);
+	mRtmOut = new RtMidiOut();
+	mRtmOut->openPort(port);
 }
 
 Keyboard::~Keyboard(void) {
-	delete rtmIn;
-	delete rtmOut;
+	delete mRtmIn;
+	delete mRtmOut;
 }
 
 void Keyboard::adjustMessage(std::vector<byte>& msg) const {
@@ -74,13 +74,13 @@ void Keyboard::adjustMessage(std::vector<byte>& msg) const {
 
 KeyboardMessage Keyboard::getMessage(void) const {
 	std::vector<byte> message;
-	double stamp = rtmIn->getMessage(&message);
+	double stamp = mRtmIn->getMessage(&message);
 	adjustMessage(message);
 	return KeyboardMessage(message, stamp);
 }
 
 void Keyboard::sendMessage(const KeyboardMessage& msg) const {
-	rtmOut->sendMessage(&msg.data);
+	mRtmOut->sendMessage(&msg.data);
 }
 
 std::vector<KeyboardInfo> Keyboard::getKeyboards(void) {

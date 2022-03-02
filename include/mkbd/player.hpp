@@ -6,9 +6,9 @@
 #include <vector>
 
 class KeyboardPlayer {
-	Keyboard* keyboard;
-	std::vector<Key> notes;
-	int bpm;
+	Keyboard* mKeyboard;
+	std::vector<Key> mNotes;
+	int mBpm;
 
 public:
 	KeyboardPlayer(Keyboard* keybaord, std::vector<Key> notes, int bpm);

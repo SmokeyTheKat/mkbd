@@ -8,11 +8,11 @@
 #include <functional>
 
 class KeyboardRecorder {
-	Keyboard* keyboard;
-	Timer timer;
+	Keyboard* mKeyboard;
+	Timer mTimer;
 
-	std::vector<Key> notes;
-	std::vector<KeyboardMessage> messages;
+	std::vector<Key> mNotes;
+	std::vector<KeyboardMessage> mMessages;
 
 	struct TimedCallback {
 		std::function<void(KeyboardRecorder* rcdr)> callback;
@@ -23,11 +23,11 @@ class KeyboardRecorder {
 			: callback(callback), time(time), full(full), ran(false) {};
 	};
 
-	std::vector<TimedCallback> timedCallbacks;
+	std::vector<TimedCallback> mTimedCallbacks;
 
-	int bpm = 100;
-	bool stopping = false;
-	bool starting = false;
+	int mBpm = 100;
+	bool mStopping = false;
+	bool mStarting = false;
 
 public:
 	KeyboardRecorder(Keyboard* keyboard);
@@ -36,18 +36,18 @@ public:
 	std::vector<Key> record(double time);
 
 	inline void addTimedCallback(std::function<void(KeyboardRecorder* rcdr)> callback, double time, double full) {
-		timedCallbacks.push_back(TimedCallback(callback, time, full));
+		mTimedCallbacks.push_back(TimedCallback(callback, time, full));
 	};
 
-	inline Keyboard* getKeyboard(void) { return keyboard; };
-	inline std::vector<Key>& getNotes(void) { return notes; };
-	inline std::vector<KeyboardMessage>& getMessages(void) { return messages; };
-	inline Timer& getTimer(void) { return timer; };
-	inline double getTime(void) { return timer.now(); };
-	inline int getBpm(void) { return bpm; };
-	inline void stop(void) { this->stopping = true; };
-	inline void clear(void) { notes.clear(); messages.clear(); };
-	inline void restart(void) { this->starting = true; clear(); };
+	inline Keyboard* getKeyboard(void) { return mKeyboard; };
+	inline std::vector<Key>& getNotes(void) { return mNotes; };
+	inline std::vector<KeyboardMessage>& getMessages(void) { return mMessages; };
+	inline Timer& getTimer(void) { return mTimer; };
+	inline double getTime(void) { return mTimer.now(); };
+	inline int getBpm(void) { return mBpm; };
+	inline void stop(void) { mStopping = true; };
+	inline void clear(void) { mNotes.clear(); mMessages.clear(); };
+	inline void restart(void) { mStarting = true; clear(); };
 
 	std::function<void(KeyboardRecorder* rcdr)> onBeat = 0;
 	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onMessage = 0;

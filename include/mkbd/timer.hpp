@@ -4,8 +4,8 @@
 #include <chrono>
 
 class Timer {
-	std::chrono::steady_clock::time_point _start;
-	std::chrono::steady_clock::time_point _lap;
+	std::chrono::steady_clock::time_point mStart;
+	std::chrono::steady_clock::time_point mLap;
 public:
 	void start(void);
 	double now(void);

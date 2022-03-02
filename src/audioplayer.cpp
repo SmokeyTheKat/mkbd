@@ -1,67 +1,64 @@
 #include <mkbd/audioplayer.hpp>
 #include <mkbd/math.hpp>
 #include <mkbd/waves.hpp>
+#include <mkbd/timer.hpp>
 
 #include <cmath>
 #include <iostream>
 
 void AudioPlayer::start(void) {
-	audioThread = std::thread(&AudioPlayer::playSamples, this);
-	running = true;
+	mAudioThread = std::thread(&AudioPlayer::playSamples, this);
+	mRunning = true;
 }
 
 void AudioPlayer::stop(void) {
-	mtx.lock();
-	running = false;
-	sampleChange = false;
-	samples.clear();
-	mtx.unlock();
-	audioThread.join();
+	mMtx.lock();
+	mRunning = false;
+	mSampleChange = false;
+	mSamples.clear();
+	mMtx.unlock();
+	mAudioThread.join();
 }
 
 int AudioPlayer::addSample(double freq, double gain) {
-	mtx.lock();
+	mMtx.lock();
 
-	sampleChange = true;
+	mSampleChange = true;
 
-	samples.push_back(AudioSample(freq, gain));
-	int id = samples.size() - 1;
+	mSamples.push_back(AudioSample(freq, gain));
+	int id = mSamples.size() - 1;
 
-	std::cout << "add: " << samples.size() << " t: " << samples[id].t << "\n";
+	std::cout << "add: " << mSamples.size() << " t: " << mSamples[id].t << "\n";
 
-	mtx.unlock();
+	mMtx.unlock();
 	return id;
 }
 
 void AudioPlayer::removeSample(double freq) {
-	mtx.lock();
+	mMtx.lock();
 
-	sampleChange = true;
+	mSampleChange = true;
 
 	bool found = true;
 	int i;
-	for (i = 0; i < samples.size(); i++) {
-		if (isAbout(samples[i].freq * 441.0, freq, 1)) {
+	for (i = 0; i < mSamples.size(); i++) {
+		if (isAbout(mSamples[i].freq * 441.0, freq, 0.01)) {
 			found = true;
 			break;
 		}
 	}
 	if (found) {
-		AudioSample& as = samples[i];
-		if (as.et == 0)
-			as.et = as.t;
-		std::cout << "et: " << as.et << " t: " << as.t << "\n";
-	//    samples.erase(samples.begin() + i);
+		mSamples.erase(mSamples.begin() + i);
 	}
 
-	mtx.unlock();
+	mMtx.unlock();
 }
 
 SDL_AudioSpec AudioPlayer::initAudioSpec(void) {
 	SDL_AudioSpec audioSpec;
 	SDL_zero(audioSpec);
 
-	audioSpec.freq = 44100;
+	audioSpec.freq = mFreq;
 	audioSpec.format = AUDIO_S16SYS;
 	audioSpec.channels = 1;
 	audioSpec.samples = 1024;
@@ -70,8 +67,19 @@ SDL_AudioSpec AudioPlayer::initAudioSpec(void) {
 	return audioSpec;
 }
 
+int AudioPlayer::getPlayedSampleCount(SDL_AudioDeviceID audioDevice) {
+	int sampleCount = mSampleRate * mSamples.size();
+	return sampleCount * sizeof(uint16_t) - SDL_GetQueuedAudioSize(audioDevice) / sizeof(uint16_t);
+}
+int AudioPlayer::getUnplayedSampleCount(SDL_AudioDeviceID audioDevice) {
+	int sampleCount = mSampleRate * mSamples.size();
+	int pc = sampleCount * sizeof(uint16_t) - SDL_GetQueuedAudioSize(audioDevice) / sizeof(uint16_t); 
+	return sampleCount * sizeof(uint16_t) - pc;
+}
+
 double damp(double t) {
-	double a = 900.0;
+//    std::cout << t << "\n";
+	double a = 1200.0;
 	double val = (-1.0 / a) * (t - a);
 	return (val < 0) ? 0 : val;
 }
@@ -82,18 +90,6 @@ double dampOut(double t) {
 	return (val < 0) ? 0 : val;
 }
 
-
-SDL_Window *createWindow()
-{
-	return SDL_CreateWindow("Simple Tone Example",
-							SDL_WINDOWPOS_UNDEFINED,
-							SDL_WINDOWPOS_UNDEFINED,
-							1600,
-							900,
-							SDL_WINDOW_SHOWN);
-}
-
-
 void AudioPlayer::playSamples(void) {
 	SDL_Init(SDL_INIT_AUDIO);
 	SDL_AudioSpec audioSpec = initAudioSpec();
@@ -102,58 +98,50 @@ void AudioPlayer::playSamples(void) {
 	SDL_PauseAudioDevice(audioDevice, 0);
 
 	while (1) {
-		mtx.lock();
+		mMtx.lock();
 
-		if (!running) {
+		if (!mRunning) {
 			SDL_ClearQueuedAudio(audioDevice);
-			mtx.unlock();
+			mMtx.unlock();
 			break;
 		}
 
-		if (sampleChange) {
-			SDL_ClearQueuedAudio(audioDevice);
-			sampleChange = false;
+		int sampleCount = mSampleRate * mSamples.size();
+
+		for (auto& s : mSamples) {
+//            double unplayedSamples = (double)getPlayedSampleCount(audioDevice) / ((double)mSamples.size());
+			double unplayedSamples = (double)getUnplayedSampleCount(audioDevice) / ((double)mSamples.size());
+			s.t -= unplayedSamples * 0.01;
+			if (s.t < 0) s.t = 0;
 		}
 
-		for (int i = 0; i < audioSpec.freq / 3; i++) {
+		if (mSampleChange) {
+			mSampleChange = false;
+		}
+
+		SDL_ClearQueuedAudio(audioDevice);
+
+		for (int i = 0; i < mSampleRate; i++) {
 			int16_t sample = 0;
-			for (int j = 0; j < samples.size(); j++) {
-				auto& s = samples[j];
+			for (int j = 0; j < mSamples.size(); j++) {
+				auto& s = mSamples[j];
 				s.t += 0.01;
 				double value = 0;
-
-//                value += (0.5 * (Waves::pulse(s.t, s.freq, 10) + 0.5 * (Waves::square(s.t, s.freq * 2.0)) + 0.0001 * Waves::noise())) * s.gain;
-//                value += (0.5 * Waves::pulse(s.t, s.freq, 10)) * s.gain;// * damp(s.t);
-//                value += (0.5 * Waves::square(s.t, s.freq)) * s.gain * damp(s.t);
-//                value += (0.5 * Waves::piano2(s.t, s.freq)) * s.gain;// * damp(s.t);
-//                value += (0.5 * Waves::sine(s.t, s.freq)) * s.gain;
-//                value += (0.5 * (Waves::sine(s.t, s.freq * 2.0) + 0.0001 * Waves::noise())) * s.gain * damp(s.t);
 
 				value += (0.5 * (Waves::sine(s.t, s.freq * 1.0) +
 							  0.5 * Waves::sine(s.t, s.freq * 2.0) +
 							  0.25 * Waves::sine(s.t, s.freq * 4.0) +
-							  0.125 * Waves::sine(s.t, s.freq * 8.0))) * s.gain;// * damp(s.t);
+							  0.125 * Waves::sine(s.t, s.freq * 8.0))) * s.gain * damp(s.t);
 
-				if (j == 0 && s.et != 0) {
-					double dp = damp(s.t - s.et);
-//                    std::cout << j << ": " << s.t << " " << s.et << "\n";
-					value *= dp;
-					if (dp < 0.01) {
-						samples.erase(samples.begin() + j, samples.begin() + j + 1);
-						j--;
-						std::cout << "delete: " << dp << " " << samples.size() << "\n";
-						continue;
-					}
-				}
 				sample += value;
 			}
 			
 			SDL_QueueAudio(audioDevice, &sample, sizeof(int16_t));
 		}
 
-		mtx.unlock();
+		mMtx.unlock();
 
-		while (running && !sampleChange && SDL_GetQueuedAudioSize(audioDevice) > sizeof(int16_t) * audioSpec.freq / 2) {
+		while (mRunning && !mSampleChange && getUnplayedSampleCount(audioDevice) > 0) {
 			SDL_Delay(10);
 		}
 	}

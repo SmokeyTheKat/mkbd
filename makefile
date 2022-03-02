@@ -1,31 +1,30 @@
 PREFIX=~/.local
 
 CC=g++
-CFLAGS=-Wno-sign-compare -I./include/ -D__LINUX_ALSA__ `pkg-config gtkmm-3.0 --cflags --libs` -lasound -lpthread -g -lSDL2
+CFLAGS=-Wno-sign-compare -Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -lasound -lpthread -lSDL2 -lSDL2_ttf
 TARGET=./mkbd
-BUILDDIR=build
 SRCDIR=src
 
-CSRCS=$(shell find ./src/ -name '*.cpp' -printf "%f\n")
-OBJS=$(addprefix ${BUILDDIR}/, $(CSRCS:.cpp=.o))
+CHDRS=$(shell find ./include/ -name '*.hpp' -type f)
+CSRCS=$(shell find ./src/ -name '*.cpp' -or -name '*.c' -type f)
+AOBJS=$(CSRCS:.cpp=.o)
+OBJS=$(AOBJS:.c=.o)
 
 all: ${TARGET}
 
 install: all
 	cp ${TARGET} ${PREFIX}/bin/
 
-${TARGET}: ${BUILDDIR} ${OBJS}
+${TARGET}: ${OBJS}
 	$(CC) -o ${TARGET} ${OBJS} ${CFLAGS}
 
-${BUILDDIR}:
-	mkdir -p ${BUILDDIR}
-
-${BUILDDIR}/%.o: ${SRCDIR}/%.cpp
+%.o: %.cpp
+	$(CC) -c ${CFLAGS} -o $@ $<
+%.o: %.c
 	$(CC) -c ${CFLAGS} -o $@ $<
 
-
 clean:
-	rm -rf ${BUILDDIR}
+	find ./ -type f -name *.o -delete
 	rm -rf ${TARGET}
 
 tc: all

@@ -50,10 +50,10 @@ struct Key {
 };
 
 class Keyboard {
-	RtMidiIn* rtmIn;
-	RtMidiOut* rtmOut;
-	int port;
-	byte keys[256] = {0};
+	RtMidiIn* mRtmIn;
+	RtMidiOut* mRtmOut;
+	int mPort;
+	byte mKeys[256] = {0};
 
 public:
 	Keyboard(int port);
@@ -62,8 +62,8 @@ public:
 	KeyboardMessage getMessage(void) const;
 	void sendMessage(const KeyboardMessage& msg) const;
 
-	inline void setKeyState(byte key, int state) { keys[key] = state; };
-	inline int getKeyState(byte key) const { return keys[key]; };
+	inline void setKeyState(byte key, int state) { mKeys[key] = state; };
+	inline int getKeyState(byte key) const { return mKeys[key]; };
 	inline int getKeyCount(void) const { return 88; };
 
 	static std::vector<KeyboardInfo> getKeyboards(void);

@@ -11,16 +11,17 @@ class AudioPlayer {
 		double freq;
 		double gain;
 		double t = 0;
-		double et = 0;
 		inline AudioSample(double freq, double gain)
 			: freq(freq / 441.0), gain(gain * 100.0), t(0) {};
 	};
 
-	std::vector<AudioSample> samples;
-	std::mutex mtx;
-	std::thread audioThread;
-	bool sampleChange = false;
-	bool running = false;
+	std::vector<AudioSample> mSamples;
+	std::mutex mMtx;
+	std::thread mAudioThread;
+	bool mSampleChange = false;
+	bool mRunning = false;
+	int mFreq = 44100;
+	int mSampleRate = 22050;
 
 public:
 	void start(void);
@@ -29,8 +30,10 @@ public:
 	void removeSample(double freq);
 
 private:
-	SDL_AudioSpec initAudioSpec(void);
 	void playSamples(void);
+	SDL_AudioSpec initAudioSpec(void);
+	int getPlayedSampleCount(SDL_AudioDeviceID audioDevice);
+	int getUnplayedSampleCount(SDL_AudioDeviceID audioDevice);
 };
 
 #endif

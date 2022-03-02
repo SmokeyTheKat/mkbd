@@ -11,34 +11,34 @@
 #define runMsgCallback(callback) { if (callback) callback(this, msg); };
 
 KeyboardRecorder::KeyboardRecorder(Keyboard* keyboard)
-	: keyboard(keyboard) { }
+	: mKeyboard(keyboard) { }
 
 KeyboardRecorder::KeyboardRecorder(Keyboard* keyboard, int bpm)
-	: keyboard(keyboard), bpm(bpm) { }
+	: mKeyboard(keyboard), mBpm(bpm) { }
 
 void KeyboardRecorder::handleMessage(KeyboardMessage msg) {
-	msg.stamp = timer.now();
+	msg.stamp = mTimer.now();
 	runMsgCallback(onMessage);
 	switch (msg.getType()) {
 		case KBD_MSG_KEY_UP: {
-			keyboard->setKeyState(msg[1], 0);
-			messages.push_back(msg);
+			mKeyboard->setKeyState(msg[1], 0);
+			mMessages.push_back(msg);
 			runMsgCallback(onKeyUp);
 			if ((msg[1] >= 16 && msg[1] <= 23) || (msg[1] >= 32 && msg[1] <= 39)) {
 				runMsgCallback(onPadUp);
 			}
 		} break;
 		case KBD_MSG_KEY: {
-			if (starting == true) {
-				timer.start();
+			if (mStarting == true) {
+				mTimer.start();
 				clear();
-				msg.stamp = timer.now();
+				msg.stamp = mTimer.now();
 			}
-			starting = false;
+			mStarting = false;
 
-			keyboard->setKeyState(msg[1], 1);
-			notes.push_back(Key(msg[1], msg[2], timer.now()));
-			messages.push_back(msg);
+			mKeyboard->setKeyState(msg[1], 1);
+			mNotes.push_back(Key(msg[1], msg[2], mTimer.now()));
+			mMessages.push_back(msg);
 
 			runMsgCallback(onKeyDown);
 			if ((msg[1] >= 16 && msg[1] <= 23) || (msg[1] >= 32 && msg[1] <= 39)) {
@@ -46,7 +46,7 @@ void KeyboardRecorder::handleMessage(KeyboardMessage msg) {
 			}
 		} break;
 		case KBD_MSG_PEDAL: {
-			messages.push_back(msg);
+			mMessages.push_back(msg);
 			if (msg[1] == 67) {
 				if (msg[2] == 0) {
 					runMsgCallback(onSoftPedalUp);
@@ -74,11 +74,11 @@ void KeyboardRecorder::handleMessage(KeyboardMessage msg) {
 }
 
 std::vector<Key> KeyboardRecorder::record(double time) {
-	starting = true;
+	mStarting = true;
 	bool beat = false;
-	while (!stopping && (time == 0 || starting || timer.now() < time)) {
-		for (auto& callback : timedCallbacks) {
-			double wow = std::fmod(timer.now(), callback.full);
+	while (!mStopping && (time == 0 || mStarting || mTimer.now() < time)) {
+		for (auto& callback : mTimedCallbacks) {
+			double wow = std::fmod(mTimer.now(), callback.full);
 			if (isAbout(wow, callback.time, 0.01)) {
 				if (!callback.ran) {
 					runCallback(callback.callback);
@@ -89,7 +89,7 @@ std::vector<Key> KeyboardRecorder::record(double time) {
 			}
 		}
 
-		if (std::fmod(timer.now(), 60.0 / bpm) < 0.01) {
+		if (std::fmod(mTimer.now(), 60.0 / mBpm) < 0.01) {
 			if (!beat) {
 				runCallback(onBeat);
 			}
@@ -98,8 +98,8 @@ std::vector<Key> KeyboardRecorder::record(double time) {
 			beat = false;
 		}
 
-		handleMessage(keyboard->getMessage());
+		handleMessage(mKeyboard->getMessage());
 		usleep(100);
 	}
-	return this->notes;
+	return mNotes;
 }

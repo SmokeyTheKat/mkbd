@@ -4,8 +4,11 @@
 #include <mkbd/timer.hpp>
 #include <mkbd/music.hpp>
 #include <mkbd/math.hpp>
-#include <mkbd/window.hpp>
 #include <mkbd/audioplayer.hpp>
+#include <mkbd/gui/graphics/keyboard.hpp>
+#include <mkbd/gui/graphics/sheetmusic.hpp>
+#include <mkbd/gui/graphics/text.hpp>
+#include <mkbd/gui/window.hpp>
 
 #include <iostream>
 #include <vector>
@@ -229,6 +232,20 @@ void runLooper(void) {
 
 void runSynth(void) {
 	Keyboard piano(chooseKeyboard());
+	SDL_Init(SDL_INIT_VIDEO);
+
+	Window w(1920, 640);
+
+	SheetMusicGraphic smg({Key(0, 0, 0)}, 0, 0, 1920, 300);
+	w.addGraphic(&smg);
+
+	KeyboardGraphic kg(0, 300, 1920, 200);
+	w.addGraphic(&kg);
+
+	TextGraphic tg("Cmaj9", "fonts/FreeSans.ttf", 50, Color(255, 255, 255), 0, 510, 1920, 100);
+	w.addGraphic(&tg);
+
+	w.update();
 
 	AudioPlayer ap;
 	ap.start();
@@ -246,11 +263,17 @@ void runSynth(void) {
 		rcdr->stop();
 	};
 
-	recorder.onKeyDown = [&ap](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+	recorder.onKeyDown = [&ap, &w, &kg, &tg](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		kg.keys[msg[1] - 12] = 1;
+		tg.setText(getChord(rcdr));
+		w.update();
 		ap.addSample(std::pow(std::pow(2.0, 1.0/12.0), msg[1] - 69) * 440, rmap(msg[2], 0, 127, 0, 50));
 	};
 
-	recorder.onKeyUp = [&ap](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+	recorder.onKeyUp = [&ap, &w, &kg, &tg](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		kg.keys[msg[1] - 12] = 0;
+		tg.setText(getChord(rcdr));
+		w.update();
 		ap.removeSample(std::pow(std::pow(2.0, 1.0/12.0), msg[1] - 69) * 440);
 	};
 
