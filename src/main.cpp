@@ -234,9 +234,11 @@ void runSynth(void) {
 	Keyboard piano(chooseKeyboard());
 	SDL_Init(SDL_INIT_VIDEO);
 
+	KeyboardRecorder recorder(&piano, 120);
+
 	Window w(1920, 640);
 
-	SheetMusicGraphic smg({Key(0, 0, 0)}, 0, 0, 1920, 300);
+	SheetMusicGraphic smg(&recorder, 0, 0, 1920, 300);
 	w.addGraphic(&smg);
 
 	KeyboardGraphic kg(0, 300, 1920, 200);
@@ -250,7 +252,9 @@ void runSynth(void) {
 	AudioPlayer ap;
 	ap.start();
 
-	KeyboardRecorder recorder(&piano, 120);
+	recorder.onMessage = [&w](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+		w.update();
+	};
 
 	recorder.onSoftPedalDown = [&ap](KeyboardRecorder* rcdr, KeyboardMessage msg) {
 		ap.stop();

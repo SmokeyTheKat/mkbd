@@ -28,8 +28,9 @@ void Graphic::setColor(int r, int g, int b) {
 	setColor2(r, g, b);
 }
 
-void drawLine(int x1, int y1, int x2, int y2) {
-	SDL_RenderDrawLine(mRenderer, x1, y1, x2, y2);
+void Graphic::drawLine(int x1, int y1, int x2, int y2) {
+	setColor1();
+	SDL_RenderDrawLine(mRenderer, mX + x1, mY + y1, mX + x2, mY + y2);
 }
 
 void Graphic::fillRectangle(int x, int y, int w, int h) {

@@ -3,12 +3,13 @@
 
 #include <mkbd/gui/graphic.hpp>
 #include <mkbd/keyboard.hpp>
+#include <mkbd/recorder.hpp>
 
 class SheetMusicGraphic : public Graphic {
-	std::vector<Key> mNotes;
+	KeyboardRecorder* mRcdr;
 
 public:
-	SheetMusicGraphic(std::vector<Key> notes, int x, int y, int width, int height);
+	SheetMusicGraphic(KeyboardRecorder* rcdr, int x, int y, int width, int height);
 	void draw(void);
 	
 private:
