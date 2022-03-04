@@ -6,6 +6,10 @@ KeyboardGraphic::KeyboardGraphic(int x, int y, int width, int height)
 : Graphic(x, y, width, height), mKeyWidth(mWidth / mKeyCount), mKeyHeight(mHeight),
   mBlackKeyWidth((mKeyWidth * 3) / 5), mBlackKeyHeight((mKeyHeight * 5) / 8) {};
 
+void KeyboardGraphic::onClick(int button, int x, int y) {
+	std::cout << "mouse " << button << " down [" << x << ", " << y << "]\n";
+}
+
 Color KeyboardGraphic::getWhiteKeyColor(int key) {
 	if (keys[key]) {
 		return mKeyDownColor;
@@ -40,6 +44,8 @@ void KeyboardGraphic::drawKeyboardBlackKeyMiddle(int key, int i) {
 	int offset = mBlackKeyWidth / 2;
 	drawKeyboardBlackKey(key, i, offset);
 }
+
+void KeyboardGraphic::init(void) {}
 
 void KeyboardGraphic::draw(void) {
 	setColor1(RGB_ARGS(mWhiteKeyColor));

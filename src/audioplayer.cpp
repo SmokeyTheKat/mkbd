@@ -20,12 +20,12 @@ void AudioPlayer::stop(void) {
 	mAudioThread.join();
 }
 
-int AudioPlayer::addSample(double freq, double gain) {
+int AudioPlayer::addSample(Generator generator, double freq, double gain) {
 	mMtx.lock();
 
 	mSampleChange = true;
 
-	mSamples.push_back(AudioSample(freq, gain));
+	mSamples.push_back(AudioSample(generator, freq, gain));
 	int id = mSamples.size() - 1;
 
 	std::cout << "add: " << mSamples.size() << " t: " << mSamples[id].t << "\n";
@@ -109,7 +109,6 @@ void AudioPlayer::playSamples(void) {
 		int sampleCount = mSampleRate * mSamples.size();
 
 		for (auto& s : mSamples) {
-//            double unplayedSamples = (double)getPlayedSampleCount(audioDevice) / ((double)mSamples.size());
 			double unplayedSamples = (double)getUnplayedSampleCount(audioDevice) / ((double)mSamples.size());
 			s.t -= unplayedSamples * 0.01;
 			if (s.t < 0) s.t = 0;
@@ -126,14 +125,8 @@ void AudioPlayer::playSamples(void) {
 			for (int j = 0; j < mSamples.size(); j++) {
 				auto& s = mSamples[j];
 				s.t += 0.01;
-				double value = 0;
 
-				value += (0.5 * (Waves::sine(s.t, s.freq * 1.0) +
-							  0.5 * Waves::sine(s.t, s.freq * 2.0) +
-							  0.25 * Waves::sine(s.t, s.freq * 4.0) +
-							  0.125 * Waves::sine(s.t, s.freq * 8.0))) * s.gain * damp(s.t);
-
-				sample += value;
+				sample += s.generator.sample(s.t, s.freq) * s.gain;
 			}
 			
 			SDL_QueueAudio(audioDevice, &sample, sizeof(int16_t));
@@ -147,5 +140,4 @@ void AudioPlayer::playSamples(void) {
 	}
 
 	SDL_CloseAudioDevice(audioDevice);
-	SDL_Quit();
 }

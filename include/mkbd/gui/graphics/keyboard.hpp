@@ -20,6 +20,8 @@ public:
 
 	KeyboardGraphic(int x, int y, int width, int height);
 	void draw(void);
+	void init(void);
+	void onClick(int button, int x, int y);
 	
 private:
 	Color getWhiteKeyColor(int key);

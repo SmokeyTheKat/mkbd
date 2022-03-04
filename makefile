@@ -1,7 +1,7 @@
 PREFIX=~/.local
 
 CC=g++
-CFLAGS=-Wno-sign-compare -Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -lasound -lpthread -lSDL2 -lSDL2_ttf
+CFLAGS=-Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -lasound -lpthread -lSDL2 -lSDL2_ttf -lSDL2_image
 TARGET=./mkbd
 SRCDIR=src
 

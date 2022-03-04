@@ -1,27 +1,53 @@
 #include <mkbd/gui/graphics/sheetmusic.hpp>
 
+#include <mkbd/gui/window.hpp>
 #include <mkbd/math.hpp>
 
-SheetMusicGraphic::SheetMusicGraphic(KeyboardRecorder* rcdr, int x, int y, int width, int height)
-: Graphic(x, y, width, height), mRcdr(rcdr) {};
+SheetMusicGraphic::SheetMusicGraphic(int x, int y, int width, int height, KeyboardRecorder* rcdr)
+: Graphic(x, y, width, height), mRcdr(rcdr), mLineGap(height / 2 / 6), mBarGap(width / 4),
+  mTrebleClefTexture("./trebleclef.png"), mQuaterNoteTexture("./quarternote.png"),
+  mBassClefTexture("./bassclef.png") {};
+
+void SheetMusicGraphic::init(void) {
+	mTrebleClefTexture.setRenderer(getRenderer());
+	mTrebleClefTexture.load();
+	mTrebleClefTexture.scaleToHeight(mHeight / 2);
+
+	mBassClefTexture.setRenderer(getRenderer());
+	mBassClefTexture.load();
+	mBassClefTexture.scaleToHeight(mHeight / 2 - 40);
+
+	mQuaterNoteTexture.setRenderer(getRenderer());
+	mQuaterNoteTexture.load();
+}
+
+void SheetMusicGraphic::onClick(int button, int x, int y) {
+	std::cout << "mouse " << button << " down [" << x << ", " << y << "]\n";
+}
+
+void SheetMusicGraphic::drawLines(void) {
+	setColor(0, 0, 0);
+
+	mTrebleClefTexture.render(0, 0);
+	mBassClefTexture.render(0, mHeight / 2);
+
+	for (int i = 1; i < 6; i++) {
+		drawLine(0, i * mLineGap, mWidth, i * mLineGap);
+	}
+	for (int i = 7; i < 12; i++) {
+		drawLine(0, i * mLineGap, mWidth, i * mLineGap);
+	}
+
+	for (int i = 1; i < 4; i++) {
+		drawLine(mBarGap * i, 0, mBarGap * i, mHeight);
+	}
+}
 
 void SheetMusicGraphic::draw(void) {
 	setColor(255, 255, 255);
 	fillRectangle(mX, mY, mWidth, mHeight);
-	setColor(0, 0, 0);
-	int lineGap = mHeight / 2 / 6;
-	for (int i = 1; i < 6; i++) {
-		drawLine(0, i * lineGap, mWidth, i * lineGap);
-	}
-	for (int i = 7; i < 12; i++) {
-		drawLine(0, i * lineGap, mWidth, i * lineGap);
-	}
 
-	int barGap = mWidth / 4;
-
-	for (int i = 1; i < 4; i++) {
-		drawLine(barGap * i, 0, barGap * i, mHeight);
-	}
+	drawLines();
 
 	std::vector<Key>& keys = mRcdr->getNotes();
 
@@ -42,7 +68,7 @@ void SheetMusicGraphic::draw(void) {
 		Key key = keys[i];
 		if (key.time < startTime) continue;
 		double time = roundTo(key.time - startTime, barLength / 4.0 / 4.0);
-		time = key.time - startTime;
+//        time = key.time - startTime;
 		if (time > fullLength) {
 			break;
 		}
@@ -51,7 +77,8 @@ void SheetMusicGraphic::draw(void) {
 
 		std::cout << rmap(time, 0, fullLength, 0, mWidth) << "\n";
 		setColor(0, 0, 0);
-		fillRectangle(rmap(time, 0, fullLength, 0, mWidth), (40 - key.id) * lineGap / 2 - 5, 10, 10);
+		mQuaterNoteTexture.render(rmap(time, 0, fullLength, 0, mWidth), (36 - key.id) * mLineGap / 2 - 5, 0.02);
+//        fillRectangle(rmap(time, 0, fullLength, 0, mWidth), (40 - key.id) * mLineGap / 2 - 5, 10, 10);
 
 //        std::cout << "\x1b[" <<  << ";"
 //                  << (int)rmap(time, 0, fullLength, 0, mWidth) - (key.flat ? 0 : 0)

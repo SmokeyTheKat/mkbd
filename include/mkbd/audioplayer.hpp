@@ -1,6 +1,8 @@
 #ifndef __MKBD_AUDIOPLAYER_HPP__
 #define __MKBD_AUDIOPLAYER_HPP__
 
+#include <mkbd/generator.hpp>
+
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -8,11 +10,12 @@
 
 class AudioPlayer {
 	struct AudioSample {
+		Generator generator;
 		double freq;
 		double gain;
 		double t = 0;
-		inline AudioSample(double freq, double gain)
-			: freq(freq / 441.0), gain(gain * 100.0), t(0) {};
+		inline AudioSample(Generator generator, double freq, double gain)
+			: generator(generator), freq(freq / 441.0), gain(gain * 100.0), t(0) {};
 	};
 
 	std::vector<AudioSample> mSamples;
@@ -26,7 +29,7 @@ class AudioPlayer {
 public:
 	void start(void);
 	void stop(void);
-	int addSample(double freq, double gain);
+	int addSample(Generator generator, double freq, double gain);
 	void removeSample(double freq);
 
 private:

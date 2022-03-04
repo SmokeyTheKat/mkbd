@@ -5,23 +5,47 @@
 #include <cmath>
 #include <cstdlib>
 
+static double pi = 3.1415926535;
+
 double Waves::sine(double t, double freq) {
 	return sin(freqToRad(freq) * t);
 }
 
-double _piano(double t) {
-	double pi = 3.1415926535;
-	return (-1.0 / 4.0) * sin(3.0 * pi * t) +
-		(1.0 / 4.0) * sin(pi * t) -
-		(std::sqrt(3) / 2.0) * cos(pi * t);
+double Waves::square(double t, double freq) {
+	double period = 1.0 / (freq);
+	double offset = std::fmod(t, period);
+	return offset > (0.5 * period) ? 1.0 : -1.0;
+}
+
+double Waves::hexagon(double t, double freq) {
+	double r = freqToRad(freq) * t;
+	return 0.5 * asin(sin(r)) + 0.5 * asin(sin(r + pi / 2.0));
+}
+
+double Waves::triangle(double t, double freq) {
+	return asin(sin(freqToRad(freq) * t));
+}
+
+double Waves::sawtooth(double t, double freq) {
+	return atan(tan((freqToRad(freq) * t) / 2));
+}
+
+double Waves::multi(double t, double freq, double a, double b, double c) {
+	return a * asin(sin(b * freqToRad(freq) * t)) + c * sin(freqToRad(freq) * t);
+}
+
+double Waves::pulse(double t, double freq, double percent) {
+	percent /= 100.0;
+	double period = 1.0 / (freq);
+	double offset = std::fmod(t, period);
+	return offset > (percent * period) ? 1.0 : -1.0;
+}
+
+double Waves::noise(void) {
+	return std::fmod(std::rand(), 3.0) - 1.0;
 }
 
 double Waves::piano(double t, double freq) {
-	return _piano(freq * t);
-}
-
-double Waves::piano2(double t, double freq) {
-	double pi = 3.1415926535;
 	double r = freqToRad(freq);
 	double y = 0;
 	y += sin(1.0 * r * t) * std::exp(-0.0004 * r * t) / 1.0;
@@ -33,21 +57,4 @@ double Waves::piano2(double t, double freq) {
 	y += y * y * y;
 	y *= 1.0 + 16.0 * t * std::exp(-6.0 * t);
 	return y;
-}
-
-double Waves::square(double t, double freq) {
-	double period = 1.0 / (freq);
-	double offset = std::fmod(t, period);
-	return offset > (0.5 * period) ? 1.0 : -1.0;
-}
-
-double Waves::pulse(double t, double freq, double percent) {
-	percent /= 100.0;
-	double period = 1.0 / (freq);
-	double offset = std::fmod(t, period);
-	return offset > (percent * period) ? 1.0 : -1.0;
-}
-
-double Waves::noise(void) {
-	return (std::fmod(std::rand(), 3)) - 1.0;
 }
