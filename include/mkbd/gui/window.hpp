@@ -23,6 +23,7 @@ class Window {
 	int mHeight;
 	int mWidth;
 	bool mQuit = false;
+	bool mNewPage = false;
 
 public:
 	Window(int width, int height);
@@ -41,6 +42,7 @@ public:
 	void handleEvents(void);
 	void handleEvent(const SDL_Event& e);
 	void eventLoop(void);
+	void pageLoop(void);
 
 	inline int getWidth(void) { return mWidth; };
 	inline int getHeight(void) { return mHeight; };

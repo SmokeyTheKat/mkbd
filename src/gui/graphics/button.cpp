@@ -4,17 +4,17 @@
 
 #include <string>
 
-ButtonGraphic::ButtonGraphic(int x, int y, int width, int height, std::string text, std::function<void(void)> callback)
+ButtonGraphic::ButtonGraphic(int x, int y, int width, int height, std::string text, std::function<void(Window*)> callback)
 : Graphic(x, y, width, height), mCallback(callback),
   mText(x, y, width, height, text, "fonts/FreeSans.ttf", 20, mFgColor) {};
 
-ButtonGraphic::ButtonGraphic(int x, int y, int width, int height, std::string text, std::function<void(void)> callback, Color bgColor, Color fgColor)
+ButtonGraphic::ButtonGraphic(int x, int y, int width, int height, std::string text, std::function<void(Window*)> callback, Color bgColor, Color fgColor)
 : Graphic(x, y, width, height), mCallback(callback),
   mBgColor(bgColor), mFgColor(fgColor),
   mText(x, y, width, height, text, "fonts/FreeSans.ttf", 20, fgColor) {};
 
 void ButtonGraphic::onClick(int button, int x, int y) {
-	mCallback();
+	mCallback(getWindow());
 }
 
 void ButtonGraphic::init(void) {

@@ -26,6 +26,7 @@ public:
 	virtual void onClick(int button, int x, int y);
 
 	inline void setWindow(Window* window) { mWindow = window; };
+	inline Window* getWindow(void) { return mWindow; };
 	void setColor(int r, int g, int b);
 	void setColor1(int r, int g, int b);
 	void setColor1(void);

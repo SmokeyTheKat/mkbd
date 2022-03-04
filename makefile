@@ -12,7 +12,7 @@ OBJS=$(AOBJS:.c=.o)
 
 all: ${TARGET}
 
-install: all
+install: ${TARGET}
 	cp ${TARGET} ${PREFIX}/bin/
 
 ${TARGET}: ${OBJS}

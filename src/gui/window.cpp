@@ -34,7 +34,7 @@ Window::~Window(void) {
 }
 
 void Window::close(void) {
-	onExit(this);
+	if (onExit) onExit(this);
 	mQuit = true;
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
@@ -45,10 +45,15 @@ void Window::newPage(void) {
 }
 
 void Window::popPage(void) {
+	clearPage();
 	mPages.pop();
+	mNewPage = true;
 }
 
 void Window::clearPage(void) {
+	for (Graphic* g : mPages.top()) {
+		delete g;
+	}
 	getPage().clear();
 }
 
@@ -98,6 +103,13 @@ void Window::eventLoop(void) {
 	while (!mQuit) {
 		update();
 	}
+}
+
+void Window::pageLoop(void) {
+	while (!mQuit && !mNewPage) {
+		update();
+	}
+	mNewPage = false;
 }
 
 void Window::clearScreen(void) {

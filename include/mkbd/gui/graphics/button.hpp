@@ -13,14 +13,14 @@
 #include <string>
 
 class ButtonGraphic : public Graphic {
-	std::function<void(void)> mCallback = 0;
+	std::function<void(Window*)> mCallback = 0;
 	TextGraphic mText;
 	Color mFgColor = Color(0, 0, 0);
 	Color mBgColor = Color(150, 150, 150);
 
 public:
-	ButtonGraphic(int x, int y, int width, int height, std::string text, std::function<void(void)> callback);
-	ButtonGraphic(int x, int y, int width, int height, std::string text, std::function<void(void)> callback, Color bgColor, Color fgColor);
+	ButtonGraphic(int x, int y, int width, int height, std::string text, std::function<void(Window*)> callback);
+	ButtonGraphic(int x, int y, int width, int height, std::string text, std::function<void(Window*)> callback, Color bgColor, Color fgColor);
 
 	void draw(void);
 	void init(void);
