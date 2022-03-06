@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-RectangleGraphic::RectangleGraphic(int x, int y, int width, int height, Color color)
-: Graphic(x, y, width, height), mColor(color) {};
+RectangleGraphic::RectangleGraphic(Layout layout, Color color)
+: Graphic(layout), mColor(color) {};
 
 void RectangleGraphic::draw(void) {
 	setColor(RGB_ARGS(mColor));

@@ -3,6 +3,7 @@
 
 #include <mkbd/gui/graphic.hpp>
 #include <mkbd/gui/texture.hpp>
+#include <mkbd/gui/layout.hpp>
 #include <mkbd/utils.hpp>
 
 #include <SDL2/SDL.h>
@@ -37,6 +38,8 @@ public:
 	void newPage(void);
 	inline GraphicPage& getPage(void) { return mPages.top(); };
 
+	void setGraphicsSize(Graphic* g);
+
 	inline SDL_Renderer* getRenderer(void) { return mRenderer; };
 	void update(void);
 	void handleEvents(void);
@@ -56,6 +59,9 @@ private:
 	void draw(void);
 
 	void handleMouseButtonDownEvent(const SDL_MouseButtonEvent& e);
+	void handleMouseMotionEvent(const SDL_MouseMotionEvent& e);
+	void handleWindowEvent(const SDL_WindowEvent& e);
+	void handleWindowResizeEvent(int width, int height);
 };
 
 #endif

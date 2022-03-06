@@ -3,30 +3,39 @@
 
 #include <mkbd/utils.hpp>
 #include <mkbd/rect.hpp>
+#include <mkbd/gui/layout.hpp>
 
 #include <SDL2/SDL.h>
 
 #include <vector>
 
+class Window;
+
 class Graphic {
 protected:
-	class Window* mWindow;
+	Window* mWindow;
+	Layout mLayout;
 	int mX;
 	int mY;
 	int mWidth;
 	int mHeight;
+	bool mIsHovered = true;
 	Color mColor1;
 	Color mColor2;
 
 public:
-	Graphic(int x, int y, int width, int height);
+	Graphic(Layout layout);
 
 	virtual void draw(void);
 	virtual void init(void);
 	virtual void onClick(int button, int x, int y);
+	virtual void onResize(int width, int height);
+	virtual void onHover(int x, int y);
+	virtual void onLeave(int x, int y);
 
 	inline void setWindow(Window* window) { mWindow = window; };
 	inline Window* getWindow(void) { return mWindow; };
+
 	void setColor(int r, int g, int b);
 	void setColor1(int r, int g, int b);
 	void setColor1(void);
@@ -35,8 +44,22 @@ public:
 
 	SDL_Renderer* getRenderer(void);
 	inline Rect getRect(void) { return Rect(mX, mY, mWidth, mHeight); };
+
 	inline int getX(void) { return mX; };
+	inline void setX(int x) { mX = x; };
+
 	inline int getY(void) { return mY; };
+	inline void setY(int y) { mY = y; };
+
+	inline int getWidth(void) { return mWidth; };
+	inline void setWidth(int width) { mWidth = width; };
+	inline int getHeight(void) { return mHeight; };
+	inline void setHeight(int height) { mHeight = height; };
+
+	inline Layout getLayout(void) { return mLayout; };
+
+	inline bool isHovered(void) { return mIsHovered; };
+	inline void setHovered(bool hovered) { mIsHovered = hovered; };
 
 	void drawLine(int x1, int y1, int x2, int y2);
 	void fillRectangle(int x, int y, int w, int h);

@@ -14,29 +14,34 @@ class AudioPlayer {
 		double freq;
 		double gain;
 		double t = 0;
+		bool isFadingOut = false;
+		double fadeOutTime = 0;
 		inline AudioSample(Generator generator, double freq, double gain)
-			: generator(generator), freq(freq / 441.0), gain(gain * 100.0), t(0) {};
+			: generator(generator), freq(freq / 441.0), gain(gain * 100.0) {};
 	};
 
 	std::vector<AudioSample> mSamples;
+	int mSampleRate = 44100;
+	SDL_AudioDeviceID mAudioDevice;
 	std::mutex mMtx;
-	std::thread mAudioThread;
-	bool mSampleChange = false;
-	bool mRunning = false;
-	int mFreq = 44100;
-	int mSampleRate = 22050;
+	bool mSustain = false;
 
 public:
 	void start(void);
+	void pause(void);
+	void unpause(void);
 	void stop(void);
+	inline void sustainOn(void) { mSustain = true; };
+	inline void sustainOff(void) { mSustain = false; };
 	int addSample(Generator generator, double freq, double gain);
 	void removeSample(double freq);
+	void deleteSample(double freq);
 
 private:
-	void playSamples(void);
+	static void audioCallback(void* vSelf, uint8_t* u8Buffer, int length);
+	void fillAudioBuffer(int16_t* buffer, int length);
 	SDL_AudioSpec initAudioSpec(void);
-	int getPlayedSampleCount(SDL_AudioDeviceID audioDevice);
-	int getUnplayedSampleCount(SDL_AudioDeviceID audioDevice);
+
 };
 
 #endif

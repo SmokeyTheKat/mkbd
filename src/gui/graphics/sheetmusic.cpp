@@ -3,12 +3,15 @@
 #include <mkbd/gui/window.hpp>
 #include <mkbd/math.hpp>
 
-SheetMusicGraphic::SheetMusicGraphic(int x, int y, int width, int height, KeyboardRecorder* rcdr)
-: Graphic(x, y, width, height), mRcdr(rcdr), mLineGap(height / 2 / 6), mBarGap(width / 4),
+SheetMusicGraphic::SheetMusicGraphic(Layout layout, KeyboardRecorder* rcdr)
+: Graphic(layout), mRcdr(rcdr),
   mTrebleClefTexture("./trebleclef.png"), mQuaterNoteTexture("./quarternote.png"),
   mBassClefTexture("./bassclef.png") {};
 
 void SheetMusicGraphic::init(void) {
+	mLineGap = mHeight / 2 / 6;
+	mBarGap = mWidth / 4;
+
 	mTrebleClefTexture.setRenderer(getRenderer());
 	mTrebleClefTexture.load();
 	mTrebleClefTexture.scaleToHeight(mHeight / 2);
@@ -22,7 +25,6 @@ void SheetMusicGraphic::init(void) {
 }
 
 void SheetMusicGraphic::onClick(int button, int x, int y) {
-	std::cout << "mouse " << button << " down [" << x << ", " << y << "]\n";
 }
 
 void SheetMusicGraphic::drawLines(void) {
@@ -72,16 +74,8 @@ void SheetMusicGraphic::draw(void) {
 		if (time > fullLength) {
 			break;
 		}
-//        if (key.id % 2 == 0) std::cout << "\x1b[9m";
-//        else std::cout << "\x1b[0m";
 
-		std::cout << rmap(time, 0, fullLength, 0, mWidth) << "\n";
 		setColor(0, 0, 0);
 		mQuaterNoteTexture.render(rmap(time, 0, fullLength, 0, mWidth), (36 - key.id) * mLineGap / 2 - 5, 0.02);
-//        fillRectangle(rmap(time, 0, fullLength, 0, mWidth), (40 - key.id) * mLineGap / 2 - 5, 10, 10);
-
-//        std::cout << "\x1b[" <<  << ";"
-//                  << (int)rmap(time, 0, fullLength, 0, mWidth) - (key.flat ? 0 : 0)
-//                  << (key.flat ? "HO" : "H♭O");
 	}
 }

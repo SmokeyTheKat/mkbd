@@ -2,6 +2,7 @@
 #define __MKBD_GUI_KEYBOARD_HPP__
 
 #include <mkbd/gui/graphic.hpp>
+#include <mkbd/gui/layout.hpp>
 
 class KeyboardGraphic : public Graphic {
 	int mKeyCount=52;
@@ -18,12 +19,14 @@ public:
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	};
 
-	KeyboardGraphic(int x, int y, int width, int height);
+	KeyboardGraphic(Layout layout);
 	void draw(void);
 	void init(void);
 	void onClick(int button, int x, int y);
+	void onResize(int width, int height);
 	
 private:
+	void calculateSizes(void);
 	Color getWhiteKeyColor(int key);
 	Color getBlackKeyColor(int key);
 	void drawKeyboardBlackKey(int key, int i, int offset);

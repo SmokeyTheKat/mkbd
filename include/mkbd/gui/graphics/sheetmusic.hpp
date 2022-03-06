@@ -2,6 +2,7 @@
 #define __MKBD_GUI_SHEET_MUSIC_HPP__
 
 #include <mkbd/gui/graphic.hpp>
+#include <mkbd/gui/layout.hpp>
 #include <mkbd/gui/window.hpp>
 #include <mkbd/gui/texture.hpp>
 #include <mkbd/keyboard.hpp>
@@ -16,7 +17,7 @@ class SheetMusicGraphic : public Graphic {
 	int mBarGap;
 
 public:
-	SheetMusicGraphic(int x, int y, int width, int height, KeyboardRecorder* rcdr);
+	SheetMusicGraphic(Layout layout, KeyboardRecorder* rcdr);
 	void draw(void);
 	void init(void);
 	void onClick(int button, int x, int y);

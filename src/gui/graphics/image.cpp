@@ -1,7 +1,7 @@
 #include <mkbd/gui/graphics/image.hpp>
 
-ImageGraphic::ImageGraphic(int x, int y, int width, int height, const char* path)
-: Graphic(x, y, width, height), mTexture(path) {};
+ImageGraphic::ImageGraphic(Layout layout, const char* path)
+: Graphic(layout), mTexture(path) {};
 
 void ImageGraphic::init(void) {
 	mTexture.setRenderer(getRenderer());

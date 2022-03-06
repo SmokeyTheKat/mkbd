@@ -2,12 +2,15 @@
 
 #include <mkbd/gui/window.hpp>
 
-Graphic::Graphic(int x, int y, int width, int height)
-: mX(x), mY(y), mWidth(width), mHeight(height) {};
+Graphic::Graphic(Layout layout)
+: mLayout(layout) {};
 
 void Graphic::draw(void) {};
 void Graphic::init(void) {};
+void Graphic::onResize(int width, int height) {};
 void Graphic::onClick(int button, int x, int y) {};
+void Graphic::onHover(int x, int y) {};
+void Graphic::onLeave(int x, int y) {};
 
 SDL_Renderer* Graphic::getRenderer(void) {
 	return mWindow->getRenderer();

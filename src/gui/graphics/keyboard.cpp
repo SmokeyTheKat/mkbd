@@ -2,12 +2,20 @@
 
 #include <iostream>
 
-KeyboardGraphic::KeyboardGraphic(int x, int y, int width, int height)
-: Graphic(x, y, width, height), mKeyWidth(mWidth / mKeyCount), mKeyHeight(mHeight),
-  mBlackKeyWidth((mKeyWidth * 3) / 5), mBlackKeyHeight((mKeyHeight * 5) / 8) {};
+KeyboardGraphic::KeyboardGraphic(Layout layout)
+: Graphic(layout) {
+	calculateSizes();
+};
 
 void KeyboardGraphic::onClick(int button, int x, int y) {
-	std::cout << "mouse " << button << " down [" << x << ", " << y << "]\n";
+}
+
+void KeyboardGraphic::onResize(int width, int height) {
+	calculateSizes();
+}
+
+void KeyboardGraphic::init(void) {
+	calculateSizes();
 }
 
 Color KeyboardGraphic::getWhiteKeyColor(int key) {
@@ -45,7 +53,12 @@ void KeyboardGraphic::drawKeyboardBlackKeyMiddle(int key, int i) {
 	drawKeyboardBlackKey(key, i, offset);
 }
 
-void KeyboardGraphic::init(void) {}
+void KeyboardGraphic::calculateSizes(void) {
+	mKeyWidth = mWidth / mKeyCount;
+	mKeyHeight = mHeight;
+	mBlackKeyWidth = (mKeyWidth * 3) / 5;
+	mBlackKeyHeight = (mKeyHeight * 5) / 8;
+}
 
 void KeyboardGraphic::draw(void) {
 	setColor1(RGB_ARGS(mWhiteKeyColor));

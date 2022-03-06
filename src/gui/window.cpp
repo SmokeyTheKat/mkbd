@@ -17,6 +17,8 @@ Window::Window(int width, int height)
 		SDL_WINDOW_SHOWN
 	);
 
+	SDL_SetWindowResizable(mWindow, SDL_TRUE);
+
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		std::cout << "Could not initialize everyting lol! Error: " << SDL_GetError() << "\n";
 	}
@@ -33,6 +35,45 @@ Window::~Window(void) {
 	close();
 }
 
+void Window::setGraphicsSize(Graphic* g) {
+	Layout layout = g->getLayout();
+	if (layout.details & Layout::FillX) {
+		g->setWidth(mWidth - layout.width);
+	} else if (layout.details & Layout::PercentWidth) {
+		g->setWidth(mWidth * (layout.x / 100.0));
+	} else {
+		g->setWidth(layout.width);
+	}
+
+	if (layout.details & Layout::FillY) {
+		g->setHeight(mHeight - layout.height);
+	} else if (layout.details & Layout::PercentHeight) {
+		g->setHeight(mHeight * (layout.y / 100.0));
+	} else {
+		g->setHeight(layout.height);
+	}
+
+	if (layout.details & Layout::AnchorCenter) {
+		g->setX(layout.x + (mWidth / 2));
+		g->setY(layout.y + (mHeight / 2));
+	} else if (layout.details & Layout::AnchorTopCenter) {
+		g->setX(layout.x + (mWidth / 2));
+		g->setY(layout.y);
+	} else if (layout.details & Layout::AnchorBottomLeft) {
+		g->setX(layout.x);
+		g->setY(mHeight - layout.y);
+	} else if (layout.details & Layout::AnchorTopRight) {
+		g->setX(mWidth - layout.x);
+		g->setY(layout.y);
+	} else if (layout.details & Layout::AnchorBottomRight) {
+		g->setX(mWidth - layout.x);
+		g->setY(mHeight - layout.y);
+	} else {
+		g->setX(layout.x);
+		g->setY(layout.y);
+	}
+}
+
 void Window::close(void) {
 	if (onExit) onExit(this);
 	mQuit = true;
@@ -45,8 +86,6 @@ void Window::newPage(void) {
 }
 
 void Window::popPage(void) {
-	clearPage();
-	mPages.pop();
 	mNewPage = true;
 }
 
@@ -59,6 +98,7 @@ void Window::clearPage(void) {
 
 void Window::addGraphic(Graphic* graphic) {
 	graphic->setWindow(this);
+	setGraphicsSize(graphic);
 	graphic->init();
 	getPage().push_back(graphic);
 }
@@ -71,13 +111,78 @@ void Window::handleMouseButtonDownEvent(const SDL_MouseButtonEvent& e) {
 	}
 }
 
+void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
+	for (Graphic* g : getPage()) {
+		if (g->getRect().isPointIntersecting(e.x, e.y)) {
+			g->setHovered(true);
+			g->onHover(e.x - g->getX(), e.y - g->getY());
+		} else if (g->isHovered()) {
+			g->setHovered(false);
+			g->onLeave(e.x - g->getX(), e.y - g->getY());
+		}
+	}
+}
+
+void Window::handleWindowResizeEvent(int width, int height) {
+	mWidth = width;
+	mHeight = height;
+	for (Graphic* g : getPage()) {
+		setGraphicsSize(g);
+		g->onResize(width, height);
+	}
+}
+
+void Window::handleWindowEvent(const SDL_WindowEvent& e) {
+	switch (e.event) {
+		case SDL_WINDOWEVENT_SHOWN: {
+		} break;
+		case SDL_WINDOWEVENT_HIDDEN: {
+		} break;
+		case SDL_WINDOWEVENT_EXPOSED: {
+		} break;
+		case SDL_WINDOWEVENT_MOVED: {
+		} break;
+		case SDL_WINDOWEVENT_RESIZED: {
+			handleWindowResizeEvent(e.data1, e.data2);
+		} break;
+		case SDL_WINDOWEVENT_SIZE_CHANGED: {
+		} break;
+		case SDL_WINDOWEVENT_MINIMIZED: {
+		} break;
+		case SDL_WINDOWEVENT_MAXIMIZED: {
+		} break;
+		case SDL_WINDOWEVENT_RESTORED: {
+		} break;
+		case SDL_WINDOWEVENT_ENTER: {
+		} break;
+		case SDL_WINDOWEVENT_LEAVE: {
+		} break;
+		case SDL_WINDOWEVENT_FOCUS_GAINED: {
+		} break;
+		case SDL_WINDOWEVENT_FOCUS_LOST: {
+		} break;
+		case SDL_WINDOWEVENT_CLOSE: {
+		} break;
+		case SDL_WINDOWEVENT_TAKE_FOCUS: {
+		} break;
+		case SDL_WINDOWEVENT_HIT_TEST: {
+		} break;
+	}
+}
+
 void Window::handleEvent(const SDL_Event& e) {
 	switch (e.type) {
 		case SDL_QUIT: {
 			close();
 		} break;
+		case SDL_MOUSEMOTION: {
+			handleMouseMotionEvent(e.motion);
+		} break;
 		case SDL_MOUSEBUTTONDOWN: {
 			handleMouseButtonDownEvent(e.button);
+		} break;
+		case SDL_WINDOWEVENT: {
+			handleWindowEvent(e.window);
 		} break;
 		case SDL_KEYDOWN: {
 			if (e.key.keysym.sym == SDLK_q) {
@@ -108,6 +213,10 @@ void Window::eventLoop(void) {
 void Window::pageLoop(void) {
 	while (!mQuit && !mNewPage) {
 		update();
+	}
+	if (mNewPage) {
+		clearPage();
+		mPages.pop();
 	}
 	mNewPage = false;
 }

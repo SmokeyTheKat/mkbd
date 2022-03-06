@@ -37,6 +37,9 @@ struct KeyboardMessage {
 		if (index > data.size()) data.resize(index + 4);
 		return data[index];
 	}
+//    inline const byte& operator[](int index) const { 
+//        return data[index];
+//    }
 };
 
 struct Key {
