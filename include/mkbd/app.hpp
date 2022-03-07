@@ -15,11 +15,16 @@ class App {
 	Color mFgColor = Color(186, 238, 255);
 	Color mBgColor = Color(176, 205, 219);
 	Color mAccColor = Color(8, 119, 188);
+	Color mBorderColor = Color(150, 150, 150);
 
 	AudioPlayer mAudioPlayer;
 
 	int mMidiPort = 1;
 	int mHeaderHeight = 60;
+
+	GraphicPage mSettingsPage;
+
+	int mMenuWidth = 300;
 
 public:
 	App(int argc, char** argv);
@@ -33,10 +38,14 @@ private:
 	void generateFooter(void);
 
 	void mainMenuPage(void);
+	void generateMainSongView(void);
 	void generateMainMenuHeader(void);
 	void generateMainMenuButtons(void);
 
 	void freePlayPage(void);
+
+	void settingsPage(void);
+	void newSettingsPage(void);
 
 	void chooseKeyboardPage(void);
 };

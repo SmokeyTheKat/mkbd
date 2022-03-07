@@ -33,6 +33,7 @@ public:
 	void close(void);
 
 	void addGraphic(Graphic* graphic);
+	void removeGraphic(Graphic* graphic);
 	void clearPage(void);
 	void popPage(void);
 	void newPage(void);

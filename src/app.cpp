@@ -221,8 +221,8 @@ App::App(int argc, char** argv)
 int App::main(void) {
 	for (auto& i : pianoSamples) {
 		if (i.path == 0) continue;
-		SDL_LoadWAV(i.path, &i.spec, ((uint8_t**)&i.buffer), &i.length);
-		i.length /= sizeof(int16_t);
+//        SDL_LoadWAV(i.path, &i.spec, ((uint8_t**)&i.buffer), &i.length);
+//        i.length /= sizeof(int16_t);
 	}
 
 	mWindow.setBgColor(RGB_ARGS(mBgColor));
@@ -257,9 +257,32 @@ void App::mainMenuPage(void) {
 
 	generateMainMenuHeader();
 	generateMainMenuButtons();
+	generateMainSongView();
 	generateFooter();
 
 	mWindow.pageLoop();
+}
+
+void App::generateMainSongView(void) {
+	int textHeight = 20;
+	RectangleGraphic* background = new RectangleGraphic(
+		Layout(
+				mMenuWidth + 20, mHeaderHeight + textHeight + 20,
+				mMenuWidth + 40, 2 * mHeaderHeight + textHeight + 40,
+				Layout::FillX | Layout::FillY
+		), mFgColor, mBorderColor
+	);
+
+	TextGraphic* text = new TextGraphic(
+		Layout(
+			mMenuWidth + 20, mHeaderHeight + 20 - textHeight / 2,
+			0, textHeight
+		),
+		"Your Songs", RESOURCE_DIR "/fonts/FreeSans.ttf", textHeight, Color(100, 100, 100)
+	);
+
+	mWindow.addGraphic(text);
+	mWindow.addGraphic(background);
 }
 
 void App::generateMainMenuHeader(void) {
@@ -274,17 +297,68 @@ void App::generateMainMenuHeader(void) {
 
 void App::generateMainMenuButtons(void) {
 	ButtonListGraphic* buttonList = new ButtonListGraphic(
-		Layout(10, mHeaderHeight + 20, 300, 50),
+		Layout(10, mHeaderHeight + 20, mMenuWidth, 50),
 		10,
 		{
 			{ "Free Play", std::bind(&App::freePlayPage, this) },
-			{ "Settings", [](void){} },
-			{ "Exit", [](void){} },
+			{ "Settings", std::bind(&App::settingsPage, this) },
+			{ "Exit", [this](void){
+				mWindow.popPage();
+			} },
 		},
 		25, White, mAccColor
 	);
 
 	mWindow.addGraphic(buttonList);
+}
+
+void App::newSettingsPage(void) {
+	for (Graphic* g : mSettingsPage) {
+		mWindow.removeGraphic(g);
+		delete g;
+	}
+	mSettingsPage.clear();
+}
+
+void App::settingsPage(void) {
+	mWindow.newPage();
+
+	mSettingsPage.clear();
+
+	generateHeader("Settings");
+
+	RectangleGraphic* rect = new RectangleGraphic(Layout(0, mHeaderHeight, mMenuWidth, mHeaderHeight - 1, Layout::FillY), mFgColor, Color(0, 0, 0));
+
+	ButtonListGraphic* buttonList = new ButtonListGraphic(
+		Layout(0, mHeaderHeight, mMenuWidth, 55),
+		-1,
+		{
+			{ "Midi Device", [this](void){
+				newSettingsPage();
+
+				RectangleGraphic* rect = new RectangleGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 500), mFgColor, mBorderColor);
+				mSettingsPage.push_back(rect);
+				mWindow.addGraphic(rect);
+			} },
+			{ "Midi Forwarding", [this](void){
+				newSettingsPage();
+
+				RectangleGraphic* rect = new RectangleGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 500, 200), mAccColor, mFgColor);
+				mSettingsPage.push_back(rect);
+				mWindow.addGraphic(rect);
+			} },
+			{ "Color Schemes", [this](void){} },
+			{ "Proformance", [this](void){} },
+			{ "System", [this](void){} },
+			{ "About", [this](void){} },
+		},
+		23, Color(0, 0, 0), mFgColor
+	);
+
+	mWindow.addGraphic(rect);
+	mWindow.addGraphic(buttonList);
+
+	mWindow.pageLoop();
 }
 
 void App::freePlayPage(void) {
@@ -341,7 +415,7 @@ void App::freePlayPage(void) {
 	buttonX += buttonWidth + buttonGap;
 
 	ButtonGraphic* butSettings = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Settings", [this, &recorder](void) {
-//        settingsPage();
+		settingsPage();
 	}, mAccColor, mFgColor);
 	butSettings->setFontSize(20);
 	buttonX += buttonWidth + buttonGap;

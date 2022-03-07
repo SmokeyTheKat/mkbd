@@ -103,6 +103,16 @@ void Window::addGraphic(Graphic* graphic) {
 	getPage().push_back(graphic);
 }
 
+void Window::removeGraphic(Graphic* graphic) {
+	GraphicPage& page = mPages.top();
+	for (auto it = page.begin(); it != page.end(); it++) {
+		if (*it == graphic) {
+			page.erase(it);
+			return;
+		}
+	}
+}
+
 void Window::handleMouseButtonDownEvent(const SDL_MouseButtonEvent& e) {
 	for (Graphic* g : getPage()) {
 		if (g->getRect().isPointIntersecting(e.x, e.y)) {

@@ -10,9 +10,10 @@
 
 class RectangleGraphic : public Graphic {
 	Color mColor;
+	Color mOutline;
 
 public:
-	RectangleGraphic(Layout layout, Color color);
+	RectangleGraphic(Layout layout, Color color, Color outline = Color::none());
 	void draw(void);
 	
 private:
