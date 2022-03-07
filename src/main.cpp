@@ -1,45 +1,5 @@
-#include <mkbd/keyboard.hpp>
 #include <mkbd/app.hpp>
-#include <mkbd/recorder.hpp>
-#include <mkbd/player.hpp>
-#include <mkbd/timer.hpp>
-#include <mkbd/music.hpp>
-#include <mkbd/math.hpp>
-#include <mkbd/audioplayer.hpp>
-#include <mkbd/generator.hpp>
-#include <mkbd/gui/graphics/keyboard.hpp>
-#include <mkbd/gui/graphics/rectangle.hpp>
-#include <mkbd/gui/graphics/image.hpp>
-#include <mkbd/gui/graphics/sheetmusic.hpp>
-#include <mkbd/gui/graphics/button.hpp>
-#include <mkbd/gui/graphics/waterfall.hpp>
-#include <mkbd/gui/graphics/text.hpp>
-#include <mkbd/gui/window.hpp>
-
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL.h>
-
-#include <iostream>
-#include <vector>
-#include <cstring>
-#include <cmath>
-#include <unistd.h>
-
-static int screenWidth = 1280;
-static int screenHeight = 640;
-
-static int barHeight = 60;
-
-static int gPort = 1;
-
-static bool sustain = false;
-
-static Color fg = Color(186, 238, 255);
-static Color bg = Color(176, 205, 219);
-static Color bc = Color(8, 119, 188);
-static const Color White(255, 255, 255);
-static const Color Black(0, 0, 0);
-
+#include <mkbd/utils.hpp>
 
 //void looperSetLoop(KeyboardRecorder* rcdr) {
 //    static int isRecording = false;

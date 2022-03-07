@@ -4,22 +4,35 @@
 #include <mkbd/waves.hpp>
 
 #include <functional>
+#include <iostream>
 
 typedef std::function<double(double,double)> Waveform;
 typedef std::function<double(double)> Modifyer;
 
 template<int A>
 double LinearAttack(double t) {
-	double value = (1.0 / A) * t;
-	value *= (value >= 0);
+	if (A == 0) return 1;
+
+	double value = (1.0 / (double)A) * t;
+//    value *= (value >= 0);
 	return (value > 1.0) ? 1.0 : value;
 }
 
 template<int A>
 double LinearRelease(double t) {
-	double value = (-1.0 / A) * (t - A);
+	if (A == 0) return 1;
+
+	double value = (-1.0 / (double)A) * (t - (double)A);
 	value *= (value >= 0);
 	return (value < 0.0) ? 0.0 : value;
+}
+
+template<int A>
+double Cutoff(double t) {
+	if ((int)t >= A) {
+		return 0.0;
+	}
+	return 1.0;
 }
 
 template<int A>
@@ -34,10 +47,7 @@ struct Generator {
 	Modifyer fadeOut = Constant<0>;
 
 	inline double getModifyers(double t) {
-		double value = 1;
-		value *= attack(t);
-		value *= release(t);
-		return value;
+		return attack(t) * release(t);
 	}
 
 	inline double sample(double t, double freq) {

@@ -48,36 +48,29 @@ void AudioPlayer::fillAudioBuffer(int16_t* buffer, int length) {
 
 		int16_t sample = 0;
 		for (auto& s : mSamples) {
-			int16_t value = 0;
-			s.t += 0.01;
-			value += s.generator.sample(s.t, s.freq) * s.gain;
+			int16_t value = s.generator.sample(s.t, s.freq) * s.gain;
 
 			if (s.fadeOutTime != 0) {
 				if (mSustain && !s.isFadingOut) {
 					s.fadeOutTime = s.t;
 				} else {
 					s.isFadingOut = true;
-					double fval = s.generator.fadeOut(s.t - s.fadeOutTime);
-					value *= fval;
-	
-					if (fval == 0) {
-						for (auto it = mSamples.begin(); it != mSamples.end(); ++it) {
-							if (it->freq == s.freq) {
-								toDelete.push_back(it);
-							}
-						}
-					}
+					value *= s.generator.fadeOut(s.t - s.fadeOutTime);
 				}
 			}
-			if (s.generator.getModifyers(s.t) < 0.01) {
+
+			if (s.generator.getModifyers(s.t) < 0.0000001) {
 				for (auto it = mSamples.begin(); it != mSamples.end(); ++it) {
 					if (it->freq == s.freq) {
 						toDelete.push_back(it);
 					}
 				}
 			}
+
+			s.t += 0.01;
 			sample += value;
 		}
+
 		*buffer++ = sample;
 		*buffer++ = sample;
 
@@ -133,7 +126,6 @@ void AudioPlayer::removeSample(double freq) {
 
 	if (it != mSamples.end()) {
 		it->fadeOutTime = it->t;
-//        mSamples.erase(it);
 	}
 
 	mMtx.unlock();

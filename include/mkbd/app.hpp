@@ -3,6 +3,7 @@
 
 #include <mkbd/gui/window.hpp>
 #include <mkbd/utils.hpp>
+#include <mkbd/audioplayer.hpp>
 
 #include <string>
 #include <vector>
@@ -10,9 +11,13 @@
 class App {
 	std::vector<std::string> mArgs;
 	Window mWindow;
+
 	Color mFgColor = Color(186, 238, 255);
 	Color mBgColor = Color(176, 205, 219);
 	Color mAccColor = Color(8, 119, 188);
+
+	AudioPlayer mAudioPlayer;
+
 	int mMidiPort = 1;
 	int mHeaderHeight = 60;
 

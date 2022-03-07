@@ -1,11 +1,11 @@
 PREFIX=~/.local
 
-CC=g++
-CFLAGS=-Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -lasound -lpthread -lSDL2 -lSDL2_ttf -lSDL2_image
-TARGET=./mkbd
-SRCDIR=src
+RESOURCE_DIR=$(realpath ./resources)
 
-CHDRS=$(shell find ./include/ -name '*.hpp' -type f)
+CC=g++
+CFLAGS=-Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -DRESOURCE_DIR=\"${RESOURCE_DIR}\" -lasound -lpthread -lSDL2 -lSDL2_ttf -lSDL2_image
+TARGET=./mkbd
+
 CSRCS=$(shell find ./src/ -name '*.cpp' -or -name '*.c' -type f)
 AOBJS=$(CSRCS:.cpp=.o)
 OBJS=$(AOBJS:.c=.o)

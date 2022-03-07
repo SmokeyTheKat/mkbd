@@ -7,12 +7,12 @@
 
 ButtonGraphic::ButtonGraphic(Layout layout, std::string text, std::function<void(void)> callback)
 : Graphic(layout), mCallback(callback),
-  mText(layout, text, "fonts/FreeSans.ttf", 20, mFgColor) {};
+  mText(layout, text, RESOURCE_DIR "/fonts/FreeSans.ttf", 20, mFgColor) {};
 
 ButtonGraphic::ButtonGraphic(Layout layout, std::string text, std::function<void(void)> callback, Color bgColor, Color fgColor)
 : Graphic(layout), mCallback(callback),
   mBgColor(bgColor), mFgColor(fgColor),
-  mText(layout, text, "fonts/FreeSans.ttf", 20, fgColor) {};
+  mText(layout, text, RESOURCE_DIR "/fonts/FreeSans.ttf", 20, fgColor) {};
 
 void ButtonGraphic::onClick(int button, int x, int y) {
 	mCallback();

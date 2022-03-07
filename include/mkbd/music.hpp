@@ -10,4 +10,10 @@ std::string getChordName(std::vector<int> notes);
 const char* getKeyNameFromKey(byte key);
 int getKeyOctiveFromKey(byte key);
 
+namespace Music {
+	extern double tuning;
+	double noteToFreq(int note);
+	int freqToNote(double freq);
+};
+
 #endif

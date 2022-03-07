@@ -1,7 +1,9 @@
 #include <mkbd/music.hpp>
 
 #include <mkbd/keyboard.hpp>
+#include <mkbd/math.hpp>
 
+#include <cmath>
 #include <algorithm>
 #include <iostream>
 
@@ -92,7 +94,7 @@ std::string getChordName(std::vector<int> notes) {
 			return result;
 		note += 12;
 	}
-	return "Unknown";
+	return "";
 }
 
 const char* getKeyNameFromKey(byte key) {
@@ -102,3 +104,15 @@ const char* getKeyNameFromKey(byte key) {
 int getKeyOctiveFromKey(byte key) {
 	return (key - 21 + 9) / 12;
 }
+
+namespace Music {
+	double tuning = 440;
+
+	double noteToFreq(int note) {
+		return std::pow(std::pow(2.0, 1.0/12.0), note - 69.0) * tuning;
+	}
+
+	int freqToNote(double freq) {
+		return std::round(12.0 * logn(freq / tuning, 2.0) + 69.0);
+	}
+};
