@@ -4,6 +4,7 @@
 #include <mkbd/gui/window.hpp>
 #include <mkbd/utils.hpp>
 #include <mkbd/audioplayer.hpp>
+#include <mkbd/instruments.hpp>
 
 #include <string>
 #include <vector>
@@ -21,6 +22,8 @@ class App {
 
 	int mMidiPort = 1;
 	int mHeaderHeight = 60;
+
+	Generator* mActiveGen = &pianoGen;
 
 	GraphicPage mSettingsPage;
 
@@ -45,6 +48,13 @@ private:
 	void freePlayPage(void);
 
 	void settingsPage(void);
+	void settingsPageTabMidiDevice(void);
+	void settingsPageTabMidiForwarding(void);
+	void settingsPageTabColorScheme(void);
+	void settingsPageInstruments(void);
+	void settingsPageTabProformance(void);
+	void settingsPageTabAbout(void);
+
 	void newSettingsPage(void);
 
 	void chooseKeyboardPage(void);

@@ -29,10 +29,19 @@ void ButtonGraphic::init(void) {
 }
 
 void ButtonGraphic::draw(void) {
+	Color bg = mBgColor;
 	if (isHovered()) {
-		setColor(mBgColor.r + 30, mBgColor.g + 30, mBgColor.b + 30);
+		if (bg.r < 220) bg.r *= 1.2;
+		else bg.r *= 0.8;
+
+		if (bg.g < 220) bg.g *= 1.2;
+		else bg.g *= 0.8;
+
+		if (bg.b < 220) bg.b *= 1.2;
+		else bg.b *= 0.8;
 	}
-	else setColor(RGB_ARGS(mBgColor));
+
+	setColor(RGB_ARGS(bg));
 	fillRectangle(0, 0, mWidth, mHeight);
 	setColor(RGB_ARGS(mFgColor));
 	drawRectangle(0, 0, mWidth, mHeight);

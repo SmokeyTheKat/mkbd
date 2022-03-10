@@ -78,10 +78,11 @@ int WaterfallGraphic::getKeyWidth(int key) {
 }
 
 void WaterfallGraphic::draw(void) {
-	int scale = 140;
+	int scale = 240;
 	setColor(48, 48, 48);
 	fillRectangle(mX, mY, mWidth, mHeight);
 	mMsgs = mRcdr->getMessages();
+
 	for (auto it = mMsgs.begin(); it != mMsgs.end(); it++) {
 		if (it->getType() == KBD_MSG_KEY) {
 			double length = getKeyPressLength(it);
@@ -89,6 +90,8 @@ void WaterfallGraphic::draw(void) {
 			int height = length * scale;
 			int y = mHeight - (mRcdr->getTime() * scale - it->stamp * scale);
 			int width = getKeyWidth((*it)[1]);
+
+			if (y - height > 1 && height < 30) height = 20;
 
 			if (y + height < 0) {
 				continue;

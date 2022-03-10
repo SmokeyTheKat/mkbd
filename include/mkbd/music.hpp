@@ -14,6 +14,9 @@ namespace Music {
 	extern double tuning;
 	double noteToFreq(int note);
 	int freqToNote(double freq);
+	std::string getNoteName(int note);
+	int getNoteOctave(int note);
+	std::string getNoteFullName(int note);
 };
 
 #endif

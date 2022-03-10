@@ -7,12 +7,12 @@
 #include <algorithm>
 #include <iostream>
 
+static constexpr const char* keyNames[12] = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
+
 struct Chord {
 	const char* name;
 	const std::vector<int> notes;
 };
-
-static constexpr const char* keyNames[12] = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
 
 static const Chord chords[] = {
 	{ "", { 0 } },
@@ -106,7 +106,7 @@ int getKeyOctiveFromKey(byte key) {
 }
 
 namespace Music {
-	double tuning = 440;
+	double tuning = 432;
 
 	double noteToFreq(int note) {
 		return std::pow(std::pow(2.0, 1.0/12.0), note - 69.0) * tuning;
@@ -114,5 +114,17 @@ namespace Music {
 
 	int freqToNote(double freq) {
 		return std::round(12.0 * logn(freq / tuning, 2.0) + 69.0);
+	}
+
+	std::string getNoteName(int note) {
+		return keyNames[note % 12];
+	}
+
+	int getNoteOctave(int note) {
+		return note / 12 - 1;
+	}
+
+	std::string getNoteFullName(int note) {
+		return getNoteName(note) + std::to_string(getNoteOctave(note));
 	}
 };

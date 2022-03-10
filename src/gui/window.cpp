@@ -19,10 +19,6 @@ Window::Window(int width, int height)
 
 	SDL_SetWindowResizable(mWindow, SDL_TRUE);
 
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-		std::cout << "Could not initialize everyting lol! Error: " << SDL_GetError() << "\n";
-	}
-
 	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
 	FontManager::setRenderer(mRenderer);
 
@@ -217,12 +213,14 @@ void Window::update(void) {
 void Window::eventLoop(void) {
 	while (!mQuit) {
 		update();
+		SDL_Delay(1);
 	}
 }
 
 void Window::pageLoop(void) {
 	while (!mQuit && !mNewPage) {
 		update();
+		SDL_Delay(1);
 	}
 	if (mNewPage) {
 		clearPage();

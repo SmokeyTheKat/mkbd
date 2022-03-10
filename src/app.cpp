@@ -7,9 +7,11 @@
 #include <mkbd/timer.hpp>
 #include <mkbd/music.hpp>
 #include <mkbd/math.hpp>
+#include <mkbd/instruments.hpp>
 #include <mkbd/audioplayer.hpp>
 #include <mkbd/generator.hpp>
 #include <mkbd/gui/graphics/keyboard.hpp>
+#include <mkbd/gui/graphics/list.hpp>
 #include <mkbd/gui/graphics/rectangle.hpp>
 #include <mkbd/gui/graphics/image.hpp>
 #include <mkbd/gui/graphics/sheetmusic.hpp>
@@ -18,128 +20,6 @@
 #include <mkbd/gui/graphics/waterfall.hpp>
 #include <mkbd/gui/graphics/text.hpp>
 #include <mkbd/gui/window.hpp>
-
-static const Color White(255, 255, 255);
-static const Color Black(0, 0, 0);
-
-struct PianoNoteSample {
-	const char* path;
-	SDL_AudioSpec spec;
-	uint32_t length;
-	int16_t* buffer;
-};
-
-std::vector<PianoNoteSample> pianoSamples = {
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.A0.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Bb0.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.B0.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.C1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Db1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.D1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Eb1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.E1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.F1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Gb1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.G1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Ab1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.A1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Bb1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.B1.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.C2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Db2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.D2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Eb2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.E2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.F2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Gb2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.G2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Ab2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.A2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Bb2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.B2.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.C3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Db3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.D3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Eb3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.E3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.F3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Gb3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.G3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Ab3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.A3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Bb3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.B3.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.C4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Db4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.D4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Eb4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.E4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.F4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Gb4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.G4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Ab4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.A4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Bb4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.B4.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.C5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Db5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.D5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Eb5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.E5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.F5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Gb5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.G5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Ab5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.A5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Bb5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.B5.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.C6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Db6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.D6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Eb6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.E6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.F6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Gb6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.G6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Ab6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.A6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Bb6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.B6.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.C7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Db7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.D7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Eb7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.E7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.F7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Gb7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.G7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Ab7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.A7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.Bb7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.B7.wav" },
-	{ RESOURCE_DIR "/sounds/piano/Piano.ff.C8.wav" },
-};
 
 static std::string getChord(KeyboardRecorder* rcdr) {
 	std::vector<int> notes;
@@ -159,59 +39,6 @@ static std::string getChord(KeyboardRecorder* rcdr) {
 	return name;
 }
 
-static Generator pianoGen {
-	.waveform = [](double t, double freq) -> double {
-		int note = Music::freqToNote(freq * 441.0);
-		if (pianoSamples[note].path == 0)
-			return 0;
-
-		PianoNoteSample& s = pianoSamples[note];
-		int idx = (int)(t * 100.0) * s.spec.channels;
-
-		if (idx > s.length) 
-			return 0;
-
-		return (double)(s.buffer[idx]) / 5000.0;
-	},
-	.release = Cutoff<3000>,
-	.fadeOut = LinearRelease<100>
-};
-
-static Generator brassGen {
-	.waveform = [](double t, double freq) -> double {
-		return 0.5 * Waves::multi(t, freq, 1.5, 2.0, 0.4);
-	},
-//    .attack = LinearAttack<0>,
-	.release = LinearRelease<9500>,
-	.fadeOut = LinearRelease<100>
-};
-
-static Generator phoneGen {
-	.waveform = [](double t, double freq) -> double {
-		return 0.5 * (Waves::pulse(t, freq, 25) + 0.25 * Waves::sawtooth(t, freq) + 0.0001 * Waves::noise());
-	},
-	.fadeOut = LinearRelease<200>,
-};
-
-static Generator reedGen {
-	.waveform = [](double t, double freq) -> double {
-		return 0.5 * (Waves::triangle(t, freq * 2) + 0.5 * Waves::sine(t, freq) + 0.25 * Waves::sawtooth(t, freq) + 0.04 * Waves::noise());
-	},
-	.fadeOut = LinearRelease<200>,
-};
-
-static Generator organGen {
-	.waveform = [](double t, double freq) -> double {
-		return (0.5 * (Waves::sine(t, freq * 1.0) +
-					  0.5 * Waves::sine(t, freq * 2.0) +
-					  0.25 * Waves::sine(t, freq * 4.0) +
-					  0.125 * Waves::sine(t, freq * 8.0)));
-	},
-	.fadeOut = LinearRelease<200>,
-};
-
-static Generator* activeGen = &pianoGen;
-
 App::App(int argc, char** argv)
 : mWindow(1280, 640) {
 	for (int i = 0; i < argc; i++)
@@ -219,13 +46,10 @@ App::App(int argc, char** argv)
 }
 
 int App::main(void) {
-	for (auto& i : pianoSamples) {
-		if (i.path == 0) continue;
-//        SDL_LoadWAV(i.path, &i.spec, ((uint8_t**)&i.buffer), &i.length);
-//        i.length /= sizeof(int16_t);
-	}
-
 	mWindow.setBgColor(RGB_ARGS(mBgColor));
+
+	pianoInstrument.load();
+
 	mainMenuPage();
 
 	return 0;
@@ -306,7 +130,7 @@ void App::generateMainMenuButtons(void) {
 				mWindow.popPage();
 			} },
 		},
-		25, White, mAccColor
+		25, Colors::White, mAccColor
 	);
 
 	mWindow.addGraphic(buttonList);
@@ -320,6 +144,52 @@ void App::newSettingsPage(void) {
 	mSettingsPage.clear();
 }
 
+void App::settingsPageTabMidiDevice(void) {
+	newSettingsPage();
+
+	std::vector<GraphicCreater> creaters;
+
+	std::vector<KeyboardInfo> keyboards = Keyboard::getKeyboards();
+	for (auto& ki : keyboards) {
+		int port = ki.port;
+		creaters.push_back([this, port, ki](Layout layout) -> Graphic* {
+			return new ButtonGraphic(layout, ki.name, [this, port](void) {
+				mMidiPort = port;
+				mWindow.popPage();
+			}, mAccColor, Colors::White);
+		});
+	}
+
+	int buttonWidth = 500;
+	int buttonHeight = 35;
+	int buttonGap = 5;
+
+	std::vector<Graphic*> buttons = createListGraphic(
+		Layout(buttonWidth / -2, mHeaderHeight + 20, buttonWidth, buttonHeight, Layout::AnchorTopCenter),
+		creaters, 5
+	);
+
+	for (auto g : buttons) {
+		mWindow.addGraphic(g);
+		mSettingsPage.push_back(g);
+	}
+}
+
+void App::settingsPageTabMidiForwarding(void) {
+}
+
+void App::settingsPageTabColorScheme(void) {
+}
+
+void App::settingsPageInstruments(void) {
+}
+
+void App::settingsPageTabProformance(void) {
+}
+
+void App::settingsPageTabAbout(void) {
+}
+
 void App::settingsPage(void) {
 	mWindow.newPage();
 
@@ -329,34 +199,33 @@ void App::settingsPage(void) {
 
 	RectangleGraphic* rect = new RectangleGraphic(Layout(0, mHeaderHeight, mMenuWidth, mHeaderHeight - 1, Layout::FillY), mFgColor, Color(0, 0, 0));
 
-	ButtonListGraphic* buttonList = new ButtonListGraphic(
+	std::vector<Graphic*> buttons = createListGraphic(
 		Layout(0, mHeaderHeight, mMenuWidth, 55),
-		-1,
 		{
-			{ "Midi Device", [this](void){
-				newSettingsPage();
-
-				RectangleGraphic* rect = new RectangleGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 500), mFgColor, mBorderColor);
-				mSettingsPage.push_back(rect);
-				mWindow.addGraphic(rect);
-			} },
-			{ "Midi Forwarding", [this](void){
-				newSettingsPage();
-
-				RectangleGraphic* rect = new RectangleGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 500, 200), mAccColor, mFgColor);
-				mSettingsPage.push_back(rect);
-				mWindow.addGraphic(rect);
-			} },
-			{ "Color Schemes", [this](void){} },
-			{ "Proformance", [this](void){} },
-			{ "System", [this](void){} },
-			{ "About", [this](void){} },
-		},
-		23, Color(0, 0, 0), mFgColor
+			[this](Layout layout) {
+				return new ButtonGraphic(layout, "Midi Device", std::bind(&App::settingsPageTabMidiDevice, this), mFgColor, Colors::Black);
+			},
+			[this](Layout layout) {
+				return new ButtonGraphic(layout, "Midi Forwarding", std::bind(&App::settingsPageTabMidiForwarding, this), mFgColor, Colors::Black);
+			},
+			[this](Layout layout) {
+				return new ButtonGraphic(layout, "Color Scheme", std::bind(&App::settingsPageTabColorScheme, this), mFgColor, Colors::Black);
+			},
+			[this](Layout layout) {
+				return new ButtonGraphic(layout, "Instruments", std::bind(&App::settingsPageInstruments, this), mFgColor, Colors::Black);
+			},
+			[this](Layout layout) {
+				return new ButtonGraphic(layout, "Proformance", std::bind(&App::settingsPageTabProformance, this), mFgColor, Colors::Black);
+			},
+			[this](Layout layout) {
+				return new ButtonGraphic(layout, "About", std::bind(&App::settingsPageTabAbout, this), mFgColor, Colors::Black);
+			},
+		}, -1
 	);
 
 	mWindow.addGraphic(rect);
-	mWindow.addGraphic(buttonList);
+	for (auto g : buttons)
+		mWindow.addGraphic(g);
 
 	mWindow.pageLoop();
 }
@@ -385,31 +254,31 @@ void App::freePlayPage(void) {
 	int buttonGap = 10;
 
 	ButtonGraphic* butPiano = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Piano", [this](void) {
-		activeGen = &pianoGen;
+		mActiveGen = &pianoGen;
 	}, mAccColor, mFgColor);
 	butPiano->setFontSize(20);
 	buttonX += buttonWidth + buttonGap;
 
 	ButtonGraphic* butOrgan = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Organ", [this](void) {
-		activeGen = &organGen;
+		mActiveGen = &organGen;
 	}, mAccColor, mFgColor);
 	butOrgan->setFontSize(20);
 	buttonX += buttonWidth + buttonGap;
 
 	ButtonGraphic* butBrass = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Brass", [this](void) {
-		activeGen = &brassGen;
+		mActiveGen = &brassGen;
 	}, mAccColor, mFgColor);
 	butBrass->setFontSize(20);
 	buttonX += buttonWidth + buttonGap;
 
 	ButtonGraphic* butReed = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Reed", [this](void) {
-		activeGen = &reedGen;
+		mActiveGen = &reedGen;
 	}, mAccColor, mFgColor);
 	butReed->setFontSize(20);
 	buttonX += buttonWidth + buttonGap;
 
 	ButtonGraphic* butPhone = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Phone", [this](void) {
-		activeGen = &phoneGen;
+		mActiveGen = &phoneGen;
 	}, mAccColor, mFgColor);
 	butPhone->setFontSize(20);
 	buttonX += buttonWidth + buttonGap;
@@ -460,8 +329,7 @@ void App::freePlayPage(void) {
 		kg->keys[msg[1] - 12] = 1;
 		tg->setText(getChord(rcdr));
 		mWindow.update();
-//        mAudioPlayer.addSample(*activeGen, std::pow(std::pow(2.0, 1.0/12.0), msg[1] - 69) * 440, 50);
-		mAudioPlayer.addSample(*activeGen, Music::noteToFreq(msg[1]), rmap(msg[2], 0, 127, 0, 50));
+		mAudioPlayer.addSample(*mActiveGen, Music::noteToFreq(msg[1]), rmap(msg[2], 0, 127, 0, 50));
 	};
 
 	recorder.onKeyUp = [this, &kg, &tg](KeyboardRecorder* rcdr, KeyboardMessage msg) {
@@ -516,7 +384,7 @@ void App::chooseKeyboardPage(void) {
 
 	ButtonListGraphic* buttonList = new ButtonListGraphic(
 		Layout(buttonWidth / -2, mHeaderHeight + 20, buttonWidth, buttonHeight, Layout::AnchorTopCenter),
-		buttonGap, buttons, 20, White, mAccColor
+		buttonGap, buttons, 20, Colors::White, mAccColor
 	);
 
 	mWindow.addGraphic(buttonList);

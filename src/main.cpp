@@ -69,7 +69,10 @@
 //}
 
 int main(int argc, char** argv) {
-	SDL_Init(SDL_INIT_AUDIO);
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+		std::cout << "Could not initialize everyting lol! Error: " << SDL_GetError() << "\n";
+	}
+
 	srand(time(0));
 
 	App app(argc, argv);

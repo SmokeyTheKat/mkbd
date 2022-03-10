@@ -10,35 +10,13 @@ typedef std::function<double(double,double)> Waveform;
 typedef std::function<double(double)> Modifyer;
 
 template<int A>
-double LinearAttack(double t) {
-	if (A == 0) return 1;
-
-	double value = (1.0 / (double)A) * t;
-//    value *= (value >= 0);
-	return (value > 1.0) ? 1.0 : value;
-}
-
+static double LinearAttack(double t);
 template<int A>
-double LinearRelease(double t) {
-	if (A == 0) return 1;
-
-	double value = (-1.0 / (double)A) * (t - (double)A);
-	value *= (value >= 0);
-	return (value < 0.0) ? 0.0 : value;
-}
-
+static double LinearRelease(double t);
 template<int A>
-double Cutoff(double t) {
-	if ((int)t >= A) {
-		return 0.0;
-	}
-	return 1.0;
-}
-
+static double Cutoff(double t);
 template<int A>
-double Constant(double t) {
-	return A;
-}
+static double Constant(double t);
 
 struct Generator {
 	Waveform waveform = 0;
@@ -54,5 +32,34 @@ struct Generator {
 		return waveform(t, freq) * getModifyers(t);
 	};
 };
+
+template<int A>
+static double LinearAttack(double t) {
+	if (A == 0) return 1;
+	double value = (1.0 / (double)A) * t;
+	value *= (value >= 0);
+	return (value > 1.0) ? 1.0 : value;
+}
+
+template<int A>
+static double LinearRelease(double t) {
+	if (A == 0) return 1;
+	double value = (-1.0 / (double)A) * (t - (double)A);
+	value *= (1 - value >= 0);
+	return (value < 0.0) ? 0.0 : value;
+}
+
+template<int A>
+static double Cutoff(double t) {
+	if ((int)t >= A) {
+		return 0.0;
+	}
+	return 1.0;
+}
+
+template<int A>
+static double Constant(double t) {
+	return A;
+}
 
 #endif
