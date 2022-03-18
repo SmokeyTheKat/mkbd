@@ -1,6 +1,7 @@
 #include <mkbd/recorder.hpp>
 
 #include <mkbd/music.hpp>
+#include <mkbd/recorder.hpp>
 #include <mkbd/math.hpp>
 
 #include <unistd.h>
@@ -8,72 +9,82 @@
 #include <cmath>
 
 #define runCallback(callback) { if (callback) callback(this); };
-#define runMsgCallback(callback) { if (callback) callback(this, msg); };
+#define runMsgCallback(callback) { if (callback) callback(this, e); };
 
-KeyboardRecorder::KeyboardRecorder(Keyboard* keyboard)
-	: mKeyboard(keyboard) { }
+void MidiRecorder::handleNoteOffEvent(MidiEvent e) {
+	mDevice->setNoteState(e[1], 0);
 
-KeyboardRecorder::KeyboardRecorder(Keyboard* keyboard, int bpm)
-	: mKeyboard(keyboard), mBpm(bpm) { }
+	runMsgCallback(onKeyUp);
 
-void KeyboardRecorder::handleMessage(KeyboardMessage msg) {
-	msg.stamp = mTimer.now();
+	if ((e[1] >= 16 && e[1] <= 23) || (e[1] >= 32 && e[1] <= 39)) {
+		runMsgCallback(onPadUp);
+	}
+}
+
+void MidiRecorder::handleNoteOnEvent(MidiEvent e) {
+	if (mStarting == true) {
+		mTimer.start();
+		clear();
+		e.time = mTimer.now();
+	}
+	mStarting = false;
+	
+	mDevice->setNoteState(e[1], 1);
+
+	mNotes.push_back(Music::Note(e[1], e[2], mTimer.now()));
+	
+	runMsgCallback(onKeyDown);
+
+	if ((e[1] >= 16 && e[1] <= 23) || (e[1] >= 32 && e[1] <= 39)) {
+		runMsgCallback(onPadDown);
+	}
+}
+
+void MidiRecorder::handleControlChangeEvents(MidiEvent e) {
+	mEvents.push_back(e);
+	if (e[1] == 67) {
+		if (e[2] == 0) {
+			runMsgCallback(onSoftPedalUp);
+		} else {
+			runMsgCallback(onSoftPedalDown);
+		}
+	}
+	else if (e[1] == 66) {
+		if (e[2] == 0) {
+			runMsgCallback(onMiddlePedalUp);
+		} else {
+			runMsgCallback(onMiddlePedalDown);
+		}
+	}
+	else if (e[1] == 64) {
+		runMsgCallback(onSustainChange);
+		if (e[2] == 0) {
+			runMsgCallback(onSustainUp);
+		} else if (e[2] == 127) {
+			runMsgCallback(onSustainDown);
+		}
+	}
+}
+
+void MidiRecorder::handleEvent(MidiEvent e) {
+	if (e.length() == 0) return;
+	e.time = mTimer.now();
 	runMsgCallback(onMessage);
-	switch (msg.getType()) {
-		case KBD_MSG_KEY_UP: {
-			mKeyboard->setKeyState(msg[1], 0);
-			mMessages.push_back(msg);
-			runMsgCallback(onKeyUp);
-			if ((msg[1] >= 16 && msg[1] <= 23) || (msg[1] >= 32 && msg[1] <= 39)) {
-				runMsgCallback(onPadUp);
-			}
+	mEvents.push_back(e);
+	switch (e.getType()) {
+		case MidiEvent::NoteOff: {
+			handleNoteOffEvent(e);
 		} break;
-		case KBD_MSG_KEY: {
-			if (mStarting == true) {
-				mTimer.start();
-				clear();
-				msg.stamp = mTimer.now();
-			}
-			mStarting = false;
-
-			mKeyboard->setKeyState(msg[1], 1);
-			mNotes.push_back(Key(msg[1], msg[2], mTimer.now()));
-			mMessages.push_back(msg);
-
-			runMsgCallback(onKeyDown);
-			if ((msg[1] >= 16 && msg[1] <= 23) || (msg[1] >= 32 && msg[1] <= 39)) {
-				runMsgCallback(onPadDown);
-			}
+		case MidiEvent::NoteOn: {
+			handleNoteOnEvent(e);
 		} break;
-		case KBD_MSG_PEDAL: {
-			mMessages.push_back(msg);
-			if (msg[1] == 67) {
-				if (msg[2] == 0) {
-					runMsgCallback(onSoftPedalUp);
-				} else {
-					runMsgCallback(onSoftPedalDown);
-				}
-			}
-			else if (msg[1] == 66) {
-				if (msg[2] == 0) {
-					runMsgCallback(onMiddlePedalUp);
-				} else {
-					runMsgCallback(onMiddlePedalDown);
-				}
-			}
-			else if (msg[1] == 64) {
-				runMsgCallback(onSustainChange);
-				if (msg[2] == 0) {
-					runMsgCallback(onSustainUp);
-				} else if (msg[2] == 127) {
-					runMsgCallback(onSustainDown);
-				}
-			}
+		case MidiEvent::ControlChange: {
+			handleControlChangeEvents(e);
 		} break;
 	}
 }
 
-std::vector<Key> KeyboardRecorder::record(double time) {
+std::vector<Music::Note> MidiRecorder::record(double time) {
 	mStarting = true;
 	bool beat = false;
 	while (!mStopping && (time == 0 || mStarting || mTimer.now() < time)) {
@@ -97,9 +108,10 @@ std::vector<Key> KeyboardRecorder::record(double time) {
 		} else {
 			beat = false;
 		}
-
-		handleMessage(mKeyboard->getMessage());
+		runCallback(onUpdate);
+		handleEvent(mDevice->getEvent());
 		usleep(100);
 	}
+
 	return mNotes;
 }

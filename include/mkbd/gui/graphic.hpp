@@ -19,7 +19,10 @@ protected:
 	int mY;
 	int mWidth;
 	int mHeight;
+
 	bool mIsHovered = true;
+	bool mIsFocused = false;
+
 	Color mColor1;
 	Color mColor2;
 
@@ -29,9 +32,12 @@ public:
 	virtual void draw(void);
 	virtual void init(void);
 	virtual void onClick(int button, int x, int y);
+	virtual void onMouseUp(int button, int x, int y);
 	virtual void onResize(int width, int height);
 	virtual void onHover(int x, int y);
+	virtual void onDrag(int x, int y);
 	virtual void onLeave(int x, int y);
+	virtual void onKeyDown(int key);
 
 	inline void setWindow(Window* window) { mWindow = window; };
 	inline Window* getWindow(void) { return mWindow; };
@@ -56,10 +62,13 @@ public:
 	inline int getHeight(void) { return mHeight; };
 	inline void setHeight(int height) { mHeight = height; };
 
-	inline Layout getLayout(void) { return mLayout; };
+	inline Layout& getLayout(void) { return mLayout; };
 
 	inline bool isHovered(void) { return mIsHovered; };
 	inline void setHovered(bool hovered) { mIsHovered = hovered; };
+
+	inline bool isFocused(void) { return mIsFocused; };
+	inline void setFocused(bool focused) { mIsFocused = focused; };
 
 	void drawLine(int x1, int y1, int x2, int y2);
 	void fillRectangle(int x, int y, int w, int h);

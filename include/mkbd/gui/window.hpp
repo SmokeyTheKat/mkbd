@@ -18,8 +18,12 @@ class Window {
 	SDL_Window* mWindow;
 	SDL_Renderer* mRenderer = 0;
 	Color mBgColor = Color(0, 0, 0);
+
+	Graphic* focused = 0;
 	
 	std::stack<GraphicPage> mPages;
+
+	bool mMouseIsDown = false;
 
 	int mHeight;
 	int mWidth;
@@ -60,8 +64,10 @@ private:
 	void draw(void);
 
 	void handleMouseButtonDownEvent(const SDL_MouseButtonEvent& e);
+	void handleMouseButtonUpEvent(const SDL_MouseButtonEvent& e);
 	void handleMouseMotionEvent(const SDL_MouseMotionEvent& e);
 	void handleWindowEvent(const SDL_WindowEvent& e);
+	void handleKeyDownEvent(const SDL_KeyboardEvent& e);
 	void handleWindowResizeEvent(int width, int height);
 };
 

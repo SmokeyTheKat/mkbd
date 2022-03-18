@@ -7,12 +7,14 @@
 #include <algorithm>
 #include <iostream>
 
-static constexpr const char* keyNames[12] = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
-
 struct Chord {
 	const char* name;
 	const std::vector<int> notes;
 };
+
+static std::string checkChordOrientationName(std::vector<int> notes);
+
+static constexpr const char* noteNames[12] = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
 
 static const Chord chords[] = {
 	{ "", { 0 } },
@@ -81,32 +83,25 @@ static std::string checkChordOrientationName(std::vector<int> notes) {
 
 	for (Chord c : chords) {
 		if (c.notes == notes) {
-			return std::string(getKeyNameFromKey(front)) + c.name;
+			return std::string(Music::getNoteName(front)) + c.name;
 		}
 	}
 	return "";
 }
 
-std::string getChordName(std::vector<int> notes) {
-	for (int& note : notes) {
-		std::string result = checkChordOrientationName(notes);
-		if (result.size() > 0)
-			return result;
-		note += 12;
-	}
-	return "";
-}
-
-const char* getKeyNameFromKey(byte key) {
-	return keyNames[(key - 21 + 9) % 12];
-}
-
-int getKeyOctiveFromKey(byte key) {
-	return (key - 21 + 9) / 12;
-}
 
 namespace Music {
-	double tuning = 432;
+	double tuning = 440;
+
+	std::string getChordName(std::vector<int> notes) {
+		for (int& note : notes) {
+			std::string result = checkChordOrientationName(notes);
+			if (result.size() > 0)
+				return result;
+			note += 12;
+		}
+		return "";
+	}
 
 	double noteToFreq(int note) {
 		return std::pow(std::pow(2.0, 1.0/12.0), note - 69.0) * tuning;
@@ -116,8 +111,16 @@ namespace Music {
 		return std::round(12.0 * logn(freq / tuning, 2.0) + 69.0);
 	}
 
+	int getNoteId(int note) {
+		return ((getNoteName(note)[0] - 'A' + 5) % 7) + (7 * (getNoteOctave(note)));
+	}
+
+	bool isNoteFlat(int note) {
+		return getNoteName(note).length() != 2;
+	}
+
 	std::string getNoteName(int note) {
-		return keyNames[note % 12];
+		return noteNames[note % 12];
 	}
 
 	int getNoteOctave(int note) {

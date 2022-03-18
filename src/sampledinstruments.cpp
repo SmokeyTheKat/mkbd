@@ -10,7 +10,7 @@ SampledInstrument::SampledInstrument(const std::string& name, const std::string&
 double SampledInstrument::waveform(double t, double freq) {
 	int note = Music::freqToNote(freq * 441.0);
 
-	if (note < mLowestNote || note > mHighestNote)
+	if (note < mLowestNote || note >= mHighestNote)
 		return 0;
 
 	NoteSample& ns = mSamples[note];

@@ -13,7 +13,7 @@ SDL_AudioSpec AudioPlayer::initAudioSpec(void) {
 	audioSpec.freq = mSampleRate;
 	audioSpec.format = AUDIO_S16SYS;
 	audioSpec.channels = 2;
-	audioSpec.samples = 16;
+	audioSpec.samples = 1024;
 	audioSpec.userdata = this;
 	audioSpec.callback = AudioPlayer::audioCallback;
 
@@ -38,44 +38,43 @@ void AudioPlayer::stop(void) {
 	mSamples.clear();
 }
 
+int16_t AudioPlayer::generateSample(AudioSample& s) {
+	int16_t value = s.generator.sample(s.t, s.freq) * s.gain;
+	
+	if (s.fadeOutTime != 0) {
+		if (mSustain && !s.isFadingOut) {
+			s.fadeOutTime = s.t;
+		} else {
+			s.isFadingOut = true;
+			value *= s.generator.fadeOut(s.t - s.fadeOutTime);
+		}
+	}
+
+	return value;
+}
+
 void AudioPlayer::fillAudioBuffer(int16_t* buffer, int length) {
 	int sampleCount = length / (sizeof(int16_t) * 2);
 
 	mMtx.lock();
 
 	for (int i = 0; i < sampleCount; i++) {
-		std::vector<std::vector<AudioSample>::iterator> toDelete;
+		std::vector<double> toDelete;
 
 		int16_t sample = 0;
 		for (auto& s : mSamples) {
-			int16_t value = s.generator.sample(s.t, s.freq) * s.gain;
+			if (!s.isAudiable())
+				toDelete.push_back(s.freq);
 
-			if (s.fadeOutTime != 0) {
-				if (mSustain && !s.isFadingOut) {
-					s.fadeOutTime = s.t;
-				} else {
-					s.isFadingOut = true;
-					value *= s.generator.fadeOut(s.t - s.fadeOutTime);
-				}
-			}
-
-			if (s.generator.getModifyers(s.t) < 0.0000001) {
-				for (auto it = mSamples.begin(); it != mSamples.end(); ++it) {
-					if (it->freq == s.freq) {
-						toDelete.push_back(it);
-					}
-				}
-			}
-
+			sample += generateSample(s);
 			s.t += 0.01;
-			sample += value;
 		}
 
 		*buffer++ = sample;
 		*buffer++ = sample;
 
-		for (auto it : toDelete) {
-			mSamples.erase(it);
+		for (auto freq : toDelete) {
+			deleteSample(freq * 441.0);
 		}
 	}
 

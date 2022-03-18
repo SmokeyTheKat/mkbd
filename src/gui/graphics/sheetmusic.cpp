@@ -3,7 +3,7 @@
 #include <mkbd/gui/window.hpp>
 #include <mkbd/math.hpp>
 
-SheetMusicGraphic::SheetMusicGraphic(Layout layout, KeyboardRecorder* rcdr)
+SheetMusicGraphic::SheetMusicGraphic(Layout layout, MidiRecorder* rcdr)
 : Graphic(layout), mRcdr(rcdr),
   mTrebleClefTexture("./trebleclef.png"), mQuaterNoteTexture("./quarternote.png"),
   mBassClefTexture("./bassclef.png") {};
@@ -51,7 +51,7 @@ void SheetMusicGraphic::draw(void) {
 
 	drawLines();
 
-	std::vector<Key>& keys = mRcdr->getNotes();
+	std::vector<Music::Note>& keys = mRcdr->getNotes();
 
 	double barLength = 60.0 / (double)mRcdr->getBpm() * 4.0;
 	double fullLength = barLength * 4;
@@ -67,7 +67,7 @@ void SheetMusicGraphic::draw(void) {
 //    return;
 
 	for (int i = 0; i < keys.size(); i++) {
-		Key key = keys[i];
+		Music::Note key = keys[i];
 		if (key.time < startTime) continue;
 		double time = roundTo(key.time - startTime, barLength / 4.0 / 4.0);
 //        time = key.time - startTime;
@@ -76,6 +76,7 @@ void SheetMusicGraphic::draw(void) {
 		}
 
 		setColor(0, 0, 0);
-		mQuaterNoteTexture.render(rmap(time, 0, fullLength, 0, mWidth), (36 - key.id) * mLineGap / 2 - 5, 0.02);
+		int keyId = Music::getNoteId(key.note);
+		mQuaterNoteTexture.render(rmap(time, 0, fullLength, 0, mWidth), (36 - keyId) * mLineGap / 2 - 5, 0.02);
 	}
 }

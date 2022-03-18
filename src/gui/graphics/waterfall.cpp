@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-WaterfallGraphic::WaterfallGraphic(Layout layout, KeyboardRecorder* recorder)
+WaterfallGraphic::WaterfallGraphic(Layout layout, MidiRecorder* recorder)
 : Graphic(layout), mRcdr(recorder) {
 	calculateSizes();
 };
@@ -57,21 +57,21 @@ void WaterfallGraphic::calculateSizes(void) {
 	}
 }
 
-double WaterfallGraphic::getKeyPressLength(std::vector<KeyboardMessage>::iterator it) {
-	KeyboardMessage startMsg = *it;
-	for (; it != mMsgs.end(); it++) {
-		KeyboardMessage msg = *it;
-		if (msg.getType() == KBD_MSG_KEY_UP && startMsg[1] == msg[1]) {
-			return msg.stamp - startMsg.stamp;
+double WaterfallGraphic::getKeyPressLength(std::vector<MidiEvent>::iterator it) {
+	MidiEvent startEvent = *it;
+	for (; it != mEvents.end(); it++) {
+		MidiEvent event = *it;
+		if (event.getType() == MidiEvent::NoteOff && startEvent[1] == event[1]) {
+			return event.time - startEvent.time;
 			break;
 		}
 	}
-	return mRcdr->getTime() - startMsg.stamp;
+	return mRcdr->getTime() - startEvent.time;
 }
 
 int WaterfallGraphic::getKeyWidth(int key) {
-	const char* keyName = getKeyNameFromKey(key);
-	if (strlen(keyName) == 2) {
+	std::string noteName = Music::getNoteName(key);
+	if (noteName.length() == 2) {
 		return mBlackKeyWidth;
 	}
 	return mKeyWidth;
@@ -81,14 +81,14 @@ void WaterfallGraphic::draw(void) {
 	int scale = 240;
 	setColor(48, 48, 48);
 	fillRectangle(mX, mY, mWidth, mHeight);
-	mMsgs = mRcdr->getMessages();
+	mEvents = mRcdr->getEvents();
 
-	for (auto it = mMsgs.begin(); it != mMsgs.end(); it++) {
-		if (it->getType() == KBD_MSG_KEY) {
+	for (auto it = mEvents.begin(); it != mEvents.end(); it++) {
+		if (it->getType() == MidiEvent::NoteOn) {
 			double length = getKeyPressLength(it);
 
 			int height = length * scale;
-			int y = mHeight - (mRcdr->getTime() * scale - it->stamp * scale);
+			int y = mHeight - (mRcdr->getTime() * scale - it->time * scale);
 			int width = getKeyWidth((*it)[1]);
 
 			if (y - height > 1 && height < 30) height = 20;

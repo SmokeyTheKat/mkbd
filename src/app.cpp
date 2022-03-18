@@ -3,7 +3,6 @@
 #include <mkbd/keyboard.hpp>
 #include <mkbd/utils.hpp>
 #include <mkbd/recorder.hpp>
-#include <mkbd/player.hpp>
 #include <mkbd/timer.hpp>
 #include <mkbd/music.hpp>
 #include <mkbd/math.hpp>
@@ -13,6 +12,7 @@
 #include <mkbd/gui/graphics/keyboard.hpp>
 #include <mkbd/gui/graphics/list.hpp>
 #include <mkbd/gui/graphics/rectangle.hpp>
+#include <mkbd/gui/graphics/input.hpp>
 #include <mkbd/gui/graphics/image.hpp>
 #include <mkbd/gui/graphics/sheetmusic.hpp>
 #include <mkbd/gui/graphics/button.hpp>
@@ -21,17 +21,17 @@
 #include <mkbd/gui/graphics/text.hpp>
 #include <mkbd/gui/window.hpp>
 
-static std::string getChord(KeyboardRecorder* rcdr) {
+static std::string getChord(MidiRecorder* rcdr) {
 	std::vector<int> notes;
 	for (int i = 0; i < 256; i++) {
-		if (rcdr->getKeyboard()->getKeyState(i))
+		if (rcdr->getDevice()->getNoteState(i))
 			notes.push_back(i);
 	}
 
 	std::string name;
 	bool found = false;
 	while (!found && notes.size() > 0) {
-		name = getChordName(notes);
+		name = Music::getChordName(notes);
 		if (name.length() > 0)
 			found = true;
 		notes.pop_back();
@@ -149,7 +149,7 @@ void App::settingsPageTabMidiDevice(void) {
 
 	std::vector<GraphicCreater> creaters;
 
-	std::vector<KeyboardInfo> keyboards = Keyboard::getKeyboards();
+	std::vector<MidiDevice::Info> keyboards = MidiDevice::getDevices();
 	for (auto& ki : keyboards) {
 		int port = ki.port;
 		creaters.push_back([this, port, ki](Layout layout) -> Graphic* {
@@ -176,6 +176,12 @@ void App::settingsPageTabMidiDevice(void) {
 }
 
 void App::settingsPageTabMidiForwarding(void) {
+	newSettingsPage();
+
+	RectangleGraphic* rect = new RectangleGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 400), Color(255, 255, 0), Color(0, 0, 0));
+	
+	mSettingsPage.push_back(rect);
+	mWindow.addGraphic(rect);
 }
 
 void App::settingsPageTabColorScheme(void) {
@@ -185,9 +191,16 @@ void App::settingsPageInstruments(void) {
 }
 
 void App::settingsPageTabProformance(void) {
+	newSettingsPage();
+
+	InputGraphic* input = new InputGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 40), "128", [](void){}, InputType::Number);
+	
+	mSettingsPage.push_back(input);
+	mWindow.addGraphic(input);
 }
 
 void App::settingsPageTabAbout(void) {
+	
 }
 
 void App::settingsPage(void) {
@@ -235,8 +248,8 @@ void App::freePlayPage(void) {
 
 	mWindow.newPage();
 
-	Keyboard piano(mMidiPort);
-	KeyboardRecorder recorder(&piano, 120);
+	MidiDevice piano(mMidiPort);
+	MidiRecorder recorder(&piano, 120);
 
 	mAudioPlayer.start();
 
@@ -244,7 +257,7 @@ void App::freePlayPage(void) {
 	int kgHeight = 300;
 
 	WaterfallGraphic* smg = new WaterfallGraphic(Layout(0, 0, 0, 300, Layout::FillX | Layout::FillY), &recorder);
-	KeyboardGraphic* kg = new KeyboardGraphic(Layout(0, kgHeight, 0, kgHeight, Layout::FillX | Layout::AnchorBottomLeft));
+	KeyboardGraphic* kg = new KeyboardGraphic(Layout(0, kgHeight, 0, kgHeight, Layout::FillX | Layout::AnchorBottomLeft), &recorder);
 	TextGraphic* tg = new TextGraphic(Layout(0, 40, 0, 100), "Cmaj9", RESOURCE_DIR "/fonts/FreeSans.ttf", 50, Color(255, 255, 255));
 
 	int buttonX = 10;
@@ -303,36 +316,36 @@ void App::freePlayPage(void) {
 		window->popPage();
 	};
 
-	recorder.onMessage = [this](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+	recorder.onUpdate = [this](MidiRecorder* rcdr) {
 		mWindow.update();
 	};
 
-	recorder.onSustainChange = [this](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+	recorder.onSustainChange = [this](MidiRecorder* rcdr, MidiEvent msg) {
 		if (msg[2] == 0) mAudioPlayer.sustainOff();
 		else mAudioPlayer.sustainOn();
 	};
 
-	recorder.onSoftPedalDown = [this](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+	recorder.onSoftPedalDown = [this](MidiRecorder* rcdr, MidiEvent msg) {
 		mAudioPlayer.stop();
 		rcdr->stop();
 		mWindow.popPage();
 	};
 
-	recorder.onPadDown = [this](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+	recorder.onPadDown = [this](MidiRecorder* rcdr, MidiEvent msg) {
 		if (msg[1] != 16) return;
 		mAudioPlayer.stop();
 		rcdr->stop();
 		mWindow.popPage();
 	};
 
-	recorder.onKeyDown = [this, &kg, &tg](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+	recorder.onKeyDown = [this, &kg, &tg](MidiRecorder* rcdr, MidiEvent msg) {
 		kg->keys[msg[1] - 12] = 1;
 		tg->setText(getChord(rcdr));
 		mWindow.update();
 		mAudioPlayer.addSample(*mActiveGen, Music::noteToFreq(msg[1]), rmap(msg[2], 0, 127, 0, 50));
 	};
 
-	recorder.onKeyUp = [this, &kg, &tg](KeyboardRecorder* rcdr, KeyboardMessage msg) {
+	recorder.onKeyUp = [this, &kg, &tg](MidiRecorder* rcdr, MidiEvent msg) {
 		kg->keys[msg[1] - 12] = 0;
 		tg->setText(getChord(rcdr));
 		mWindow.update();
@@ -366,7 +379,7 @@ void App::chooseKeyboardPage(void) {
 
 	std::vector<ButtonDetails> buttons;
 
-	std::vector<KeyboardInfo> keyboards = Keyboard::getKeyboards();
+	std::vector<MidiDevice::Info> keyboards = MidiDevice::getDevices();
 	for (auto& ki : keyboards) {
 		int port = ki.port;
 		ButtonDetails bd { ki.name.c_str(),

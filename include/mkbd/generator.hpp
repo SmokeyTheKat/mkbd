@@ -24,13 +24,17 @@ struct Generator {
 	Modifyer release = Constant<1>;
 	Modifyer fadeOut = Constant<0>;
 
-	inline double getModifyers(double t) {
+	double getModifyers(double t) {
 		return attack(t) * release(t);
 	}
 
-	inline double sample(double t, double freq) {
+	double sample(double t, double freq) {
 		return waveform(t, freq) * getModifyers(t);
 	};
+
+	bool isAudiable(double t) {
+		return getModifyers(t) > 0.0000001;
+	}
 };
 
 template<int A>

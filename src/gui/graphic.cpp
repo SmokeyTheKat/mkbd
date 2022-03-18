@@ -9,8 +9,11 @@ void Graphic::draw(void) {};
 void Graphic::init(void) {};
 void Graphic::onResize(int width, int height) {};
 void Graphic::onClick(int button, int x, int y) {};
+void Graphic::onMouseUp(int button, int x, int y) {};
 void Graphic::onHover(int x, int y) {};
 void Graphic::onLeave(int x, int y) {};
+void Graphic::onDrag(int x, int y) {};
+void Graphic::onKeyDown(int key) {};
 
 SDL_Renderer* Graphic::getRenderer(void) {
 	return mWindow->getRenderer();

@@ -2,25 +2,26 @@
 #define __MKBD_RECORDER_HPP__
 
 #include <mkbd/keyboard.hpp>
+#include <mkbd/music.hpp>
 #include <mkbd/timer.hpp>
 
 #include <vector>
 #include <functional>
 
-class KeyboardRecorder {
-	Keyboard* mKeyboard;
+class MidiRecorder {
+	MidiDevice* mDevice;
 	Timer mTimer;
 
-	std::vector<Key> mNotes;
-	std::vector<KeyboardMessage> mMessages;
+	std::vector<Music::Note> mNotes;
+	std::vector<MidiEvent> mEvents;
 
 	struct TimedCallback {
-		std::function<void(KeyboardRecorder* rcdr)> callback;
+		std::function<void(MidiRecorder* rcdr)> callback;
 		double time;
 		double full;
 		bool ran;
-		inline TimedCallback(std::function<void(KeyboardRecorder* rcdr)> callback, double time, double full)
-			: callback(callback), time(time), full(full), ran(false) {};
+		TimedCallback(std::function<void(MidiRecorder* rcdr)> callback, double time, double full)
+		: callback(callback), time(time), full(full), ran(false) {};
 	};
 
 	std::vector<TimedCallback> mTimedCallbacks;
@@ -30,41 +31,51 @@ class KeyboardRecorder {
 	bool mStarting = false;
 
 public:
-	KeyboardRecorder(Keyboard* keyboard);
-	KeyboardRecorder(Keyboard* keyboard, int bpm);
+	MidiRecorder(MidiDevice* device)
+	: mDevice(device) {};
+	MidiRecorder(MidiDevice* device, int bpm)
+	: mDevice(device), mBpm(bpm) {};
 
-	std::vector<Key> record(double time);
+	std::vector<Music::Note> record(double time);
+	void stop(void) { mStopping = true; };
+	void clear(void) { mNotes.clear(); mEvents.clear(); };
+	void restart(void) { mStarting = true; clear(); };
 
-	inline void addTimedCallback(std::function<void(KeyboardRecorder* rcdr)> callback, double time, double full) {
+	void sendEvent(MidiEvent e) { handleEvent(e); };
+
+	void addTimedCallback(std::function<void(MidiRecorder* rcdr)> callback, double time, double full) {
 		mTimedCallbacks.push_back(TimedCallback(callback, time, full));
 	};
 
-	inline Keyboard* getKeyboard(void) { return mKeyboard; };
-	inline std::vector<Key>& getNotes(void) { return mNotes; };
-	inline std::vector<KeyboardMessage>& getMessages(void) { return mMessages; };
-	inline Timer& getTimer(void) { return mTimer; };
-	inline double getTime(void) { return mTimer.now(); };
-	inline int getBpm(void) { return mBpm; };
-	inline void stop(void) { mStopping = true; };
-	inline void clear(void) { mNotes.clear(); mMessages.clear(); };
-	inline void restart(void) { mStarting = true; clear(); };
+	MidiDevice* getDevice(void) { return mDevice; };
+	std::vector<Music::Note>& getNotes(void) { return mNotes; };
+	std::vector<MidiEvent>& getEvents(void) { return mEvents; };
 
-	std::function<void(KeyboardRecorder* rcdr)> onBeat = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onMessage = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onPadDown = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onPadUp = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onKeyDown = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onKeyUp = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onSoftPedalDown = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onSoftPedalUp = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onMiddlePedalDown = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onMiddlePedalUp = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onSustainChange = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onSustainUp = 0;
-	std::function<void(KeyboardRecorder* rcdr, KeyboardMessage msg)> onSustainDown = 0;
+	Timer& getTimer(void) { return mTimer; };
+	double getTime(void) { return mTimer.now(); };
+
+	int getBpm(void) { return mBpm; };
+
+	std::function<void(MidiRecorder* rcdr)> onBeat = 0;
+	std::function<void(MidiRecorder* rcdr)> onUpdate = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onMessage = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onPadDown = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onPadUp = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onKeyDown = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onKeyUp = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSoftPedalDown = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSoftPedalUp = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onMiddlePedalDown = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onMiddlePedalUp = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSustainChange = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSustainUp = 0;
+	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSustainDown = 0;
 
 private:
-	void handleMessage(KeyboardMessage msg);
+	void handleEvent(MidiEvent e);
+	void handleNoteOffEvent(MidiEvent e);
+	void handleNoteOnEvent(MidiEvent e);
+	void handleControlChangeEvents(MidiEvent e);
 };
 
 #endif

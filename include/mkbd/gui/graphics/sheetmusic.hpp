@@ -9,7 +9,7 @@
 #include <mkbd/recorder.hpp>
 
 class SheetMusicGraphic : public Graphic {
-	KeyboardRecorder* mRcdr;
+	MidiRecorder* mRcdr;
 	Texture mTrebleClefTexture;
 	Texture mBassClefTexture;
 	Texture mQuaterNoteTexture;
@@ -17,7 +17,7 @@ class SheetMusicGraphic : public Graphic {
 	int mBarGap;
 
 public:
-	SheetMusicGraphic(Layout layout, KeyboardRecorder* rcdr);
+	SheetMusicGraphic(Layout layout, MidiRecorder* rcdr);
 	void draw(void);
 	void init(void);
 	void onClick(int button, int x, int y);

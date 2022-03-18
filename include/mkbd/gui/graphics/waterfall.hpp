@@ -10,8 +10,8 @@
 #include <vector>
 
 class WaterfallGraphic : public Graphic {
-	KeyboardRecorder* mRcdr;
-	std::vector<KeyboardMessage> mMsgs;
+	MidiRecorder* mRcdr;
+	std::vector<MidiEvent> mEvents;
 	std::vector<int> mKeyPositions;
 	Color mWhiteKeyColor = Color(255, 255, 0);
 	Color mBlackKeyColor = Color(255, 255, 0);
@@ -26,13 +26,13 @@ public:
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	};
 
-	WaterfallGraphic(Layout layout, KeyboardRecorder* recorder);
+	WaterfallGraphic(Layout layout, MidiRecorder* recorder);
 	void draw(void);
 	void init(void);
 	void onResize(int width, int height);
 	
 private:
-	double getKeyPressLength(std::vector<KeyboardMessage>::iterator it);
+	double getKeyPressLength(std::vector<MidiEvent>::iterator it);
 	void calculateSizes(void);
 	int getKeyWidth(int key);
 };

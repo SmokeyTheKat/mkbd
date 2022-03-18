@@ -1,13 +1,62 @@
 #include <mkbd/gui/graphics/keyboard.hpp>
+#include <mkbd/recorder.hpp>
 
 #include <iostream>
 
-KeyboardGraphic::KeyboardGraphic(Layout layout)
-: Graphic(layout) {
+KeyboardGraphic::KeyboardGraphic(Layout layout, MidiRecorder* rcdr)
+: Graphic(layout), mRcdr(rcdr) {
 	calculateSizes();
 };
 
+int KeyboardGraphic::getKeyAtPos(int x, int y) {
+	for (int note = 0; note < mKeyPositions.size(); note++) {
+		if (y > mBlackKeyHeight) break;
+
+		int vw = mKeyWidth;
+		if (!Music::isNoteFlat(note)) {
+			vw = mBlackKeyWidth;
+			int v = mKeyPositions[note];
+			if (x >= v && x < v + vw) {
+				return note;
+			}
+		}
+	}
+	for (int note = 0; note < mKeyPositions.size(); note++) {
+		int vw = mKeyWidth;
+		if (!Music::isNoteFlat(note)) {
+			continue;
+		}
+		int v = mKeyPositions[note];
+		if (x >= v && x < v + vw) {
+			return note;
+		}
+	}
+	return -1;
+}
+
 void KeyboardGraphic::onClick(int button, int x, int y) {
+	mVKey = getKeyAtPos(x, y);
+	mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOn, mVKey, 50}));
+}
+
+void KeyboardGraphic::onDrag(int x, int y) {
+	int key = getKeyAtPos(x, y);
+	if (mVKey != key) {
+		if (mVKey != -1)
+			mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, mVKey, 0}));
+
+		onClick(0, x, y);
+	}
+}
+
+void KeyboardGraphic::onMouseUp(int button, int x, int y) {
+	mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, mVKey, 0}));
+	mVKey = -1;
+}
+
+void KeyboardGraphic::onLeave(int x, int y) {
+	mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, mVKey, 0}));
+	mVKey = -1;
 }
 
 void KeyboardGraphic::onResize(int width, int height) {
@@ -58,6 +107,36 @@ void KeyboardGraphic::calculateSizes(void) {
 	mKeyHeight = mHeight;
 	mBlackKeyWidth = (mKeyWidth * 3) / 5;
 	mBlackKeyHeight = (mKeyHeight * 5) / 8;
+
+	mKeyPositions.resize(127);
+
+	for (int i = 0, key = 9 + 12; i < mKeyCount + 0; i++) {
+		mKeyPositions[key] = i * mKeyWidth;
+
+		key++;
+
+		if ((i+5) % 7 == 0) {
+			int offset = (5 * mBlackKeyWidth) / 8;
+			mKeyPositions[key] = (i + 1) * mKeyWidth - offset;
+			key++;
+		} else if ((i+5) % 7 == 1) {
+			int offset = (3 * mBlackKeyWidth) / 8;
+			mKeyPositions[key] = (i + 1) * mKeyWidth - offset;
+			key++;
+		} else if ((i+5) % 7 == 3) {
+			int offset = (5 * mBlackKeyWidth) / 8;
+			mKeyPositions[key] = (i + 1) * mKeyWidth - offset;
+			key++;
+		} else if ((i+5) % 7 == 4) {
+			int offset = mBlackKeyWidth / 2;
+			mKeyPositions[key] = (i + 1) * mKeyWidth - offset;
+			key++;
+		} else if ((i+5) % 7 == 5) {
+			int offset = (3 * mBlackKeyWidth) / 8;
+			mKeyPositions[key] = (i + 1) * mKeyWidth - offset;
+			key++;
+		}
+	}
 }
 
 void KeyboardGraphic::draw(void) {

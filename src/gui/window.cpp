@@ -110,9 +110,30 @@ void Window::removeGraphic(Graphic* graphic) {
 }
 
 void Window::handleMouseButtonDownEvent(const SDL_MouseButtonEvent& e) {
+	mMouseIsDown = true;
+	GraphicPage& page = getPage();
+	bool focusedFound = false;
+	for (auto it = page.rbegin(); it != page.rend(); it++) {
+		Graphic* g = *it;
+		if (g->getRect().isPointIntersecting(e.x, e.y)) {
+			if (!focusedFound) {
+				if (focused) focused->setFocused(false);
+				g->setFocused(true);
+				focused = g;
+				focusedFound = true;
+			}
+			g->onClick(e.button, e.x - g->getX(), e.y - g->getY());
+		}
+	}
+}
+
+void Window::handleMouseButtonUpEvent(const SDL_MouseButtonEvent& e) {
+	mMouseIsDown = false;
+	GraphicPage& page = getPage();
+	bool focusedFound = false;
 	for (Graphic* g : getPage()) {
 		if (g->getRect().isPointIntersecting(e.x, e.y)) {
-			g->onClick(e.button, e.x - g->getX(), e.y - g->getY());
+			g->onMouseUp(e.button, e.x - g->getX(), e.y - g->getY());
 		}
 	}
 }
@@ -122,10 +143,17 @@ void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
 		if (g->getRect().isPointIntersecting(e.x, e.y)) {
 			g->setHovered(true);
 			g->onHover(e.x - g->getX(), e.y - g->getY());
+			if (mMouseIsDown) g->onDrag(e.x - g->getX(), e.y - g->getY());
 		} else if (g->isHovered()) {
 			g->setHovered(false);
 			g->onLeave(e.x - g->getX(), e.y - g->getY());
 		}
+	}
+}
+
+void Window::handleKeyDownEvent(const SDL_KeyboardEvent& e) {
+	for (Graphic* g : getPage()) {
+		g->onKeyDown(e.keysym.sym);
 	}
 }
 
@@ -187,10 +215,14 @@ void Window::handleEvent(const SDL_Event& e) {
 		case SDL_MOUSEBUTTONDOWN: {
 			handleMouseButtonDownEvent(e.button);
 		} break;
+		case SDL_MOUSEBUTTONUP: {
+			handleMouseButtonUpEvent(e.button);
+		} break;
 		case SDL_WINDOWEVENT: {
 			handleWindowEvent(e.window);
 		} break;
 		case SDL_KEYDOWN: {
+			handleKeyDownEvent(e.key);
 			if (e.key.keysym.sym == SDLK_q) {
 				 this->~Window();
 			}
