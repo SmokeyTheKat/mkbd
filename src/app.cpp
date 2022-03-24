@@ -342,14 +342,14 @@ void App::freePlayPage(void) {
 		kg->keys[msg[1] - 12] = 1;
 		tg->setText(getChord(rcdr));
 		mWindow.update();
-		mAudioPlayer.addSample(*mActiveGen, Music::noteToFreq(msg[1]), rmap(msg[2], 0, 127, 0, 50));
+		mAudioPlayer.noteOn(*mActiveGen, Music::noteToFreq(msg[1]), rmap(msg[2], 0, 127, 0, 50));
 	};
 
 	recorder.onKeyUp = [this, &kg, &tg](MidiRecorder* rcdr, MidiEvent msg) {
 		kg->keys[msg[1] - 12] = 0;
 		tg->setText(getChord(rcdr));
 		mWindow.update();
-		mAudioPlayer.removeSample(Music::noteToFreq(msg[1]));
+		mAudioPlayer.noteOff(Music::noteToFreq(msg[1]));
 	};
 
 	mWindow.addGraphic(smg);

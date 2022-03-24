@@ -31,10 +31,6 @@ struct Generator {
 	double sample(double t, double freq) {
 		return waveform(t, freq) * getModifyers(t);
 	};
-
-	bool isAudiable(double t) {
-		return getModifyers(t) > 0.0000001;
-	}
 };
 
 template<int A>

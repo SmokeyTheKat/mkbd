@@ -11,10 +11,7 @@ double logn(double value, double base) {
 }
 
 double roundTo(double value, double to) {
-	double mod = std::fmod(value, to);
-//    if (mod / to < 0.5)
-		return value - std::fmod(value, to);
-//    else return value + (to - std::fmod(value, to));
+	return value - std::fmod(value, to);
 }
 
 bool isAbout(double value, double about, double threshold) {
@@ -22,5 +19,5 @@ bool isAbout(double value, double about, double threshold) {
 }
 
 double freqToRad(double freq) {
-	return 2.0 * 3.1415926535 * freq;
+	return 2.0 * 3.1415926535 * freq / 441.0;
 }

@@ -94,10 +94,14 @@ namespace Music {
 	double tuning = 440;
 
 	std::string getChordName(std::vector<int> notes) {
+		int firstNote = notes.front();
 		for (int& note : notes) {
 			std::string result = checkChordOrientationName(notes);
-			if (result.size() > 0)
-				return result;
+			if (result.size() > 0) {
+				if (notes[0] != firstNote)
+					return result + "/" + Music::getNoteName(firstNote);
+				else return result;
+			}
 			note += 12;
 		}
 		return "";

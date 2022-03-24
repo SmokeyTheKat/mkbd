@@ -12,8 +12,8 @@ SDL_AudioSpec AudioPlayer::initAudioSpec(void) {
 
 	audioSpec.freq = mSampleRate;
 	audioSpec.format = AUDIO_S16SYS;
-	audioSpec.channels = 2;
-	audioSpec.samples = 1024;
+	audioSpec.channels = 1;
+	audioSpec.samples = 128;
 	audioSpec.userdata = this;
 	audioSpec.callback = AudioPlayer::audioCallback;
 
@@ -38,44 +38,45 @@ void AudioPlayer::stop(void) {
 	mSamples.clear();
 }
 
+void AudioPlayer::restart(void) {
+	stop();
+	start();
+}
+
 int16_t AudioPlayer::generateSample(AudioSample& s) {
-	int16_t value = s.generator.sample(s.t, s.freq) * s.gain;
-	
-	if (s.fadeOutTime != 0) {
+	double value = s.sample();
+	if (s.fadeOutTime >= 0) {
 		if (mSustain && !s.isFadingOut) {
 			s.fadeOutTime = s.t;
 		} else {
 			s.isFadingOut = true;
-			value *= s.generator.fadeOut(s.t - s.fadeOutTime);
+			value *= s.fadeOut();
 		}
 	}
-
-	return value;
+	return shrink<double, int16_t>(value);
 }
 
 void AudioPlayer::fillAudioBuffer(int16_t* buffer, int length) {
-	int sampleCount = length / (sizeof(int16_t) * 2);
+	int sampleCount = length / (sizeof(int16_t));
 
 	mMtx.lock();
 
 	for (int i = 0; i < sampleCount; i++) {
-		std::vector<double> toDelete;
+		std::vector<long> toDelete;
 
-		int16_t sample = 0;
+		intmax_t sample = 0;
 		for (auto& s : mSamples) {
 			if (!s.isAudiable())
-				toDelete.push_back(s.freq);
+				toDelete.push_back(s.id);
 
 			sample += generateSample(s);
 			s.t += 0.01;
 		}
 
-		*buffer++ = sample;
-		*buffer++ = sample;
+		*buffer++ = shrink<intmax_t, int16_t>(sample);
 
-		for (auto freq : toDelete) {
-			deleteSample(freq * 441.0);
-		}
+		for (auto id : toDelete)
+			deleteSample(id);
 	}
 
 	mMtx.unlock();
@@ -87,44 +88,35 @@ void AudioPlayer::audioCallback(void* vSelf, uint8_t* buffer, int length) {
 	self->fillAudioBuffer((int16_t*)buffer, length);
 }
 
-void AudioPlayer::deleteSample(double freq) {
-	std::vector<std::vector<AudioSample>::iterator> toDelete;
+void AudioPlayer::deleteSample(long id) {
+	mSamples.erase(
+		std::remove_if(mSamples.begin(), mSamples.end(), [id](const AudioSample& s) {
+			return s.id == id;
+		}),
+		mSamples.end()
+	);
 
-	for (auto it = mSamples.begin(); it != mSamples.end(); ++it) {
-		if (isAbout(it->freq * 441.0, freq, 0.01)) {
-			toDelete.push_back(it);
-		}
-	}
-
-	for (auto it : toDelete) {
-		mSamples.erase(it);
-	}
+	if (mSamples.size() == 0)
+		AudioSample::resetCount();
 }
 
-int AudioPlayer::addSample(Generator generator, double freq, double gain) {
+void AudioPlayer::noteOn(Generator generator, double freq, double gain) {
 	mMtx.lock();
-
-	deleteSample(freq);
 
 	mSamples.push_back(AudioSample(generator, freq, gain));
-	int id = mSamples.size() - 1;
 
 	mMtx.unlock();
-	return id;
 }
 
-void AudioPlayer::removeSample(double freq) {
+void AudioPlayer::noteOff(double freq) {
 	mMtx.lock();
 
-	auto it = mSamples.begin();
-	for (; it != mSamples.end(); ++it) {
-		if (isAbout(it->freq * 441.0, freq, 0.01)) {
-			break;
+	for (auto& s : mSamples) {
+		if (isAbout(s.freq, freq, 0.01)) {
+			if (!s.isFadingOut && s.fadeOutTime < 0) {
+				s.fadeOutTime = s.t;
+			}
 		}
-	}
-
-	if (it != mSamples.end()) {
-		it->fadeOutTime = it->t;
 	}
 
 	mMtx.unlock();

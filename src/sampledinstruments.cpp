@@ -2,13 +2,15 @@
 
 #include <mkbd/music.hpp>
 
+#include <limits>
+
 SampledInstrument::SampledInstrument(const std::string& name, const std::string& path, int low, int high)
 : mName(name), mSamplePath(path), mLowestNote(low), mHighestNote(high) {
 	mSamples.resize(mHighestNote);
 };
 
 double SampledInstrument::waveform(double t, double freq) {
-	int note = Music::freqToNote(freq * 441.0);
+	int note = Music::freqToNote(freq);
 
 	if (note < mLowestNote || note >= mHighestNote)
 		return 0;
@@ -20,7 +22,7 @@ double SampledInstrument::waveform(double t, double freq) {
 	if (idx > ns.length) 
 		return 0;
 
-	return 0.5 * (double)(ns.buffer[idx] + ns.buffer[idx+1]) / 2500.0;
+	return 0.5 * (double)(ns.buffer[idx] + ns.buffer[idx+1]) / 2000.0;
 }
 
 void SampledInstrument::load(void) {
