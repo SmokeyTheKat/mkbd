@@ -56,31 +56,35 @@ int16_t AudioPlayer::generateSample(AudioSample& s) {
 	return shrink<double, int16_t>(value);
 }
 
+void AudioPlayer::removeInaudiableSamples(void) {
+	std::vector<long> toDelete;
+
+	for (auto& s : mSamples) {
+		if (!s.isAudiable())
+			toDelete.push_back(s.id);
+	}
+
+	for (auto id : toDelete)
+		deleteSample(id);
+}
+
 void AudioPlayer::fillAudioBuffer(int16_t* buffer, int length) {
 	int sampleCount = length / (sizeof(int16_t));
 
 	mMtx.lock();
 
 	for (int i = 0; i < sampleCount; i++) {
-		std::vector<long> toDelete;
-
 		intmax_t sample = 0;
 		for (auto& s : mSamples) {
-			if (!s.isAudiable())
-				toDelete.push_back(s.id);
-
 			sample += generateSample(s);
 			s.t += 0.01;
 		}
-
 		*buffer++ = shrink<intmax_t, int16_t>(sample);
-
-		for (auto id : toDelete)
-			deleteSample(id);
 	}
 
-	mMtx.unlock();
+	removeInaudiableSamples();
 
+	mMtx.unlock();
 }
 
 void AudioPlayer::audioCallback(void* vSelf, uint8_t* buffer, int length) {

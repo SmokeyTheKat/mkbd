@@ -46,10 +46,13 @@ class AudioPlayer {
 		static void resetCount(void) { count = 0; };
 	};
 
-	std::vector<AudioSample> mSamples;
-	int mSampleRate = 44100;
 	SDL_AudioDeviceID mAudioDevice;
 	std::mutex mMtx;
+
+	std::vector<AudioSample> mSamples;
+
+	int mSampleRate = 44100;
+
 	bool mSustain = false;
 
 public:
@@ -73,6 +76,8 @@ private:
 	void fillAudioBuffer(int16_t* buffer, int length);
 
 	int16_t generateSample(AudioSample& s);
+
+	void removeInaudiableSamples(void);
 };
 
 #endif

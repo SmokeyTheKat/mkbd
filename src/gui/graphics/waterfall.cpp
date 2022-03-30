@@ -83,7 +83,7 @@ void WaterfallGraphic::draw(void) {
 	fillRectangle(mX, mY, mWidth, mHeight);
 	mEvents = mRcdr->getEvents();
 
-	for (auto it = mEvents.begin(); it != mEvents.end(); it++) {
+	for (auto it = mEvents.begin() + mInvisible; it != mEvents.end(); it++) {
 		if (it->getType() == MidiEvent::NoteOn) {
 			double length = getKeyPressLength(it);
 
@@ -94,6 +94,7 @@ void WaterfallGraphic::draw(void) {
 			if (y - height > 1 && height < 30) height = 20;
 
 			if (y + height < 0) {
+				mInvisible = it - mEvents.begin();
 				continue;
 			}
 

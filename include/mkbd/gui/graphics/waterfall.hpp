@@ -21,6 +21,8 @@ class WaterfallGraphic : public Graphic {
 	int mBlackKeyWidth;
 	int mBlackKeyHeight;
 
+	int mInvisible = 0;
+
 public:
 	bool keys[255] = {
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

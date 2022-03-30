@@ -41,21 +41,21 @@ public:
 	void clearPage(void);
 	void popPage(void);
 	void newPage(void);
-	inline GraphicPage& getPage(void) { return mPages.top(); };
+	GraphicPage& getPage(void) { return mPages.top(); };
 
 	void setGraphicsSize(Graphic* g);
 
-	inline SDL_Renderer* getRenderer(void) { return mRenderer; };
+	SDL_Renderer* getRenderer(void) { return mRenderer; };
 	void update(void);
 	void handleEvents(void);
 	void handleEvent(const SDL_Event& e);
 	void eventLoop(void);
 	void pageLoop(void);
 
-	inline int getWidth(void) { return mWidth; };
-	inline int getHeight(void) { return mHeight; };
+	int getWidth(void) { return mWidth; };
+	int getHeight(void) { return mHeight; };
 
-	inline void setBgColor(int r, int g, int b) { mBgColor = Color(r, g, b); };
+	void setBgColor(int r, int g, int b) { mBgColor = Color(r, g, b); };
 
 	std::function<void(Window* window)> onExit = 0;
 
