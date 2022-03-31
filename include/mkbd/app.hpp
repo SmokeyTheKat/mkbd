@@ -4,6 +4,7 @@
 #include <mkbd/gui/window.hpp>
 #include <mkbd/utils.hpp>
 #include <mkbd/audioplayer.hpp>
+#include <mkbd/midi/recorder.hpp>
 #include <mkbd/instruments.hpp>
 
 #include <string>
@@ -58,6 +59,8 @@ private:
 	void newSettingsPage(void);
 
 	void chooseKeyboardPage(void);
+
+	void initVirtualKeyboard(MidiRecorder* rcdr);
 };
 
 #endif

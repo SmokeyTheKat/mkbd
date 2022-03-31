@@ -1,6 +1,6 @@
 #include <mkbd/music.hpp>
 
-#include <mkbd/keyboard.hpp>
+#include <mkbd/midi/keyboard.hpp>
 #include <mkbd/math.hpp>
 
 #include <cmath>

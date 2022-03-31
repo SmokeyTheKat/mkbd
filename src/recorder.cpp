@@ -1,7 +1,7 @@
-#include <mkbd/recorder.hpp>
+#include <mkbd/midi/recorder.hpp>
 
 #include <mkbd/music.hpp>
-#include <mkbd/recorder.hpp>
+#include <mkbd/midi/recorder.hpp>
 #include <mkbd/math.hpp>
 
 #include <unistd.h>

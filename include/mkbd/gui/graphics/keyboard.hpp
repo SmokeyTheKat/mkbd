@@ -2,7 +2,7 @@
 #define __MKBD_GUI_KEYBOARD_HPP__
 
 #include <mkbd/gui/graphic.hpp>
-#include <mkbd/recorder.hpp>
+#include <mkbd/midi/recorder.hpp>
 #include <mkbd/gui/layout.hpp>
 
 class KeyboardGraphic : public Graphic {

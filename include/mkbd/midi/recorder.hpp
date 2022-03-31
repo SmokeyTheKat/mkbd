@@ -1,7 +1,7 @@
 #ifndef __MKBD_RECORDER_HPP__
 #define __MKBD_RECORDER_HPP__
 
-#include <mkbd/keyboard.hpp>
+#include <mkbd/midi/keyboard.hpp>
 #include <mkbd/music.hpp>
 #include <mkbd/timer.hpp>
 

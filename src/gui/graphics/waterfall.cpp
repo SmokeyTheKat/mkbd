@@ -1,7 +1,7 @@
 #include <mkbd/gui/graphics/waterfall.hpp>
 
-#include <mkbd/recorder.hpp>
-#include <mkbd/keyboard.hpp>
+#include <mkbd/midi/recorder.hpp>
+#include <mkbd/midi/keyboard.hpp>
 #include <mkbd/music.hpp>
 
 #include <iostream>

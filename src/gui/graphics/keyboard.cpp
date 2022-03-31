@@ -1,5 +1,5 @@
 #include <mkbd/gui/graphics/keyboard.hpp>
-#include <mkbd/recorder.hpp>
+#include <mkbd/midi/recorder.hpp>
 
 #include <iostream>
 

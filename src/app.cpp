@@ -1,8 +1,8 @@
 #include <mkbd/app.hpp>
 
-#include <mkbd/keyboard.hpp>
+#include <mkbd/midi/keyboard.hpp>
 #include <mkbd/utils.hpp>
-#include <mkbd/recorder.hpp>
+#include <mkbd/midi/recorder.hpp>
 #include <mkbd/timer.hpp>
 #include <mkbd/music.hpp>
 #include <mkbd/math.hpp>
@@ -241,6 +241,10 @@ void App::settingsPage(void) {
 		mWindow.addGraphic(g);
 
 	mWindow.pageLoop();
+}
+
+void App::initVirtualKeyboard(MidiRecorder* rcdr) {
+//    window.events.on("keydown")
 }
 
 void App::freePlayPage(void) {

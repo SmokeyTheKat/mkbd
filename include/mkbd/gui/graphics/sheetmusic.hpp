@@ -5,8 +5,8 @@
 #include <mkbd/gui/layout.hpp>
 #include <mkbd/gui/window.hpp>
 #include <mkbd/gui/texture.hpp>
-#include <mkbd/keyboard.hpp>
-#include <mkbd/recorder.hpp>
+#include <mkbd/midi/keyboard.hpp>
+#include <mkbd/midi/recorder.hpp>
 
 class SheetMusicGraphic : public Graphic {
 	MidiRecorder* mRcdr;

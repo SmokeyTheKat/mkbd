@@ -1,4 +1,4 @@
-#include <mkbd/keyboard.hpp>
+#include <mkbd/midi/keyboard.hpp>
 
 #include <mkbd/music.hpp>
 

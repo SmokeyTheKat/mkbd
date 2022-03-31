@@ -3,7 +3,7 @@ PREFIX=~/.local
 RESOURCE_DIR=$(realpath ./resources)
 
 CC=g++
-CFLAGS=-Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -DRESOURCE_DIR=\"${RESOURCE_DIR}\" -lasound -lpthread -lSDL2 -lSDL2_ttf -lSDL2_image
+CFLAGS=-std=c++17 -Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -DRESOURCE_DIR=\"${RESOURCE_DIR}\" -lasound -lpthread -lSDL2 -lSDL2_ttf -lSDL2_image
 TARGET=./mkbd
 
 CSRCS=$(shell find ./src/ -name '*.cpp' -or -name '*.c' -type f)

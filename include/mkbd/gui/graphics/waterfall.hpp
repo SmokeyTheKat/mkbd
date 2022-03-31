@@ -4,8 +4,8 @@
 #include <mkbd/gui/graphic.hpp>
 #include <mkbd/gui/layout.hpp>
 
-#include <mkbd/recorder.hpp>
-#include <mkbd/keyboard.hpp>
+#include <mkbd/midi/recorder.hpp>
+#include <mkbd/midi/keyboard.hpp>
 
 #include <vector>
 
