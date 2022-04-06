@@ -20,6 +20,9 @@
 #include <mkbd/gui/graphics/waterfall.hpp>
 #include <mkbd/gui/graphics/text.hpp>
 #include <mkbd/gui/window.hpp>
+#include <mkbd/virtualkeyboard.hpp>
+
+using namespace std::placeholders;
 
 static std::string getChord(MidiRecorder* rcdr) {
 	std::vector<int> notes;
@@ -193,7 +196,15 @@ void App::settingsPageInstruments(void) {
 void App::settingsPageTabProformance(void) {
 	newSettingsPage();
 
-	InputGraphic* input = new InputGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 40), "128", [](void){}, InputType::Number);
+	InputGraphic* input = new InputGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 40), std::to_string(mAudioPlayer.getSampleSize()), [](void){}, InputType::Number);
+
+	input->on("change", asFunction<std::string>([this](std::string text) {
+		if (stringIsNumber(text)) {
+			int value = std::stoi(text);
+			mAudioPlayer.setSampleSize(value);
+			mAudioPlayer.restart();
+		}
+	}));
 	
 	mSettingsPage.push_back(input);
 	mWindow.addGraphic(input);
@@ -247,10 +258,32 @@ void App::initVirtualKeyboard(MidiRecorder* rcdr) {
 //    window.events.on("keydown")
 }
 
+void App::attachRecorderToAudioPlayer(MidiRecorder* rcdr) {
+	rcdr->on("SustainChange", asFunction<MidiRecorder*, byte>([this](MidiRecorder* rcdr, byte sustain) {
+		if (sustain == 0) {
+			mAudioPlayer.sustainOff();
+		} else {
+			mAudioPlayer.sustainOn();
+		}
+	}));
+
+	rcdr->on("NoteOn", asFunction<MidiRecorder*, byte, byte>([this](MidiRecorder* rcdr, byte note, byte velocity) {
+		mAudioPlayer.noteOn(*mActiveGen, Music::noteToFreq(note), rmap(velocity, 0, 127, 0, 50));
+	}));
+
+	rcdr->on("NoteOff", asFunction<MidiRecorder*, byte>([this](MidiRecorder* rcdr, byte note) {
+		mAudioPlayer.noteOff(Music::noteToFreq(note));
+	}));
+}
+
+
 void App::freePlayPage(void) {
+	SET_FID;
+
 	chooseKeyboardPage();
 
 	mWindow.newPage();
+
 
 	MidiDevice piano(mMidiPort);
 	MidiRecorder recorder(&piano, 120);
@@ -264,108 +297,87 @@ void App::freePlayPage(void) {
 	KeyboardGraphic* kg = new KeyboardGraphic(Layout(0, kgHeight, 0, kgHeight, Layout::FillX | Layout::AnchorBottomLeft), &recorder);
 	TextGraphic* tg = new TextGraphic(Layout(0, 40, 0, 100), "Cmaj9", RESOURCE_DIR "/fonts/FreeSans.ttf", 50, Color(255, 255, 255));
 
-	int buttonX = 10;
-	int buttonY = 10;
-	int buttonWidth = 100;
-	int buttonHeight = 30;
-	int buttonGap = 10;
+#define InstrumentButtonCreater(text, gen) \
+	[this](Layout layout) -> Graphic* { \
+		ButtonGraphic* bg = new ButtonGraphic(layout, (text), [this](void) { \
+			mActiveGen = (gen); \
+		}, mAccColor, mFgColor); \
+		bg->setFontSize(20); \
+		return bg; \
+	}
 
-	ButtonGraphic* butPiano = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Piano", [this](void) {
-		mActiveGen = &pianoGen;
-	}, mAccColor, mFgColor);
-	butPiano->setFontSize(20);
-	buttonX += buttonWidth + buttonGap;
+	std::vector<Graphic*> buttons = createListGraphic(
+		Layout(10, 10, 100, 30),
+		{
+			InstrumentButtonCreater("Piano", &pianoGen),
+			InstrumentButtonCreater("Organ", &organGen),
+			InstrumentButtonCreater("Brass", &brassGen),
+			InstrumentButtonCreater("Reed", &reedGen),
+			InstrumentButtonCreater("Phone", &phoneGen),
+			[this](Layout layout) -> Graphic* {
+				ButtonGraphic* bg = new ButtonGraphic(layout, "Settings", [this](void) {
+					settingsPage();
+				}, mAccColor, mFgColor);
+				bg->setFontSize(20);
+				return bg;
+			},
+			[this, &recorder](Layout layout) -> Graphic* {
+				ButtonGraphic* bg = new ButtonGraphic(layout, "Quit", [this, &recorder](void) {
+					recorder.stop();
+					mAudioPlayer.stop();
+					mWindow.popPage();
+				}, mAccColor, mFgColor);
+				bg->setFontSize(20);
+				return bg;
+			}
+		},
+		10,
+		ListDirection::Horizontal
+	);
 
-	ButtonGraphic* butOrgan = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Organ", [this](void) {
-		mActiveGen = &organGen;
-	}, mAccColor, mFgColor);
-	butOrgan->setFontSize(20);
-	buttonX += buttonWidth + buttonGap;
-
-	ButtonGraphic* butBrass = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Brass", [this](void) {
-		mActiveGen = &brassGen;
-	}, mAccColor, mFgColor);
-	butBrass->setFontSize(20);
-	buttonX += buttonWidth + buttonGap;
-
-	ButtonGraphic* butReed = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Reed", [this](void) {
-		mActiveGen = &reedGen;
-	}, mAccColor, mFgColor);
-	butReed->setFontSize(20);
-	buttonX += buttonWidth + buttonGap;
-
-	ButtonGraphic* butPhone = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Phone", [this](void) {
-		mActiveGen = &phoneGen;
-	}, mAccColor, mFgColor);
-	butPhone->setFontSize(20);
-	buttonX += buttonWidth + buttonGap;
-
-	ButtonGraphic* butSettings = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Settings", [this, &recorder](void) {
-		settingsPage();
-	}, mAccColor, mFgColor);
-	butSettings->setFontSize(20);
-	buttonX += buttonWidth + buttonGap;
-
-	ButtonGraphic* butQuit = new ButtonGraphic(Layout(buttonX, buttonY, buttonWidth, buttonHeight), "Quit", [this, &recorder](void) {
-		recorder.stop();
-		mAudioPlayer.stop();
-		mWindow.popPage();
-	}, mAccColor, mFgColor);
-	butQuit->setFontSize(20);
-	buttonX += buttonWidth + buttonGap;
-
-	mWindow.onExit = [this, &recorder](Window* window) {
+	mWindow.on("Exit", asFunction<Window*>([this, &recorder](Window* window) {
 		recorder.stop();
 		mAudioPlayer.stop();
 		window->popPage();
-	};
+	}), FID);
 
-	recorder.onUpdate = [this](MidiRecorder* rcdr) {
+	VirtualKeyboard vk(&recorder);
+	mWindow.on("KeyDown", asFunction<Window*, int>(std::bind(&VirtualKeyboard::onKeyDown, &vk, _2)), FID);
+	mWindow.on("KeyUp", asFunction<Window*, int>(std::bind(&VirtualKeyboard::onKeyUp, &vk, _2)), FID);
+
+	recorder.on("Update", asFunction<MidiRecorder*>([this](MidiRecorder* rcdr) {
 		mWindow.update();
-	};
+	}));
 
-	recorder.onSustainChange = [this](MidiRecorder* rcdr, MidiEvent msg) {
-		if (msg[2] == 0) mAudioPlayer.sustainOff();
-		else mAudioPlayer.sustainOn();
-	};
+	attachRecorderToAudioPlayer(&recorder);
 
-	recorder.onSoftPedalDown = [this](MidiRecorder* rcdr, MidiEvent msg) {
+	recorder.on("SoftPedalDown", asFunction<MidiRecorder*>([this](MidiRecorder* rcdr) {
 		mAudioPlayer.stop();
 		rcdr->stop();
 		mWindow.popPage();
-	};
+	}));
 
-	recorder.onPadDown = [this](MidiRecorder* rcdr, MidiEvent msg) {
-		if (msg[1] != 16) return;
+	recorder.on("PadOn", asFunction<MidiRecorder*, byte, byte>([this](MidiRecorder* rcdr, byte note, byte velocity) {
+		if (note != 16) return;
 		mAudioPlayer.stop();
 		rcdr->stop();
 		mWindow.popPage();
-	};
+	}));
 
-	recorder.onKeyDown = [this, &kg, &tg](MidiRecorder* rcdr, MidiEvent msg) {
-		kg->keys[msg[1] - 12] = 1;
+	recorder.on("NoteOn", asFunction<MidiRecorder*, byte, byte>([this, &tg](MidiRecorder* rcdr, byte note, byte velocity) {
 		tg->setText(getChord(rcdr));
-		mWindow.update();
-		mAudioPlayer.noteOn(*mActiveGen, Music::noteToFreq(msg[1]), rmap(msg[2], 0, 127, 0, 50));
-	};
+	}));
 
-	recorder.onKeyUp = [this, &kg, &tg](MidiRecorder* rcdr, MidiEvent msg) {
-		kg->keys[msg[1] - 12] = 0;
+	recorder.on("NoteOff", asFunction<MidiRecorder*, byte>([this, &tg](MidiRecorder* rcdr, byte note) {
 		tg->setText(getChord(rcdr));
-		mWindow.update();
-		mAudioPlayer.noteOff(Music::noteToFreq(msg[1]));
-	};
+	}));
 
 	mWindow.addGraphic(smg);
 	mWindow.addGraphic(kg);
 	mWindow.addGraphic(tg);
-	mWindow.addGraphic(butPiano);
-	mWindow.addGraphic(butOrgan);
-	mWindow.addGraphic(butBrass);
-	mWindow.addGraphic(butReed);
-	mWindow.addGraphic(butPhone);
-	mWindow.addGraphic(butSettings);
-	mWindow.addGraphic(butQuit);
+
+	for (auto b : buttons)
+		mWindow.addGraphic(b);
 
 	mWindow.update();
 
@@ -374,6 +386,8 @@ void App::freePlayPage(void) {
 	recorder.record(0);
 
 	mWindow.pageLoop();
+
+	mWindow.clearGroup(FID);
 }
 
 void App::chooseKeyboardPage(void) {

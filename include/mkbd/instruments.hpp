@@ -43,5 +43,13 @@ static Generator organGen {
 	.fadeOut = LinearRelease<200>,
 };
 
+static Generator metronomeGen {
+	.waveform = [](double t, double freq) -> double {
+		return 0.5 * Waves::multi(t, freq, 1.5, 2.0, 0.4);
+	},
+	.release = LinearRelease<20>,
+//    .release = Cutoff<10>,
+};
+
 
 #endif

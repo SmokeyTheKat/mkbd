@@ -4,6 +4,7 @@
 #include <mkbd/gui/graphic.hpp>
 #include <mkbd/gui/graphics/text.hpp>
 #include <mkbd/gui/window.hpp>
+#include <mkbd/eventemitter.hpp>
 
 #include <mkbd/utils.hpp>
 
@@ -15,7 +16,7 @@ enum class InputType {
 	Number,
 };
 
-class InputGraphic : public Graphic {
+class InputGraphic : public Graphic, public EventEmitter {
 	std::function<void(void)> mCallback = 0;
 	TextGraphic mText;
 	InputType mInputType;

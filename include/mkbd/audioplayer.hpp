@@ -52,6 +52,7 @@ class AudioPlayer {
 	std::vector<AudioSample> mSamples;
 
 	int mSampleRate = 44100;
+	int mSampleSize = 128;
 
 	bool mSustain = false;
 
@@ -66,8 +67,12 @@ public:
 	void sustainOff(void) { mSustain = false; };
 
 	void deleteSample(long id);
+
 	void noteOn(Generator generator, double freq, double gain);
 	void noteOff(double freq);
+
+	void setSampleSize(int sampleSize) { mSampleSize = sampleSize; };
+	int getSampleSize(void) { return mSampleSize; };
 
 private:
 	SDL_AudioSpec initAudioSpec(void);

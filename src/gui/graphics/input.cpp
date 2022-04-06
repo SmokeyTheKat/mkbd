@@ -39,6 +39,8 @@ void InputGraphic::onKeyDown(int key) {
 	}
 
 	mText.setText(text);
+
+	emit<std::string>("change", text);
 }
 
 void InputGraphic::draw(void) {

@@ -9,6 +9,9 @@
 WaterfallGraphic::WaterfallGraphic(Layout layout, MidiRecorder* recorder)
 : Graphic(layout), mRcdr(recorder) {
 	calculateSizes();
+	mRcdr->on("Event", asFunction<MidiRecorder*, MidiEvent>([this](MidiRecorder* rcdr, MidiEvent e) {
+		mEvents.push_back(e);
+	}));
 };
 
 void WaterfallGraphic::init(void) {
@@ -81,9 +84,10 @@ void WaterfallGraphic::draw(void) {
 	int scale = 240;
 	setColor(48, 48, 48);
 	fillRectangle(mX, mY, mWidth, mHeight);
-	mEvents = mRcdr->getEvents();
 
-	for (auto it = mEvents.begin() + mInvisible; it != mEvents.end(); it++) {
+	std::vector<std::vector<MidiEvent>::iterator> toDelete;
+
+	for (auto it = mEvents.begin(); it != mEvents.end(); it++) {
 		if (it->getType() == MidiEvent::NoteOn) {
 			double length = getKeyPressLength(it);
 
@@ -94,7 +98,7 @@ void WaterfallGraphic::draw(void) {
 			if (y - height > 1 && height < 30) height = 20;
 
 			if (y + height < 0) {
-				mInvisible = it - mEvents.begin();
+				toDelete.push_back(it);
 				continue;
 			}
 
@@ -102,5 +106,9 @@ void WaterfallGraphic::draw(void) {
 			setColor2(0, 0, 0);
 			drawRectangleWithOutline(mKeyPositions[(*it)[1]], y, width, height);
 		}
+	}
+
+	for (auto it : toDelete) {
+		mEvents.erase(it);
 	}
 }

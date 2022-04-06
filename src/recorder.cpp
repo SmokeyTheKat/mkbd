@@ -11,13 +11,17 @@
 #define runCallback(callback) { if (callback) callback(this); };
 #define runMsgCallback(callback) { if (callback) callback(this, e); };
 
+bool MidiRecorder::isPadNote(int note) {
+	return (note >= 16 && note <= 23) || (note >= 32 && note <= 39);
+}
+
 void MidiRecorder::handleNoteOffEvent(MidiEvent e) {
 	mDevice->setNoteState(e[1], 0);
 
-	runMsgCallback(onKeyUp);
+	emit("NoteOff", this, e[1]);
 
-	if ((e[1] >= 16 && e[1] <= 23) || (e[1] >= 32 && e[1] <= 39)) {
-		runMsgCallback(onPadUp);
+	if (isPadNote(e[1])) {
+		emit("PadOff", this, e[1], e[2]);
 	}
 }
 
@@ -30,46 +34,46 @@ void MidiRecorder::handleNoteOnEvent(MidiEvent e) {
 	mStarting = false;
 	
 	mDevice->setNoteState(e[1], 1);
-
-	mNotes.push_back(Music::Note(e[1], e[2], mTimer.now()));
 	
-	runMsgCallback(onKeyDown);
+	emit("NoteOn", this, e[1], e[2]);
 
-	if ((e[1] >= 16 && e[1] <= 23) || (e[1] >= 32 && e[1] <= 39)) {
-		runMsgCallback(onPadDown);
+	if (isPadNote(e[1])) {
+		emit("PadOn", this, e[1], e[2]);
 	}
 }
 
 void MidiRecorder::handleControlChangeEvents(MidiEvent e) {
 	mEvents.push_back(e);
-	if (e[1] == 67) {
-		if (e[2] == 0) {
-			runMsgCallback(onSoftPedalUp);
-		} else {
-			runMsgCallback(onSoftPedalDown);
-		}
-	}
-	else if (e[1] == 66) {
-		if (e[2] == 0) {
-			runMsgCallback(onMiddlePedalUp);
-		} else {
-			runMsgCallback(onMiddlePedalDown);
-		}
-	}
-	else if (e[1] == 64) {
-		runMsgCallback(onSustainChange);
-		if (e[2] == 0) {
-			runMsgCallback(onSustainUp);
-		} else if (e[2] == 127) {
-			runMsgCallback(onSustainDown);
-		}
+	switch (e[1]) {
+		case MidiEvent::ControlType::SoftPedal: {
+			if (e[2] == 0) {
+				emit("SoftPedalUp", this);
+			} else {
+				emit("SoftPedalDown", this);
+			}
+		} break;
+		case MidiEvent::ControlType::MiddlePedal: {
+			if (e[2] == 0) {
+				emit("MiddlePedalUp", this);
+			} else {
+				emit("MiddlePedalDown", this);
+			}
+		} break;
+		case MidiEvent::ControlType::SustainPedal: {
+			emit("SustainChange", this, e[2]);
+			if (e[2] == 0) {
+				emit("SustainPedalUp", this);
+			} else if (e[2] == 127) {
+				emit("SustainPedalDown", this);
+			}
+		} break;
 	}
 }
 
 void MidiRecorder::handleEvent(MidiEvent e) {
 	if (e.length() == 0) return;
 	e.time = mTimer.now();
-	runMsgCallback(onMessage);
+	emit("Event", this, e);
 	mEvents.push_back(e);
 	switch (e.getType()) {
 		case MidiEvent::NoteOff: {
@@ -84,7 +88,7 @@ void MidiRecorder::handleEvent(MidiEvent e) {
 	}
 }
 
-std::vector<Music::Note> MidiRecorder::record(double time) {
+std::vector<MidiEvent> MidiRecorder::record(double time) {
 	mStarting = true;
 	bool beat = false;
 	while (!mStopping && (time == 0 || mStarting || mTimer.now() < time)) {
@@ -102,16 +106,17 @@ std::vector<Music::Note> MidiRecorder::record(double time) {
 
 		if (std::fmod(mTimer.now(), 60.0 / mBpm) < 0.01) {
 			if (!beat) {
-				runCallback(onBeat);
+				emit("Beat", this);
 			}
 			beat = true;
 		} else {
 			beat = false;
 		}
-		runCallback(onUpdate);
+		emit("Update");
 		handleEvent(mDevice->getEvent());
 		usleep(100);
 	}
 
-	return mNotes;
+	return mEvents;
 }
+

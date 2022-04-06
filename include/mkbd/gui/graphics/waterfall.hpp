@@ -21,13 +21,7 @@ class WaterfallGraphic : public Graphic {
 	int mBlackKeyWidth;
 	int mBlackKeyHeight;
 
-	int mInvisible = 0;
-
 public:
-	bool keys[255] = {
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	};
-
 	WaterfallGraphic(Layout layout, MidiRecorder* recorder);
 	void draw(void);
 	void init(void);

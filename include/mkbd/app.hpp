@@ -38,6 +38,8 @@ private:
 	inline int getWidth(void) { return mWindow.getWidth(); };
 	inline int getHeight(void) { return mWindow.getHeight(); };
 
+	void attachRecorderToAudioPlayer(MidiRecorder* rcdr);
+
 	void generateHeader(const char* title);
 	void generateFooter(void);
 

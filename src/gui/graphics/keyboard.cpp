@@ -3,10 +3,22 @@
 
 #include <iostream>
 
+using namespace std::placeholders;
+
 KeyboardGraphic::KeyboardGraphic(Layout layout, MidiRecorder* rcdr)
 : Graphic(layout), mRcdr(rcdr) {
 	calculateSizes();
+	rcdr->on("NoteOn", asFunction<MidiRecorder*, byte, byte>(std::bind(&KeyboardGraphic::onNoteOn, this, _2, _3)));
+	rcdr->on("NoteOff", asFunction<MidiRecorder*, byte>(std::bind(&KeyboardGraphic::onNoteOff, this, _2)));
 };
+
+void KeyboardGraphic::onNoteOn(byte note, byte velocity) {
+	keys[note - 12] = 1;
+}
+
+void KeyboardGraphic::onNoteOff(byte note) {
+	keys[note - 12] = 0;
+}
 
 int KeyboardGraphic::getKeyAtPos(int x, int y) {
 	for (int note = 0; note < mKeyPositions.size(); note++) {

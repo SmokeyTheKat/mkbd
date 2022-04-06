@@ -24,6 +24,14 @@ struct MidiEvent {
 		PitchWheel = 0x0e,
 	};
 
+	struct ControlType {
+		enum {
+			SoftPedal = 67,
+			MiddlePedal = 66,
+			SustainPedal = 64,
+		};
+	};
+
 	MidiEvent(void)
 	: MidiEvent({0}, 0) {};
 	MidiEvent(const RawMidiEvent& data)

@@ -4,15 +4,15 @@
 #include <mkbd/midi/keyboard.hpp>
 #include <mkbd/music.hpp>
 #include <mkbd/timer.hpp>
+#include <mkbd/eventemitter.hpp>
 
 #include <vector>
 #include <functional>
 
-class MidiRecorder {
+class MidiRecorder : public EventEmitter {
 	MidiDevice* mDevice;
 	Timer mTimer;
 
-	std::vector<Music::Note> mNotes;
 	std::vector<MidiEvent> mEvents;
 
 	struct TimedCallback {
@@ -36,9 +36,9 @@ public:
 	MidiRecorder(MidiDevice* device, int bpm)
 	: mDevice(device), mBpm(bpm) {};
 
-	std::vector<Music::Note> record(double time);
+	std::vector<MidiEvent> record(double time);
 	void stop(void) { mStopping = true; };
-	void clear(void) { mNotes.clear(); mEvents.clear(); };
+	void clear(void) { mEvents.clear(); };
 	void restart(void) { mStarting = true; clear(); };
 
 	void sendEvent(MidiEvent e) { handleEvent(e); };
@@ -48,7 +48,6 @@ public:
 	};
 
 	MidiDevice* getDevice(void) { return mDevice; };
-	std::vector<Music::Note>& getNotes(void) { return mNotes; };
 	std::vector<MidiEvent>& getEvents(void) { return mEvents; };
 
 	Timer& getTimer(void) { return mTimer; };
@@ -56,22 +55,9 @@ public:
 
 	int getBpm(void) { return mBpm; };
 
-	std::function<void(MidiRecorder* rcdr)> onBeat = 0;
-	std::function<void(MidiRecorder* rcdr)> onUpdate = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onMessage = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onPadDown = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onPadUp = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onKeyDown = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onKeyUp = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSoftPedalDown = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSoftPedalUp = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onMiddlePedalDown = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onMiddlePedalUp = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSustainChange = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSustainUp = 0;
-	std::function<void(MidiRecorder* rcdr, MidiEvent msg)> onSustainDown = 0;
-
 private:
+	bool isPadNote(int note);
+
 	void handleEvent(MidiEvent e);
 	void handleNoteOffEvent(MidiEvent e);
 	void handleNoteOnEvent(MidiEvent e);

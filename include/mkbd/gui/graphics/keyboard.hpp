@@ -7,7 +7,6 @@
 
 class KeyboardGraphic : public Graphic {
 	MidiRecorder* mRcdr;
-
 	std::vector<int> mKeyPositions;
 	int mKeyCount=52;
 	int mKeyWidth;
@@ -44,6 +43,9 @@ private:
 	void drawKeyboardBlackKeyLeft(int key, int i);
 	void drawKeyboardBlackKeyRight(int key, int i);
 	void drawKeyboardBlackKeyMiddle(int key, int i);
+
+	void onNoteOn(byte note, byte velocity);
+	void onNoteOff(byte note);
 };
 
 #endif

@@ -13,7 +13,7 @@ SDL_AudioSpec AudioPlayer::initAudioSpec(void) {
 	audioSpec.freq = mSampleRate;
 	audioSpec.format = AUDIO_S16SYS;
 	audioSpec.channels = 1;
-	audioSpec.samples = 128;
+	audioSpec.samples = mSampleSize;
 	audioSpec.userdata = this;
 	audioSpec.callback = AudioPlayer::audioCallback;
 
@@ -41,6 +41,7 @@ void AudioPlayer::stop(void) {
 void AudioPlayer::restart(void) {
 	stop();
 	start();
+	unpause();
 }
 
 int16_t AudioPlayer::generateSample(AudioSample& s) {

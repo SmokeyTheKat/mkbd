@@ -5,6 +5,7 @@
 #include <mkbd/gui/texture.hpp>
 #include <mkbd/gui/layout.hpp>
 #include <mkbd/utils.hpp>
+#include <mkbd/eventemitter.hpp>
 
 #include <SDL2/SDL.h>
 
@@ -14,7 +15,7 @@
 
 using GraphicPage = std::vector<Graphic*>;
 
-class Window {
+class Window : public EventEmitter {
 	SDL_Window* mWindow;
 	SDL_Renderer* mRenderer = 0;
 	Color mBgColor = Color(0, 0, 0);
@@ -57,8 +58,6 @@ public:
 
 	void setBgColor(int r, int g, int b) { mBgColor = Color(r, g, b); };
 
-	std::function<void(Window* window)> onExit = 0;
-
 private:
 	void clearScreen(void);
 	void draw(void);
@@ -68,6 +67,7 @@ private:
 	void handleMouseMotionEvent(const SDL_MouseMotionEvent& e);
 	void handleWindowEvent(const SDL_WindowEvent& e);
 	void handleKeyDownEvent(const SDL_KeyboardEvent& e);
+	void handleKeyUpEvent(const SDL_KeyboardEvent& e);
 	void handleWindowResizeEvent(int width, int height);
 };
 

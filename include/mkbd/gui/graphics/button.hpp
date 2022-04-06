@@ -27,6 +27,7 @@ public:
 	void init(void);
 	void onResize(int width, int height);
 	void onClick(int button, int x, int y);
+	void onlick(int button, int x, int y);
 
 	inline void setFontSize(int fontSize) { mText.setFontSize(fontSize); };
 };

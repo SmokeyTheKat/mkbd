@@ -51,6 +51,7 @@ void SheetMusicGraphic::draw(void) {
 
 	drawLines();
 
+/*
 	std::vector<Music::Note>& keys = mRcdr->getNotes();
 
 	double barLength = 60.0 / (double)mRcdr->getBpm() * 4.0;
@@ -79,4 +80,5 @@ void SheetMusicGraphic::draw(void) {
 		int keyId = Music::getNoteId(key.note);
 		mQuaterNoteTexture.render(rmap(time, 0, fullLength, 0, mWidth), (36 - keyId) * mLineGap / 2 - 5, 0.02);
 	}
+*/
 }

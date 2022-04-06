@@ -1,6 +1,7 @@
 #include <mkbd/gui/graphics/button.hpp>
 
 #include <mkbd/utils.hpp>
+#include <mkbd/eventemitter.hpp>
 
 #include <string>
 #include <iostream>
@@ -18,6 +19,10 @@ void ButtonGraphic::onClick(int button, int x, int y) {
 	mCallback();
 }
 
+void ButtonGraphic::onlick(int button, int x, int y) {
+	mCallback();
+}
+
 void ButtonGraphic::onResize(int width, int height) {
 	mWindow->setGraphicsSize(&mText);
 }
@@ -27,6 +32,7 @@ void ButtonGraphic::init(void) {
 	mText.setAlign(FC_ALIGN_CENTER);
 	mWindow->setGraphicsSize(&mText);
 }
+
 
 void ButtonGraphic::draw(void) {
 	Color bg = mBgColor;
