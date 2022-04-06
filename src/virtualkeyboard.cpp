@@ -150,7 +150,7 @@ void VirtualKeyboard::onKeyDown(int key) {
 void VirtualKeyboard::onKeyUp(int key) {
 	if (key == SDLK_LSHIFT) {
 		mShifted = false;
-	} else if (key == mSustainToggleKey) {
+	} else if (key == mSustainHoldKey) {
 		mRcdr->sendEvent(MidiEvent({MidiEvent::ControlChange, MidiEvent::ControlType::SustainPedal, 0}));
 	} else if (key <= 128) {
 		int note = keyToNote(key);
