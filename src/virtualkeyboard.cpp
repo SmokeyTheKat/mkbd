@@ -91,7 +91,6 @@ int VirtualKeyboard::keyToNote(int key) {
 			convert['o'] = i++;
 			convert['0'] = i++;
 			convert['p'] = i++;
-		
 			convert['z'] = i++;
 			convert['s'] = i++;
 			convert['x'] = i++;
@@ -151,7 +150,7 @@ void VirtualKeyboard::onKeyDown(int key) {
 void VirtualKeyboard::onKeyUp(int key) {
 	if (key == SDLK_LSHIFT) {
 		mShifted = false;
-	} else if (key == ' ') {
+	} else if (key == mSustainToggleKey) {
 		mRcdr->sendEvent(MidiEvent({MidiEvent::ControlChange, MidiEvent::ControlType::SustainPedal, 0}));
 	} else if (key <= 128) {
 		int note = keyToNote(key);

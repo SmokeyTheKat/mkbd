@@ -55,6 +55,7 @@ class AudioPlayer {
 	int mSampleSize = 128;
 
 	bool mSustain = false;
+	bool mIsPlaying = false;
 
 public:
 	void start(void);

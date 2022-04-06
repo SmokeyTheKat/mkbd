@@ -21,27 +21,33 @@ SDL_AudioSpec AudioPlayer::initAudioSpec(void) {
 }
 
 void AudioPlayer::start(void) {
+	mIsPlaying = true;
 	SDL_AudioSpec audioSpec = initAudioSpec();
 	mAudioDevice = SDL_OpenAudioDevice(0, 0, &audioSpec, 0, 0);
 }
 
 void AudioPlayer::unpause(void) {
+	mIsPlaying = true;
 	SDL_PauseAudioDevice(mAudioDevice, 0);
 }
 
 void AudioPlayer::pause(void) {
+	mIsPlaying = false;
 	SDL_PauseAudioDevice(mAudioDevice, 1);
 }
 
 void AudioPlayer::stop(void) {
+	mIsPlaying = false;
 	SDL_CloseAudioDevice(mAudioDevice);
 	mSamples.clear();
 }
 
 void AudioPlayer::restart(void) {
+	bool wasPlaying = mIsPlaying; 
 	stop();
 	start();
-	unpause();
+	if (wasPlaying)
+		unpause();
 }
 
 int16_t AudioPlayer::generateSample(AudioSample& s) {

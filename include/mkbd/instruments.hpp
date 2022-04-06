@@ -11,6 +11,14 @@ static Generator pianoGen {
 	.fadeOut = LinearRelease<100>,
 };
 
+static Generator piano2Gen {
+	.waveform = [](double t, double freq) -> double {
+		return 0.5 * Waves::piano(t, freq);
+	},
+	.release = Cutoff<3000>,
+	.fadeOut = LinearRelease<100>,
+};
+
 static Generator brassGen {
 	.waveform = [](double t, double freq) -> double {
 		return 0.5 * Waves::multi(t, freq, 1.5, 2.0, 0.4);

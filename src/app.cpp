@@ -201,6 +201,7 @@ void App::settingsPageTabProformance(void) {
 	input->on("change", asFunction<std::string>([this](std::string text) {
 		if (stringIsNumber(text)) {
 			int value = std::stoi(text);
+			if (value < 64) return;
 			mAudioPlayer.setSampleSize(value);
 			mAudioPlayer.restart();
 		}
@@ -239,7 +240,7 @@ void App::settingsPage(void) {
 				return new ButtonGraphic(layout, "Instruments", std::bind(&App::settingsPageInstruments, this), mFgColor, Colors::Black);
 			},
 			[this](Layout layout) {
-				return new ButtonGraphic(layout, "Proformance", std::bind(&App::settingsPageTabProformance, this), mFgColor, Colors::Black);
+				return new ButtonGraphic(layout, "Performance", std::bind(&App::settingsPageTabProformance, this), mFgColor, Colors::Black);
 			},
 			[this](Layout layout) {
 				return new ButtonGraphic(layout, "About", std::bind(&App::settingsPageTabAbout, this), mFgColor, Colors::Black);
@@ -310,6 +311,7 @@ void App::freePlayPage(void) {
 		Layout(10, 10, 100, 30),
 		{
 			InstrumentButtonCreater("Piano", &pianoGen),
+			InstrumentButtonCreater("Piano2", &piano2Gen),
 			InstrumentButtonCreater("Organ", &organGen),
 			InstrumentButtonCreater("Brass", &brassGen),
 			InstrumentButtonCreater("Reed", &reedGen),
