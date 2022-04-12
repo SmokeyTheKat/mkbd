@@ -6,7 +6,7 @@
 #include <functional>
 #include <cstddef>
 
-#define SET_FID std::size_t FID[0]
+#define SET_FID static std::size_t FID[0]
 
 class EventEmitter {
 

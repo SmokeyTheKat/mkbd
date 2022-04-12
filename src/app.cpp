@@ -52,6 +52,8 @@ int App::main(void) {
 	mWindow.setBgColor(RGB_ARGS(mBgColor));
 
 	pianoInstrument.load();
+	piano2Instrument.load();
+	piano2Instrument.setVolume(0.2);
 
 	mainMenuPage();
 
@@ -128,6 +130,7 @@ void App::generateMainMenuButtons(void) {
 		10,
 		{
 			{ "Free Play", std::bind(&App::freePlayPage, this) },
+			{ "Test", std::bind(&App::testPage, this) },
 			{ "Settings", std::bind(&App::settingsPage, this) },
 			{ "Exit", [this](void){
 				mWindow.popPage();
@@ -277,6 +280,38 @@ void App::attachRecorderToAudioPlayer(MidiRecorder* rcdr) {
 	}));
 }
 
+#include <fstream>
+#include <sstream>
+
+void App::testPage(void) {
+	SET_FID;
+
+	chooseKeyboardPage();
+
+	mWindow.newPage();
+
+	std::ifstream file("./test.mid");
+
+	std::ostringstream ss;
+	ss << file.rdbuf();
+
+	std::string data = ss.str();
+
+	file.close();
+
+	MidiDevice piano(mMidiPort);
+	MidiRecorder recorder(&piano, 120);
+	mAudioPlayer.start();
+
+	attachRecorderToAudioPlayer(&recorder);
+
+	mAudioPlayer.unpause();
+	recorder.record(0);
+
+	mWindow.pageLoop();
+
+	mWindow.clearGroup(FID);
+}
 
 void App::freePlayPage(void) {
 	SET_FID;
@@ -312,6 +347,8 @@ void App::freePlayPage(void) {
 		{
 			InstrumentButtonCreater("Piano", &pianoGen),
 			InstrumentButtonCreater("Piano2", &piano2Gen),
+			InstrumentButtonCreater("Piano3", &piano3Gen),
+			InstrumentButtonCreater("synth", &synthGen), 
 			InstrumentButtonCreater("Organ", &organGen),
 			InstrumentButtonCreater("Brass", &brassGen),
 			InstrumentButtonCreater("Reed", &reedGen),
@@ -347,11 +384,7 @@ void App::freePlayPage(void) {
 	mWindow.on("KeyDown", asFunction<Window*, int>(std::bind(&VirtualKeyboard::onKeyDown, &vk, _2)), FID);
 	mWindow.on("KeyUp", asFunction<Window*, int>(std::bind(&VirtualKeyboard::onKeyUp, &vk, _2)), FID);
 
-	recorder.on("Update", asFunction<MidiRecorder*>([this](MidiRecorder* rcdr) {
-		mWindow.update();
-	}));
-
-	attachRecorderToAudioPlayer(&recorder);
+	recorder.on("Update", asFunction<MidiRecorder*>(std::bind(&Window::update, &mWindow)), FID);
 
 	recorder.on("SoftPedalDown", asFunction<MidiRecorder*>([this](MidiRecorder* rcdr) {
 		mAudioPlayer.stop();
@@ -367,12 +400,15 @@ void App::freePlayPage(void) {
 	}));
 
 	recorder.on("NoteOn", asFunction<MidiRecorder*, byte, byte>([this, &tg](MidiRecorder* rcdr, byte note, byte velocity) {
+		std::cout << (int)note << "\n";
 		tg->setText(getChord(rcdr));
 	}));
 
 	recorder.on("NoteOff", asFunction<MidiRecorder*, byte>([this, &tg](MidiRecorder* rcdr, byte note) {
 		tg->setText(getChord(rcdr));
 	}));
+
+	attachRecorderToAudioPlayer(&recorder);
 
 	mWindow.addGraphic(smg);
 	mWindow.addGraphic(kg);

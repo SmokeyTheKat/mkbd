@@ -48,6 +48,7 @@ void AudioPlayer::restart(void) {
 	start();
 	if (wasPlaying)
 		unpause();
+
 }
 
 int16_t AudioPlayer::generateSample(AudioSample& s) {
@@ -84,7 +85,7 @@ void AudioPlayer::fillAudioBuffer(int16_t* buffer, int length) {
 		intmax_t sample = 0;
 		for (auto& s : mSamples) {
 			sample += generateSample(s);
-			s.t += 0.01;
+			s.t += 0.010;
 		}
 		*buffer++ = shrink<intmax_t, int16_t>(sample);
 	}

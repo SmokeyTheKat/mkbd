@@ -8,9 +8,18 @@
 #include <string>
 #include <vector>
 
+enum class SampleFormat {
+	Names,
+	Numbers
+};
+
 class SampledInstrument {
 	std::string mSamplePath;
 	std::string mName;
+	SampleFormat mFormat;
+
+	double mVolume = 1.0;
+
 	int mLowestNote;
 	int mHighestNote;
 
@@ -24,7 +33,7 @@ class SampledInstrument {
 	std::vector<NoteSample> mSamples;
 
 public:
-	SampledInstrument(const std::string& name, const std::string& path, int low, int high);
+	SampledInstrument(const std::string& name, const std::string& path, int low, int high, SampleFormat format = SampleFormat::Names);
 
 	inline Waveform getWaveform(void)  {
 		return std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2);
@@ -32,6 +41,8 @@ public:
 
 	void load(void);
 	void unload(void);
+
+	void setVolume(double volume) { mVolume = volume; };
 
 private:
 	double waveform(double t, double freq);

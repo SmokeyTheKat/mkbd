@@ -48,6 +48,7 @@ private:
 	void generateMainMenuHeader(void);
 	void generateMainMenuButtons(void);
 
+	void testPage(void);
 	void freePlayPage(void);
 
 	void settingsPage(void);

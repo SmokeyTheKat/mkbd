@@ -11,6 +11,8 @@ namespace Waves {
 	double pulse(double t, double freq, double percent);
 	double noise(void);
 	double piano(double t, double freq);
+	double synth(double t, double freq);
+	double QU(double t, double freq);
 };
 
 #endif

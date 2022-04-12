@@ -45,7 +45,23 @@ double Waves::noise(void) {
 	return std::fmod(std::rand(), 3.0) - 1.0;
 }
 
+double Waves::synth(double t, double freq) {
+	double r = freqToRad(freq);
+	return (std::pow(cos(t * r), 2) * sin(t * r)) / 0.324444;
+}
+
+double Waves::QU(double t, double freq) {
+	double r = freqToRad(freq);
+	double x = t * r;
+	return sin(x) + sin(1.1 * x);
+}
+
 double Waves::piano(double t, double freq) {
+//    double r = freqToRad(freq);
+//    double x = -t * r;
+//    double y = sin(x) + sin(2.0*x) + sin(2.5*x) + Waves::noise() * 0.001;
+//    return y;
+
 	double r = freqToRad(freq);
 	double y = 0;
 	y += sin(1.0 * r * t) * std::exp(-0.0004 * r * t) / 1.0;
@@ -56,5 +72,5 @@ double Waves::piano(double t, double freq) {
 	y += sin(6.0 * r * t) * std::exp(-0.0004 * r * t) / 32.0;
 	y += y * y * y;
 	y *= 1.0 + 16.0 * t * std::exp(-6.0 * t);
-	return y;
+	return y + Waves::noise() * 0.01;
 }
