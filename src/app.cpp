@@ -199,7 +199,7 @@ void App::settingsPageInstruments(void) {
 void App::settingsPageTabProformance(void) {
 	newSettingsPage();
 
-	InputGraphic* input = new InputGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 40), std::to_string(mAudioPlayer.getSampleSize()), [](void){}, InputType::Number);
+	InputGraphic* input = new InputGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 40), std::to_string(mAudioPlayer.getSampleSize()), InputType::Number);
 
 	input->on("change", asFunction<std::string>([this](std::string text) {
 		if (stringIsNumber(text)) {

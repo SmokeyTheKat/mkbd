@@ -17,7 +17,6 @@ enum class InputType {
 };
 
 class InputGraphic : public Graphic, public EventEmitter {
-	std::function<void(void)> mCallback = 0;
 	TextGraphic mText;
 	InputType mInputType;
 
@@ -25,7 +24,7 @@ class InputGraphic : public Graphic, public EventEmitter {
 	Color mBgColor = Color(150, 150, 150);
 
 public:
-	InputGraphic(Layout layout, std::string text, std::function<void(void)> callback, InputType inputType = InputType::Text);
+	InputGraphic(Layout layout, std::string text, InputType inputType = InputType::Text);
 
 	void draw(void);
 	void init(void);
@@ -36,6 +35,8 @@ public:
 
 private:
 	void setTextLayout(void);
+	bool keyFitsRestrictions(int key);
+	bool keyIsPrintable(int key);
 };
 
 #endif

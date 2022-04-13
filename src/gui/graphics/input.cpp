@@ -3,8 +3,8 @@
 #include <string>
 #include <iostream>
 
-InputGraphic::InputGraphic(Layout layout, std::string text, std::function<void(void)> callback, InputType inputType)
-: Graphic(layout), mCallback(callback), mInputType(inputType),
+InputGraphic::InputGraphic(Layout layout, std::string text, InputType inputType)
+: Graphic(layout), mInputType(inputType),
   mText(layout, text, RESOURCE_DIR "/fonts/FreeSans.ttf", 20, mFgColor) {};
 
 void InputGraphic::init(void) {
@@ -26,8 +26,32 @@ void InputGraphic::onResize(int width, int height) {
 	setTextLayout();
 }
 
+bool InputGraphic::keyIsPrintable(int key) {
+	return key >= ' ' && key <= '~';
+}
+
+bool InputGraphic::keyFitsRestrictions(int key) {
+	if (!keyIsPrintable(key))
+		return true;
+
+	switch (mInputType) {
+		case InputType::Text: {
+			return true;
+		} break;
+		case InputType::Number: {
+			if (key >= '0' && key <= '9')
+				return true;
+			else
+				return false;
+		} break;
+	};
+	return false;
+}
+
 void InputGraphic::onKeyDown(int key) {
 	if (!isFocused()) return;
+
+	if (!keyFitsRestrictions(key)) return;
 
 	std::string text = mText.getText();
 
