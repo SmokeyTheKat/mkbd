@@ -200,6 +200,8 @@ void App::settingsPageTabProformance(void) {
 	newSettingsPage();
 
 	InputGraphic* input = new InputGraphic(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 40), std::to_string(mAudioPlayer.getSampleSize()), InputType::Number);
+	input->setMaxValue(8129);
+	input->setMinValue(0);
 
 	input->on("change", asFunction<std::string>([this](std::string text) {
 		if (stringIsNumber(text)) {
@@ -263,7 +265,7 @@ void App::initVirtualKeyboard(MidiRecorder* rcdr) {
 }
 
 void App::attachRecorderToAudioPlayer(MidiRecorder* rcdr) {
-	rcdr->on("SustainChange", asFunction<MidiRecorder*, byte>([this](MidiRecorder* rcdr, byte sustain) {
+	rcdr->on("SustainChange", asFunction<byte>([this](byte sustain) {
 		if (sustain == 0) {
 			mAudioPlayer.sustainOff();
 		} else {
@@ -271,11 +273,11 @@ void App::attachRecorderToAudioPlayer(MidiRecorder* rcdr) {
 		}
 	}));
 
-	rcdr->on("NoteOn", asFunction<MidiRecorder*, byte, byte>([this](MidiRecorder* rcdr, byte note, byte velocity) {
+	rcdr->on("NoteOn", asFunction<byte, byte>([this](byte note, byte velocity) {
 		mAudioPlayer.noteOn(*mActiveGen, Music::noteToFreq(note), rmap(velocity, 0, 127, 0, 50));
 	}));
 
-	rcdr->on("NoteOff", asFunction<MidiRecorder*, byte>([this](MidiRecorder* rcdr, byte note) {
+	rcdr->on("NoteOff", asFunction<byte>([this](byte note) {
 		mAudioPlayer.noteOff(Music::noteToFreq(note));
 	}));
 }
@@ -374,38 +376,37 @@ void App::freePlayPage(void) {
 		ListDirection::Horizontal
 	);
 
-	mWindow.on("Exit", asFunction<Window*>([this, &recorder](Window* window) {
+	mWindow.on("Exit", asFunction([this, &recorder](void) {
 		recorder.stop();
 		mAudioPlayer.stop();
-		window->popPage();
+		mWindow.popPage();
 	}), FID);
 
 	VirtualKeyboard vk(&recorder);
-	mWindow.on("KeyDown", asFunction<Window*, int>(std::bind(&VirtualKeyboard::onKeyDown, &vk, _2)), FID);
-	mWindow.on("KeyUp", asFunction<Window*, int>(std::bind(&VirtualKeyboard::onKeyUp, &vk, _2)), FID);
+	mWindow.on("KeyDown", asFunction<int>(std::bind(&VirtualKeyboard::onKeyDown, &vk, _1)), FID);
+	mWindow.on("KeyUp", asFunction<int>(std::bind(&VirtualKeyboard::onKeyUp, &vk, _1)), FID);
 
-	recorder.on("Update", asFunction<MidiRecorder*>(std::bind(&Window::update, &mWindow)), FID);
+	recorder.on("Update", asFunction(std::bind(&Window::update, &mWindow)));
 
-	recorder.on("SoftPedalDown", asFunction<MidiRecorder*>([this](MidiRecorder* rcdr) {
+	recorder.on("SoftPedalDown", asFunction([this, &recorder](void) {
 		mAudioPlayer.stop();
-		rcdr->stop();
+		recorder.stop();
 		mWindow.popPage();
 	}));
 
-	recorder.on("PadOn", asFunction<MidiRecorder*, byte, byte>([this](MidiRecorder* rcdr, byte note, byte velocity) {
+	recorder.on("PadOn", asFunction<byte, byte>([this, &recorder](byte note, byte velocity) {
 		if (note != 16) return;
 		mAudioPlayer.stop();
-		rcdr->stop();
+		recorder.stop();
 		mWindow.popPage();
 	}));
 
-	recorder.on("NoteOn", asFunction<MidiRecorder*, byte, byte>([this, &tg](MidiRecorder* rcdr, byte note, byte velocity) {
-		std::cout << (int)note << "\n";
-		tg->setText(getChord(rcdr));
+	recorder.on("NoteOn", asFunction<byte, byte>([this, &tg, &recorder](byte note, byte velocity) {
+		tg->setText(getChord(&recorder));
 	}));
 
-	recorder.on("NoteOff", asFunction<MidiRecorder*, byte>([this, &tg](MidiRecorder* rcdr, byte note) {
-		tg->setText(getChord(rcdr));
+	recorder.on("NoteOff", asFunction<byte>([this, &tg, &recorder](byte note) {
+		tg->setText(getChord(&recorder));
 	}));
 
 	attachRecorderToAudioPlayer(&recorder);

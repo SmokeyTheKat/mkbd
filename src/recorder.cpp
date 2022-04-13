@@ -18,10 +18,10 @@ bool MidiRecorder::isPadNote(int note) {
 void MidiRecorder::handleNoteOffEvent(MidiEvent e) {
 	mDevice->setNoteState(e[1], 0);
 
-	emit("NoteOff", this, e[1]);
+	emit("NoteOff", e[1]);
 
 	if (isPadNote(e[1])) {
-		emit("PadOff", this, e[1], e[2]);
+		emit("PadOff", e[1], e[2]);
 	}
 }
 
@@ -35,10 +35,10 @@ void MidiRecorder::handleNoteOnEvent(MidiEvent e) {
 	
 	mDevice->setNoteState(e[1], 1);
 	
-	emit("NoteOn", this, e[1], e[2]);
+	emit("NoteOn", e[1], e[2]);
 
 	if (isPadNote(e[1])) {
-		emit("PadOn", this, e[1], e[2]);
+		emit("PadOn", e[1], e[2]);
 	}
 }
 
@@ -47,24 +47,24 @@ void MidiRecorder::handleControlChangeEvents(MidiEvent e) {
 	switch (e[1]) {
 		case MidiEvent::ControlType::SoftPedal: {
 			if (e[2] == 0) {
-				emit("SoftPedalUp", this);
+				emit("SoftPedalUp");
 			} else {
-				emit("SoftPedalDown", this);
+				emit("SoftPedalDown");
 			}
 		} break;
 		case MidiEvent::ControlType::MiddlePedal: {
 			if (e[2] == 0) {
-				emit("MiddlePedalUp", this);
+				emit("MiddlePedalUp");
 			} else {
-				emit("MiddlePedalDown", this);
+				emit("MiddlePedalDown");
 			}
 		} break;
 		case MidiEvent::ControlType::SustainPedal: {
-			emit("SustainChange", this, e[2]);
+			emit("SustainChange", e[2]);
 			if (e[2] == 0) {
-				emit("SustainPedalUp", this);
+				emit("SustainPedalUp");
 			} else if (e[2] == 127) {
-				emit("SustainPedalDown", this);
+				emit("SustainPedalDown");
 			}
 		} break;
 	}
@@ -73,7 +73,7 @@ void MidiRecorder::handleControlChangeEvents(MidiEvent e) {
 void MidiRecorder::handleEvent(MidiEvent e) {
 	if (e.length() == 0) return;
 	e.time = mTimer.now();
-	emit("Event", this, e);
+	emit("Event", e);
 	mEvents.push_back(e);
 	switch (e.getType()) {
 		case MidiEvent::NoteOff: {
@@ -106,7 +106,7 @@ std::vector<MidiEvent> MidiRecorder::record(double time) {
 
 		if (std::fmod(mTimer.now(), 60.0 / mBpm) < 0.01) {
 			if (!beat) {
-				emit("Beat", this);
+				emit("Beat");
 			}
 			beat = true;
 		} else {

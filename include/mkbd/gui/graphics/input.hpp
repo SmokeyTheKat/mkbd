@@ -20,6 +20,9 @@ class InputGraphic : public Graphic, public EventEmitter {
 	TextGraphic mText;
 	InputType mInputType;
 
+	intmax_t mMaxValue;
+	intmax_t mMinValue;
+
 	Color mFgColor = Color(0, 0, 0);
 	Color mBgColor = Color(150, 150, 150);
 
@@ -31,11 +34,14 @@ public:
 	void onResize(int width, int height);
 	void onKeyDown(int key);
 
-	inline void setFontSize(int fontSize) { mText.setFontSize(fontSize); };
+	void setFontSize(int fontSize) { mText.setFontSize(fontSize); };
+	void setMaxValue(intmax_t maxValue) { mMaxValue = maxValue; };
+	void setMinValue(intmax_t minValue) { mMinValue = minValue; };
 
 private:
 	void setTextLayout(void);
 	bool keyFitsRestrictions(int key);
+	bool stringFitsRestrictions(const std::string& str);
 	bool keyIsPrintable(int key);
 };
 

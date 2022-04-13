@@ -71,7 +71,7 @@ void Window::setGraphicsSize(Graphic* g) {
 }
 
 void Window::close(void) {
-	emit("Exit", this);
+	emit("Exit");
 	mQuit = true;
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
@@ -152,14 +152,14 @@ void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
 }
 
 void Window::handleKeyDownEvent(const SDL_KeyboardEvent& e) {
-	emit("KeyDown", this, e.keysym.sym);
+	emit("KeyDown", e.keysym.sym);
 	for (Graphic* g : getPage()) {
 		g->onKeyDown(e.keysym.sym);
 	}
 }
 
 void Window::handleKeyUpEvent(const SDL_KeyboardEvent& e) {
-	emit("KeyUp", this, e.keysym.sym);
+	emit("KeyUp", e.keysym.sym);
 	for (Graphic* g : getPage()) {
 //        g->onKeyDown(e.keysym.sym);
 	}

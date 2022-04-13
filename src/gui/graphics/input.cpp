@@ -30,6 +30,20 @@ bool InputGraphic::keyIsPrintable(int key) {
 	return key >= ' ' && key <= '~';
 }
 
+bool InputGraphic::stringFitsRestrictions(const std::string& str) {
+	if (str.length() == 0)
+		return true;
+
+	switch (mInputType) {
+		case InputType::Number: {
+			intmax_t value = std::stoi(str);
+			if (value > mMaxValue)
+				return false;
+		} break;
+	};
+	return true;
+}
+
 bool InputGraphic::keyFitsRestrictions(int key) {
 	if (!keyIsPrintable(key))
 		return true;
@@ -55,11 +69,21 @@ void InputGraphic::onKeyDown(int key) {
 
 	std::string text = mText.getText();
 
-	if (key == SDLK_BACKSPACE) {
-		if (text.length() > 0)
-			text.pop_back();
-	} else if (key < 128) {
-		text += (char)key;
+	switch (key) {
+		case SDLK_BACKSPACE: {
+			if (text.length() > 0)
+				text.pop_back();
+		} break;
+		case SDLK_RETURN: {
+		} break;
+		default: {
+			if (!keyIsPrintable(key)) break;
+
+			if (!stringFitsRestrictions(text + (char)key))
+				return;
+
+			text += (char)key;
+		} break;
 	}
 
 	mText.setText(text);

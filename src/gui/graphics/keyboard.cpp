@@ -8,8 +8,8 @@ using namespace std::placeholders;
 KeyboardGraphic::KeyboardGraphic(Layout layout, MidiRecorder* rcdr)
 : Graphic(layout), mRcdr(rcdr) {
 	calculateSizes();
-	rcdr->on("NoteOn", asFunction<MidiRecorder*, byte, byte>(std::bind(&KeyboardGraphic::onNoteOn, this, _2, _3)));
-	rcdr->on("NoteOff", asFunction<MidiRecorder*, byte>(std::bind(&KeyboardGraphic::onNoteOff, this, _2)));
+	rcdr->on("NoteOn", asFunction<byte, byte>(std::bind(&KeyboardGraphic::onNoteOn, this, _1, _2)));
+	rcdr->on("NoteOff", asFunction<byte>(std::bind(&KeyboardGraphic::onNoteOff, this, _1)));
 };
 
 void KeyboardGraphic::onNoteOn(byte note, byte velocity) {

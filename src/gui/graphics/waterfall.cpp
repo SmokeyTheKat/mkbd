@@ -9,7 +9,7 @@
 WaterfallGraphic::WaterfallGraphic(Layout layout, MidiRecorder* recorder)
 : Graphic(layout), mRcdr(recorder) {
 	calculateSizes();
-	mRcdr->on("Event", asFunction<MidiRecorder*, MidiEvent>([this](MidiRecorder* rcdr, MidiEvent e) {
+	mRcdr->on("Event", asFunction<MidiEvent>([this](MidiEvent e) {
 		mEvents.push_back(e);
 	}));
 };
