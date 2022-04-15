@@ -20,9 +20,11 @@ class App {
 	Color mBorderColor = Color(150, 150, 150);
 
 	AudioPlayer mAudioPlayer;
+	MidiRecorder mRecorder;
 
 	int mMidiPort = 1;
 	int mHeaderHeight = 60;
+	int mPianoControlHeight = 60;
 
 	Generator* mActiveGen = &pianoGen;
 
@@ -35,10 +37,12 @@ public:
 	int main(void);
 
 private:
-	inline int getWidth(void) { return mWindow.getWidth(); };
-	inline int getHeight(void) { return mWindow.getHeight(); };
+	int getWidth(void) { return mWindow.getWidth(); };
+	int getHeight(void) { return mWindow.getHeight(); };
 
-	void attachRecorderToAudioPlayer(MidiRecorder* rcdr);
+	std::string getChord(void);
+
+	void attachRecorderToAudioPlayer(void);
 
 	void generateHeader(const char* title);
 	void generateFooter(void);
@@ -50,6 +54,7 @@ private:
 
 	void testPage(void);
 	void freePlayPage(void);
+	void generatePianoControls(void);
 
 	void settingsPage(void);
 	void settingsPageTabMidiDevice(void);
@@ -62,8 +67,6 @@ private:
 	void newSettingsPage(void);
 
 	void chooseKeyboardPage(void);
-
-	void initVirtualKeyboard(MidiRecorder* rcdr);
 };
 
 #endif

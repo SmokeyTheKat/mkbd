@@ -90,28 +90,19 @@ void MidiRecorder::handleEvent(MidiEvent e) {
 
 std::vector<MidiEvent> MidiRecorder::record(double time) {
 	mStarting = true;
-	bool beat = false;
+	FlipFlop beatFlop;
 	while (!mStopping && (time == 0 || mStarting || mTimer.now() < time)) {
 		for (auto& callback : mTimedCallbacks) {
 			double wow = std::fmod(mTimer.now(), callback.full);
-			if (isAbout(wow, callback.time, 0.01)) {
-				if (!callback.ran) {
-					runCallback(callback.callback);
-				}
-				callback.ran = true;
-			} else {
-				callback.ran = false;
+			if (callback.flop == isAbout(wow, callback.time, 0.01)) {
+				runCallback(callback.callback);
 			}
 		}
 
-		if (std::fmod(mTimer.now(), 60.0 / mBpm) < 0.01) {
-			if (!beat) {
-				emit("Beat");
-			}
-			beat = true;
-		} else {
-			beat = false;
+		if (beatFlop == (std::fmod(mTimer.now(), 60.0 / mBpm) < 0.01)) {
+			emit("Beat");
 		}
+
 		emit("Update");
 		handleEvent(mDevice->getEvent());
 		usleep(100);

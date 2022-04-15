@@ -21,10 +21,10 @@ public:
 	void draw(void);
 	void init(void);
 
-	inline void setText(std::string text) { mText = text; };
-	inline std::string getText(void) { return mText; };
-	inline void setAlign(FC_AlignEnum align) { mAlign = align; };
-	inline void setFontSize(int fontSize) { mFontSize = fontSize; };
+	void setText(std::string text) { mText = text; };
+	std::string getText(void) { return mText; };
+	void setAlign(FC_AlignEnum align) { mAlign = align; };
+	void setFontSize(int fontSize) { mFontSize = fontSize; };
 	
 private:
 };

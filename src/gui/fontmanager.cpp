@@ -11,7 +11,7 @@ struct FontDetails {
 	const char* fontPath;
 	int fontSize;
 	Color color;
-	inline FontDetails(const char* fontPath, int fontSize, Color color)
+	FontDetails(const char* fontPath, int fontSize, Color color)
 	: fontPath(fontPath), fontSize(fontSize), color(color) {};
 	bool operator==(const FontDetails& other) const {
 		return (

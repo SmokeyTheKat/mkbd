@@ -24,24 +24,6 @@
 
 using namespace std::placeholders;
 
-static std::string getChord(MidiRecorder* rcdr) {
-	std::vector<int> notes;
-	for (int i = 0; i < 256; i++) {
-		if (rcdr->getDevice()->getNoteState(i))
-			notes.push_back(i);
-	}
-
-	std::string name;
-	bool found = false;
-	while (!found && notes.size() > 0) {
-		name = Music::getChordName(notes);
-		if (name.length() > 0)
-			found = true;
-		notes.pop_back();
-	}
-	return name;
-}
-
 App::App(int argc, char** argv)
 : mWindow(1280, 640) {
 	for (int i = 0; i < argc; i++)
@@ -58,6 +40,24 @@ int App::main(void) {
 	mainMenuPage();
 
 	return 0;
+}
+
+std::string App::getChord(void) {
+	std::vector<int> notes;
+	for (int i = 0; i < 256; i++) {
+		if (mRecorder.getDevice()->getNoteState(i))
+			notes.push_back(i);
+	}
+
+	std::string name;
+	bool found = false;
+	while (!found && notes.size() > 0) {
+		name = Music::getChordName(notes);
+		if (name.length() > 0)
+			found = true;
+		notes.pop_back();
+	}
+	return name;
 }
 
 void App::generateFooter(void) {
@@ -203,7 +203,7 @@ void App::settingsPageTabProformance(void) {
 	input->setMaxValue(8129);
 	input->setMinValue(0);
 
-	input->on("change", asFunction<std::string>([this](std::string text) {
+	input->on("Change", asFunction<std::string>([this](std::string text) {
 		if (stringIsNumber(text)) {
 			int value = std::stoi(text);
 			if (value < 64) return;
@@ -260,12 +260,8 @@ void App::settingsPage(void) {
 	mWindow.pageLoop();
 }
 
-void App::initVirtualKeyboard(MidiRecorder* rcdr) {
-//    window.events.on("keydown")
-}
-
-void App::attachRecorderToAudioPlayer(MidiRecorder* rcdr) {
-	rcdr->on("SustainChange", asFunction<byte>([this](byte sustain) {
+void App::attachRecorderToAudioPlayer(void) {
+	mRecorder.on("SustainChange", asFunction<byte>([this](byte sustain) {
 		if (sustain == 0) {
 			mAudioPlayer.sustainOff();
 		} else {
@@ -273,17 +269,14 @@ void App::attachRecorderToAudioPlayer(MidiRecorder* rcdr) {
 		}
 	}));
 
-	rcdr->on("NoteOn", asFunction<byte, byte>([this](byte note, byte velocity) {
+	mRecorder.on("NoteOn", asFunction<byte, byte>([this](byte note, byte velocity) {
 		mAudioPlayer.noteOn(*mActiveGen, Music::noteToFreq(note), rmap(velocity, 0, 127, 0, 50));
 	}));
 
-	rcdr->on("NoteOff", asFunction<byte>([this](byte note) {
+	mRecorder.on("NoteOff", asFunction<byte>([this](byte note) {
 		mAudioPlayer.noteOff(Music::noteToFreq(note));
 	}));
 }
-
-#include <fstream>
-#include <sstream>
 
 void App::testPage(void) {
 	SET_FID;
@@ -292,27 +285,89 @@ void App::testPage(void) {
 
 	mWindow.newPage();
 
-	std::ifstream file("./test.mid");
-
-	std::ostringstream ss;
-	ss << file.rdbuf();
-
-	std::string data = ss.str();
-
-	file.close();
-
-	MidiDevice piano(mMidiPort);
-	MidiRecorder recorder(&piano, 120);
-	mAudioPlayer.start();
-
-	attachRecorderToAudioPlayer(&recorder);
-
-	mAudioPlayer.unpause();
-	recorder.record(0);
+//    std::ifstream file("./test.mid");
+//
+//    std::ostringstream ss;
+//    ss << file.rdbuf();
+//
+//    std::string data = ss.str();
+//
+//    file.close();
+//
+//    MidiDevice piano(mMidiPort);
+//    MidiRecorder recorder(&piano, 120);
+//    mAudioPlayer.start();
+//
+//    attachRecorderToAudioPlayer(&recorder);
+//
+//    mAudioPlayer.unpause();
+//    recorder.record(0);
 
 	mWindow.pageLoop();
 
 	mWindow.clearGroup(FID);
+}
+
+void App::generatePianoControls(void) {
+//#define InstrumentButtonCreater(text, gen) \
+//    [this](Layout layout) -> Graphic* { \
+//        ButtonGraphic* bg = new ButtonGraphic(layout, (text), [this](void) { \
+//            mActiveGen = (gen); \
+//        }, mAccColor, mFgColor); \
+//        bg->setFontSize(20); \
+//        return bg; \
+//    }
+//
+//    std::vector<Graphic*> buttons = createListGraphic(
+//        Layout(10, 10, 100, 30), {
+//            InstrumentButtonCreater("Piano", &pianoGen),
+//            InstrumentButtonCreater("Piano2", &piano2Gen),
+//            InstrumentButtonCreater("Piano3", &piano3Gen),
+//            InstrumentButtonCreater("synth", &synthGen), 
+//            InstrumentButtonCreater("Organ", &organGen),
+//            InstrumentButtonCreater("Brass", &brassGen),
+//            InstrumentButtonCreater("Reed", &reedGen),
+//            InstrumentButtonCreater("Phone", &phoneGen),
+//            [this](Layout layout) -> Graphic* {
+//                ButtonGraphic* bg = new ButtonGraphic(layout, "Settings", [this](void) {
+//                    settingsPage();
+//                }, mAccColor, mFgColor);
+//                bg->setFontSize(20);
+//                return bg;
+//            },
+//            [this](Layout layout) -> Graphic* {
+//                ButtonGraphic* bg = new ButtonGraphic(layout, "Quit", [this](void) {
+//                    mRecorder.stop();
+//                    mAudioPlayer.stop();
+//                    mWindow.popPage();
+//                }, mAccColor, mFgColor);
+//                bg->setFontSize(20);
+//                return bg;
+//            }
+//        },
+//        10,
+//        ListDirection::Horizontal
+//    );
+
+	ButtonGraphic* metUp = new ButtonGraphic(Layout(-21, mPianoControlHeight / 2 - 10, 20, 20, Layout::AnchorTopCenter), "+", [this](void) {
+	}, Color(80,80,80), Colors::White);
+	ButtonGraphic* metDown = new ButtonGraphic(Layout(1, mPianoControlHeight / 2 - 10, 20, 20, Layout::AnchorTopCenter), "-", [this](void) {
+	}, Color(80,80,80), Colors::White);
+
+	ButtonGraphic* instPopout = new ButtonGraphic(Layout(4, mPianoControlHeight / 4, mPianoControlHeight / 2, mPianoControlHeight / 2), "", [this, instPopout](void) {
+		std::cout << "omg\n";
+		instPopout->setVisible(false);
+	}, Color(80,80,80), Colors::White);
+
+	RectangleGraphic* background = new RectangleGraphic(Layout(0, 0, 0, mPianoControlHeight, Layout::FillX), Color(80,80,80));
+
+	mWindow.addGraphic(background);
+	mWindow.addGraphic(instPopout);
+	mWindow.addGraphic(metUp);
+	mWindow.addGraphic(metDown);
+
+//    for (auto b : buttons)
+//        mWindow.addGraphic(b);
 }
 
 void App::freePlayPage(void) {
@@ -322,107 +377,68 @@ void App::freePlayPage(void) {
 
 	mWindow.newPage();
 
-
 	MidiDevice piano(mMidiPort);
-	MidiRecorder recorder(&piano, 120);
+	mRecorder = MidiRecorder(&piano, 120);
 
 	mAudioPlayer.start();
 
 	int smHeight = 300;
 	int kgHeight = 300;
 
-	WaterfallGraphic* smg = new WaterfallGraphic(Layout(0, 0, 0, 300, Layout::FillX | Layout::FillY), &recorder);
-	KeyboardGraphic* kg = new KeyboardGraphic(Layout(0, kgHeight, 0, kgHeight, Layout::FillX | Layout::AnchorBottomLeft), &recorder);
+	WaterfallGraphic* smg = new WaterfallGraphic(Layout(0, mPianoControlHeight/2, 0, 300 + mPianoControlHeight, Layout::FillX | Layout::FillY), &mRecorder);
+	KeyboardGraphic* kg = new KeyboardGraphic(Layout(0, kgHeight, 0, kgHeight, Layout::FillX | Layout::AnchorBottomLeft), &mRecorder);
 	TextGraphic* tg = new TextGraphic(Layout(0, 40, 0, 100), "Cmaj9", RESOURCE_DIR "/fonts/FreeSans.ttf", 50, Color(255, 255, 255));
 
-#define InstrumentButtonCreater(text, gen) \
-	[this](Layout layout) -> Graphic* { \
-		ButtonGraphic* bg = new ButtonGraphic(layout, (text), [this](void) { \
-			mActiveGen = (gen); \
-		}, mAccColor, mFgColor); \
-		bg->setFontSize(20); \
-		return bg; \
-	}
-
-	std::vector<Graphic*> buttons = createListGraphic(
-		Layout(10, 10, 100, 30),
-		{
-			InstrumentButtonCreater("Piano", &pianoGen),
-			InstrumentButtonCreater("Piano2", &piano2Gen),
-			InstrumentButtonCreater("Piano3", &piano3Gen),
-			InstrumentButtonCreater("synth", &synthGen), 
-			InstrumentButtonCreater("Organ", &organGen),
-			InstrumentButtonCreater("Brass", &brassGen),
-			InstrumentButtonCreater("Reed", &reedGen),
-			InstrumentButtonCreater("Phone", &phoneGen),
-			[this](Layout layout) -> Graphic* {
-				ButtonGraphic* bg = new ButtonGraphic(layout, "Settings", [this](void) {
-					settingsPage();
-				}, mAccColor, mFgColor);
-				bg->setFontSize(20);
-				return bg;
-			},
-			[this, &recorder](Layout layout) -> Graphic* {
-				ButtonGraphic* bg = new ButtonGraphic(layout, "Quit", [this, &recorder](void) {
-					recorder.stop();
-					mAudioPlayer.stop();
-					mWindow.popPage();
-				}, mAccColor, mFgColor);
-				bg->setFontSize(20);
-				return bg;
-			}
-		},
-		10,
-		ListDirection::Horizontal
-	);
-
-	mWindow.on("Exit", asFunction([this, &recorder](void) {
-		recorder.stop();
+	mWindow.on("Exit", asFunction([this](void) {
+		mRecorder.stop();
 		mAudioPlayer.stop();
 		mWindow.popPage();
 	}), FID);
 
-	VirtualKeyboard vk(&recorder);
+	VirtualKeyboard vk(&mRecorder);
 	mWindow.on("KeyDown", asFunction<int>(std::bind(&VirtualKeyboard::onKeyDown, &vk, _1)), FID);
 	mWindow.on("KeyUp", asFunction<int>(std::bind(&VirtualKeyboard::onKeyUp, &vk, _1)), FID);
 
-	recorder.on("Update", asFunction(std::bind(&Window::update, &mWindow)));
+	mRecorder.on("Update", asFunction(std::bind(&Window::update, &mWindow)));
 
-	recorder.on("SoftPedalDown", asFunction([this, &recorder](void) {
+	mRecorder.on("SoftPedalDown", asFunction([this](void) {
 		mAudioPlayer.stop();
-		recorder.stop();
+		mRecorder.stop();
 		mWindow.popPage();
 	}));
 
-	recorder.on("PadOn", asFunction<byte, byte>([this, &recorder](byte note, byte velocity) {
+	mRecorder.on("PadOn", asFunction<byte, byte>([this](byte note, byte velocity) {
 		if (note != 16) return;
 		mAudioPlayer.stop();
-		recorder.stop();
+		mRecorder.stop();
 		mWindow.popPage();
 	}));
 
-	recorder.on("NoteOn", asFunction<byte, byte>([this, &tg, &recorder](byte note, byte velocity) {
-		tg->setText(getChord(&recorder));
+	mRecorder.on("NoteOn", asFunction<byte, byte>([this, &tg](byte note, byte velocity) {
+		tg->setText(getChord());
 	}));
 
-	recorder.on("NoteOff", asFunction<byte>([this, &tg, &recorder](byte note) {
-		tg->setText(getChord(&recorder));
+	mRecorder.on("NoteOff", asFunction<byte>([this, &tg](byte note) {
+		tg->setText(getChord());
 	}));
 
-	attachRecorderToAudioPlayer(&recorder);
+	mRecorder.on("Beat", asFunction([this](void) {
+//        mAudioPlayer.noteOn(metronomeGen, Music::noteToFreq(66), 30);
+	}));
+
+	attachRecorderToAudioPlayer();
+
+	generatePianoControls();
 
 	mWindow.addGraphic(smg);
 	mWindow.addGraphic(kg);
 	mWindow.addGraphic(tg);
 
-	for (auto b : buttons)
-		mWindow.addGraphic(b);
-
 	mWindow.update();
 
 	mAudioPlayer.unpause();
 
-	recorder.record(0);
+	mRecorder.record(0);
 
 	mWindow.pageLoop();
 

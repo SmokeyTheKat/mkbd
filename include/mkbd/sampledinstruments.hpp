@@ -35,7 +35,7 @@ class SampledInstrument {
 public:
 	SampledInstrument(const std::string& name, const std::string& path, int low, int high, SampleFormat format = SampleFormat::Names);
 
-	inline Waveform getWaveform(void)  {
+	Waveform getWaveform(void)  {
 		return std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2);
 	};
 

@@ -22,6 +22,7 @@ protected:
 
 	bool mIsHovered = true;
 	bool mIsFocused = false;
+	bool mIsVisible = true;
 
 	Color mColor1;
 	Color mColor2;
@@ -39,8 +40,8 @@ public:
 	virtual void onLeave(int x, int y);
 	virtual void onKeyDown(int key);
 
-	inline void setWindow(Window* window) { mWindow = window; };
-	inline Window* getWindow(void) { return mWindow; };
+	void setWindow(Window* window) { mWindow = window; };
+	Window* getWindow(void) { return mWindow; };
 
 	void setColor(int r, int g, int b);
 	void setColor1(int r, int g, int b);
@@ -49,26 +50,29 @@ public:
 	void setColor2(void);
 
 	SDL_Renderer* getRenderer(void);
-	inline Rect getRect(void) { return Rect(mX, mY, mWidth, mHeight); };
+	Rect getRect(void) { return Rect(mX, mY, mWidth, mHeight); };
 
-	inline int getX(void) { return mX; };
-	inline void setX(int x) { mX = x; };
+	int getX(void) { return mX; };
+	void setX(int x) { mX = x; };
 
-	inline int getY(void) { return mY; };
-	inline void setY(int y) { mY = y; };
+	int getY(void) { return mY; };
+	void setY(int y) { mY = y; };
 
-	inline int getWidth(void) { return mWidth; };
-	inline void setWidth(int width) { mWidth = width; };
-	inline int getHeight(void) { return mHeight; };
-	inline void setHeight(int height) { mHeight = height; };
+	int getWidth(void) { return mWidth; };
+	void setWidth(int width) { mWidth = width; };
+	int getHeight(void) { return mHeight; };
+	void setHeight(int height) { mHeight = height; };
 
-	inline Layout& getLayout(void) { return mLayout; };
+	Layout& getLayout(void) { return mLayout; };
 
-	inline bool isHovered(void) { return mIsHovered; };
-	inline void setHovered(bool hovered) { mIsHovered = hovered; };
+	bool isHovered(void) { return mIsHovered; };
+	void setHovered(bool hovered) { mIsHovered = hovered; };
 
-	inline bool isFocused(void) { return mIsFocused; };
-	inline void setFocused(bool focused) { mIsFocused = focused; };
+	bool isVisible(void) { return mIsVisible; };
+	void setVisible(bool visible) { mIsVisible = visible; };
+
+	bool isFocused(void) { return mIsFocused; };
+	void setFocused(bool focused) { mIsFocused = focused; };
 
 	void drawLine(int x1, int y1, int x2, int y2);
 	void fillRectangle(int x, int y, int w, int h);

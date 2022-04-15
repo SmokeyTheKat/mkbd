@@ -29,7 +29,7 @@ public:
 	void onClick(int button, int x, int y);
 	void onlick(int button, int x, int y);
 
-	inline void setFontSize(int fontSize) { mText.setFontSize(fontSize); };
+	void setFontSize(int fontSize) { mText.setFontSize(fontSize); };
 };
 
 #endif

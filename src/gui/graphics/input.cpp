@@ -75,6 +75,7 @@ void InputGraphic::onKeyDown(int key) {
 				text.pop_back();
 		} break;
 		case SDLK_RETURN: {
+			emit<std::string>("Submit", text);
 		} break;
 		default: {
 			if (!keyIsPrintable(key)) break;
@@ -88,7 +89,7 @@ void InputGraphic::onKeyDown(int key) {
 
 	mText.setText(text);
 
-	emit<std::string>("change", text);
+	emit<std::string>("Change", text);
 }
 
 void InputGraphic::draw(void) {

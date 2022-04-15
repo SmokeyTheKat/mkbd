@@ -4,25 +4,26 @@
 #include <mkbd/midi/keyboard.hpp>
 #include <mkbd/music.hpp>
 #include <mkbd/timer.hpp>
+#include <mkbd/utils.hpp>
 #include <mkbd/eventemitter.hpp>
 
 #include <vector>
 #include <functional>
 
 class MidiRecorder : public EventEmitter {
-	MidiDevice* mDevice;
-	Timer mTimer;
-
-	std::vector<MidiEvent> mEvents;
-
 	struct TimedCallback {
 		std::function<void(MidiRecorder* rcdr)> callback;
 		double time;
 		double full;
-		bool ran;
+		FlipFlop flop;
 		TimedCallback(std::function<void(MidiRecorder* rcdr)> callback, double time, double full)
-		: callback(callback), time(time), full(full), ran(false) {};
+		: callback(callback), time(time), full(full) {};
 	};
+
+	MidiDevice* mDevice;
+	Timer mTimer;
+
+	std::vector<MidiEvent> mEvents;
 
 	std::vector<TimedCallback> mTimedCallbacks;
 
@@ -31,6 +32,8 @@ class MidiRecorder : public EventEmitter {
 	bool mStarting = false;
 
 public:
+	MidiRecorder(void)
+	: MidiRecorder(0) {};
 	MidiRecorder(MidiDevice* device)
 	: mDevice(device) {};
 	MidiRecorder(MidiDevice* device, int bpm)

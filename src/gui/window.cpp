@@ -36,7 +36,7 @@ void Window::setGraphicsSize(Graphic* g) {
 	if (layout.details & Layout::FillX) {
 		g->setWidth(mWidth - layout.width);
 	} else if (layout.details & Layout::PercentWidth) {
-		g->setWidth(mWidth * (layout.x / 100.0));
+		g->setWidth(mWidth * (layout.width / 100.0));
 	} else {
 		g->setWidth(layout.width);
 	}
@@ -44,7 +44,7 @@ void Window::setGraphicsSize(Graphic* g) {
 	if (layout.details & Layout::FillY) {
 		g->setHeight(mHeight - layout.height);
 	} else if (layout.details & Layout::PercentHeight) {
-		g->setHeight(mHeight * (layout.y / 100.0));
+		g->setHeight(mHeight * (layout.height / 100.0));
 	} else {
 		g->setHeight(layout.height);
 	}
@@ -278,7 +278,7 @@ void Window::clearScreen(void) {
 void Window::draw(void) {
 	clearScreen();
 	for (Graphic* g : getPage()) {
-		g->draw();
+		if (g->isVisible()) g->draw();
 		if (mQuit) return;
 	}
 

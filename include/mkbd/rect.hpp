@@ -7,9 +7,9 @@ struct Rect {
 	int width;
 	int height;
 
-	inline Rect(void)
+	Rect(void)
 	: x(0), y(0), width(0), height(0) {};
-	inline Rect(int x, int y, int width, int height)
+	Rect(int x, int y, int width, int height)
 	: x(x), y(y), width(width), height(height) {};
 
 	bool isPointIntersecting(int x, int y);
