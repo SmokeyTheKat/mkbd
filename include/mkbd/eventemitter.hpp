@@ -36,6 +36,10 @@ class EventEmitter {
 			T& func = *reinterpret_cast<T*>(vFunc);
 			func(std::forward<Args>(args)...);
 		};
+
+		void free(void) {
+			std::free(vFunc);
+		}
 	};
 
 	using EventList = std::vector<Event>;
@@ -45,6 +49,12 @@ class EventEmitter {
 
 public:
 	EventEmitter(void) {};
+
+	~EventEmitter(void) {
+		for (const auto &[key, value] : events) {
+			clearEvent(key);
+		}
+	};
 
 	template<class... Args, class T = std::function<void(Args...)>>
 	void on(std::string name, T&& t, GroupId group = -1) {
@@ -74,13 +84,19 @@ public:
 				toDelete.push_back(it);
 		}
 
-		for (auto it : toDelete)
+		for (auto it : toDelete) {
+			it->free();
 			list.erase(it);
+		}
 	};
 
-	void clear(std::string name) {
-		if (events.find(name) != events.end())
+	void clearEvent(std::string name) {
+		if (events.find(name) != events.end()) {
+			for (auto event : events[name]) {
+				event.free();
+			}
 			events[name].clear();
+		}
 	};
 
 	void clearGroup(GroupId group) {
@@ -92,8 +108,10 @@ public:
 					toDelete.push_back(it);
 			}
 
-			for (auto it : toDelete)
+			for (auto it : toDelete) {
+				it->free();
 				list.erase(it);
+			}
 		}
 	};
 };

@@ -29,6 +29,7 @@ namespace Music {
 
 	int getNoteId(int note);
 	bool isNoteFlat(int note);
+	bool isBlackKey(int note);
 	std::string getNoteName(int note);
 	int getNoteOctave(int note);
 	std::string getNoteFullName(int note);

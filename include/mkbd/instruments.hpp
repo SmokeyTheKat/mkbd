@@ -58,13 +58,12 @@ static Generator reedGen {
 };
 
 static Generator organGen {
-	.waveform = Waves::QU,
-//    .waveform = [](double t, double freq) -> double {
-//        return Waves::sine(t, freq * 1.0) +
-//               0.5 * Waves::sine(t, freq * 2.0) +
-//               0.25 * Waves::sine(t, freq * 4.0) +
-//               0.125 * Waves::sine(t, freq * 8.0);
-//    },
+	.waveform = [](double t, double freq) -> double {
+		return Waves::sine(t, freq * 1.0) +
+			   0.5 * Waves::sine(t, freq * 2.0) +
+			   0.25 * Waves::sine(t, freq * 4.0) +
+			   0.125 * Waves::sine(t, freq * 8.0);
+	},
 	.fadeOut = LinearRelease<200>,
 };
 

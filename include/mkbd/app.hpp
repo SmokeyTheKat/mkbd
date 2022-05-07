@@ -23,12 +23,18 @@ class App {
 	MidiRecorder mRecorder;
 
 	int mMidiPort = 1;
-	int mHeaderHeight = 60;
-	int mPianoControlHeight = 60;
+	int mHeaderHeight = 55;
+	int mPianoControlHeight = 45;
+	int mInstrumentButtonWidth = 40;
+	int mInstrumentPanelWidth = 60;
+	int mInstrumentPanelHeight = 110;
 
 	Generator* mActiveGen = &pianoGen;
+	int mCurrentInstrument = 0;
 
-	GraphicPage mSettingsPage;
+	ComponentPage mSettingsPage;
+
+	bool mMetronomeOn = false;
 
 	int mMenuWidth = 300;
 
@@ -54,7 +60,10 @@ private:
 
 	void testPage(void);
 	void freePlayPage(void);
+	void generateKeyboardSizePanel(void);
 	void generatePianoControls(void);
+	void generateInstrumentPanel(void);
+	void generateBpmControls(void);
 
 	void settingsPage(void);
 	void settingsPageTabMidiDevice(void);

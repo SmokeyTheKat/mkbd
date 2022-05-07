@@ -1,7 +1,7 @@
 #ifndef __MKBD_WINDOW_HPP__
 #define __MKBD_WINDOW_HPP__
 
-#include <mkbd/gui/graphic.hpp>
+#include <mkbd/gui/component.hpp>
 #include <mkbd/gui/texture.hpp>
 #include <mkbd/gui/layout.hpp>
 #include <mkbd/utils.hpp>
@@ -13,16 +13,36 @@
 #include <functional>
 #include <stack>
 
-using GraphicPage = std::vector<Graphic*>;
+struct ComponentPage : public std::vector<Component*> {
+	void forEachActive(std::function<bool(Component*)> func) {
+		for (Component* c : *this) {
+			if (c->isActive()) {
+				if (!func(c)) {
+					break;
+				}
+			}
+		}
+	}
+	void forEachActiveReverse(std::function<bool(Component*)> func) {
+		for (auto it = rbegin(); it != rend(); it++) {
+			Component* c = *it;
+			if (c->isActive()) {
+				if (!func(c)) {
+					return;
+				}
+			}
+		}
+	}
+};
 
 class Window : public EventEmitter {
 	SDL_Window* mWindow;
 	SDL_Renderer* mRenderer = 0;
 	Color mBgColor = Color(0, 0, 0);
 
-	Graphic* focused = 0;
+	Component* focused = 0;
 	
-	std::stack<GraphicPage> mPages;
+	std::stack<ComponentPage> mPages;
 
 	bool mMouseIsDown = false;
 
@@ -37,14 +57,14 @@ public:
 
 	void close(void);
 
-	void addGraphic(Graphic* graphic);
-	void removeGraphic(Graphic* graphic);
+	void addComponent(Component* graphic);
+	void removeComponent(Component* graphic);
 	void clearPage(void);
 	void popPage(void);
 	void newPage(void);
-	GraphicPage& getPage(void) { return mPages.top(); };
+	ComponentPage& getPage(void) { return mPages.top(); };
 
-	void setGraphicsSize(Graphic* g);
+	void setComponentsSize(Component* g);
 
 	SDL_Renderer* getRenderer(void) { return mRenderer; };
 	void update(void);

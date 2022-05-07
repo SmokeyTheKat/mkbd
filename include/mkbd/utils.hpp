@@ -7,6 +7,9 @@
 
 typedef unsigned char byte;
 
+#define MAX(a, b) ((a > b) ? (a) : (b))
+#define MIN(a, b) ((a < b) ? (a) : (b))
+
 struct FlipFlop {
 	bool state = false;
 
@@ -23,8 +26,9 @@ struct FlipFlop {
 		if (target == true) {
 			if (!state) {
 				state = true;
+				return true;
 			}
-			return true;
+			return false;
 		}
 
 		state = false;

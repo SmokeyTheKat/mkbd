@@ -10,8 +10,7 @@
 //        return;
 //    }
 //
-//    std::vector<KeyboardMessage> rcdrMsgs = rcdr->getMessages();
-//    std::vector<KeyboardMessage> msgs = rcdrMsgs;
+//    std::vector<KeyboardMessage> msgs = rcdr->getMessages();
 //
 //    double barLength = 60.0 / (double)rcdr->getBpm() * 4.0;
 //    double fullLength = barLength * 4;

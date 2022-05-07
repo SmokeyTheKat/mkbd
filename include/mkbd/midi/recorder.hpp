@@ -57,6 +57,7 @@ public:
 	double getTime(void) { return mTimer.now(); };
 
 	int getBpm(void) { return mBpm; };
+	void setBpm(int bpm) { mBpm = bpm; };
 
 private:
 	bool isPadNote(int note);

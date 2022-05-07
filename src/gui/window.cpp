@@ -22,7 +22,7 @@ Window::Window(int width, int height)
 	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
 	FontManager::setRenderer(mRenderer);
 
-	mPages.push(GraphicPage());
+	mPages.push(ComponentPage());
 
 	clearScreen();
 }
@@ -31,7 +31,7 @@ Window::~Window(void) {
 	close();
 }
 
-void Window::setGraphicsSize(Graphic* g) {
+void Window::setComponentsSize(Component* g) {
 	Layout layout = g->getLayout();
 	if (layout.details & Layout::FillX) {
 		g->setWidth(mWidth - layout.width);
@@ -78,7 +78,7 @@ void Window::close(void) {
 }
 
 void Window::newPage(void) {
-	mPages.push(GraphicPage());
+	mPages.push(ComponentPage());
 }
 
 void Window::popPage(void) {
@@ -86,21 +86,21 @@ void Window::popPage(void) {
 }
 
 void Window::clearPage(void) {
-	for (Graphic* g : mPages.top()) {
+	for (Component* g : mPages.top()) {
 		delete g;
 	}
 	getPage().clear();
 }
 
-void Window::addGraphic(Graphic* graphic) {
+void Window::addComponent(Component* graphic) {
 	graphic->setWindow(this);
-	setGraphicsSize(graphic);
+	setComponentsSize(graphic);
 	graphic->init();
 	getPage().push_back(graphic);
 }
 
-void Window::removeGraphic(Graphic* graphic) {
-	GraphicPage& page = mPages.top();
+void Window::removeComponent(Component* graphic) {
+	ComponentPage& page = mPages.top();
 	for (auto it = page.begin(); it != page.end(); it++) {
 		if (*it == graphic) {
 			page.erase(it);
@@ -111,10 +111,9 @@ void Window::removeGraphic(Graphic* graphic) {
 
 void Window::handleMouseButtonDownEvent(const SDL_MouseButtonEvent& e) {
 	mMouseIsDown = true;
-	GraphicPage& page = getPage();
+	ComponentPage& page = getPage();
 	bool focusedFound = false;
-	for (auto it = page.rbegin(); it != page.rend(); it++) {
-		Graphic* g = *it;
+	page.forEachActiveReverse([&](Component* g) {
 		if (g->getRect().isPointIntersecting(e.x, e.y)) {
 			if (!focusedFound) {
 				if (focused) focused->setFocused(false);
@@ -123,55 +122,69 @@ void Window::handleMouseButtonDownEvent(const SDL_MouseButtonEvent& e) {
 				focusedFound = true;
 			}
 			g->onClick(e.button, e.x - g->getX(), e.y - g->getY());
+			g->emit("Click", e.button, e.x - g->getX(), e.y - g->getY());
+		} else {
+			g->onOffClick(e.button, e.x - g->getX(), e.y - g->getY());
+			g->emit("OffClick", e.button, e.x - g->getX(), e.y - g->getY());
 		}
-	}
+		return true;
+	});
 }
 
 void Window::handleMouseButtonUpEvent(const SDL_MouseButtonEvent& e) {
 	mMouseIsDown = false;
-	GraphicPage& page = getPage();
-	bool focusedFound = false;
-	for (Graphic* g : getPage()) {
+	getPage().forEachActive([&](Component* g) {
 		if (g->getRect().isPointIntersecting(e.x, e.y)) {
 			g->onMouseUp(e.button, e.x - g->getX(), e.y - g->getY());
 		}
-	}
+		return true;
+	});
 }
 
 void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
-	for (Graphic* g : getPage()) {
+	getPage().forEachActive([&](Component* g) {
 		if (g->getRect().isPointIntersecting(e.x, e.y)) {
 			g->setHovered(true);
 			g->onHover(e.x - g->getX(), e.y - g->getY());
+			g->emit("Hover", e.x - g->getX(), e.y - g->getY());
 			if (mMouseIsDown) g->onDrag(e.x - g->getX(), e.y - g->getY());
 		} else if (g->isHovered()) {
 			g->setHovered(false);
 			g->onLeave(e.x - g->getX(), e.y - g->getY());
+			g->emit("Leave", e.x - g->getX(), e.y - g->getY());
 		}
-	}
+		return true;
+	});
 }
 
 void Window::handleKeyDownEvent(const SDL_KeyboardEvent& e) {
 	emit("KeyDown", e.keysym.sym);
-	for (Graphic* g : getPage()) {
+	getPage().forEachActive([&](Component* g) {
 		g->onKeyDown(e.keysym.sym);
-	}
+		g->emit("KeyDown", e.keysym.sym);
+		return true;
+	});
 }
 
 void Window::handleKeyUpEvent(const SDL_KeyboardEvent& e) {
 	emit("KeyUp", e.keysym.sym);
-	for (Graphic* g : getPage()) {
-//        g->onKeyDown(e.keysym.sym);
-	}
+	getPage().forEachActive([&](Component* g) {
+		g->onKeyUp(e.keysym.sym);
+		g->emit("KeyUp", e.keysym.sym);
+		return true;
+	});
 }
+
 
 void Window::handleWindowResizeEvent(int width, int height) {
 	mWidth = width;
 	mHeight = height;
-	for (Graphic* g : getPage()) {
-		setGraphicsSize(g);
+	getPage().forEachActive([&](Component* g) {
+		setComponentsSize(g);
 		g->onResize(width, height);
-	}
+		g->emit("Resize", width, height);
+		return true;
+	});
 }
 
 void Window::handleWindowEvent(const SDL_WindowEvent& e) {
@@ -277,8 +290,8 @@ void Window::clearScreen(void) {
 
 void Window::draw(void) {
 	clearScreen();
-	for (Graphic* g : getPage()) {
-		if (g->isVisible()) g->draw();
+	for (Component* g : getPage()) {
+		if (g->isVisible() && g->isActive()) g->draw();
 		if (mQuit) return;
 	}
 

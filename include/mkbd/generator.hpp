@@ -2,6 +2,7 @@
 #define __MKBD_GENERATOR_HPP__
 
 #include <mkbd/waves.hpp>
+#include <mkbd/utils.hpp>
 
 #include <functional>
 #include <iostream>
@@ -37,16 +38,16 @@ template<int A>
 static double LinearAttack(double t) {
 	if (A == 0) return 1;
 	double value = (1.0 / (double)A) * t;
-	value *= (value >= 0);
-	return (value > 1.0) ? 1.0 : value;
+	value = MAX(value, 0);
+	return MIN(value, 1);
 }
 
 template<int A>
 static double LinearRelease(double t) {
-	if (A == 0) return 1;
+	if (A == 0) return 0;
 	double value = (-1.0 / (double)A) * (t - (double)A);
-	value *= (1 - value >= 0);
-	return (value < 0.0) ? 0.0 : value;
+	value = MIN(value, 1);
+	return MAX(value, 0);
 }
 
 template<int A>

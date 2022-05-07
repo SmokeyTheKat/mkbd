@@ -1,5 +1,6 @@
 #include <mkbd/virtualkeyboard.hpp>
 
+#include <unordered_map>
 #include <cstring>
 
 int VirtualKeyboard::keyToNote(int key) {
@@ -141,6 +142,7 @@ void VirtualKeyboard::onKeyDown(int key) {
 	} else if (key <= 128) {
 		int note = keyToNote(key);
 		if (note == 0) return;
+		emit("KeyDown", (byte)note);
 	
 		mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOn, note, 50}));
 	}
@@ -154,7 +156,9 @@ void VirtualKeyboard::onKeyUp(int key) {
 		mRcdr->sendEvent(MidiEvent({MidiEvent::ControlChange, MidiEvent::ControlType::SustainPedal, 0}));
 	} else if (key <= 128) {
 		int note = keyToNote(key);
-		if (note > 0)
+		if (note > 0) {
+			emit("KeyUp", (byte)note);
 			mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, note, 0}));
+		}
 	}
 }

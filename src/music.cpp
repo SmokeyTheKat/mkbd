@@ -27,12 +27,23 @@ static const Chord chords[] = {
 	{ " perfect 4th", { 0, 5 } },
 	{ " diminished 5th", { 0, 6 } },
 	{ " perfect 5th", { 0, 7 } },
-	{ " perfect 5th", { 0, 7 } },
 	{ " minor 6th", { 0, 8 } },
 	{ " major 6th", { 0, 9 } },
 	{ " minor 7th", { 0, 10 } },
 	{ " major 7th", { 0, 11 } },
 	{ " perfect octave", { 0, 12 } },
+	{ " minor 9th", { 0, 13 } },
+	{ " major 9th", { 0, 14 } },
+	{ " minor 10th", { 0, 15 } },
+	{ " major 10th", { 0, 16 } },
+	{ " perfect 11th", { 0, 17 } },
+	{ " diminished 12th", { 0, 18 } },
+	{ " perfect 12th", { 0, 19 } },
+	{ " minor 13th", { 0, 20 } },
+	{ " major 13th", { 0, 21 } },
+	{ " minor 14th", { 0, 22 } },
+	{ " major 14th", { 0, 23 } },
+	{ " perfect 2 octaves", { 0, 24 } },
 
 	{ "maj", { 0, 4, 7, } },
 	{ "m", { 0, 3, 7, } },
@@ -62,14 +73,55 @@ static const Chord chords[] = {
 	{ "m7b5", { 0, 3, 6, 10, } },
 	{ "dim7", { 0, 3, 6, 9, } },
 
+
+	{ "add9", { 0, 4, 7, 14, } },
+	{ "madd9", { 0, 3, 7, 14, } },
+	{ "6add9", { 0, 4, 7, 9, 14, } },
+	{ "m6add9", { 0, 3, 7, 9, 14, } },
+	{ "add11", { 0, 4, 7, 17, } },
+	{ "madd11", { 0, 3, 7, 17, } },
+	{ "7add11", { 0, 4, 7, 10, 17, } },
+	{ "m7add11", { 0, 3, 7, 10, 17, } },
+	{ "maj7add11", { 0, 4, 7, 11, 17, } },
+	{ "m(maj7)add11", { 0, 3, 7, 11, 17, } },
+	{ "7add13", { 0, 4, 7, 9, 10, } },
+	{ "m7add13", { 0, 3, 7, 9, 10, } },
+	{ "maj7add13", { 0, 4, 7, 9, 11, } },
+	{ "m(maj7)add13", { 0, 3, 7, 9, 11, } },
+
 	{ "maj9", { 0, 4, 7, 11, 14, } },
+	{ "maj6/9", { 0, 4, 7, 9, 14, } },
+	{ "m6/9", { 0, 3, 7, 9, 14, } },
 	{ "9", { 0, 4, 7, 10, 14, } },
 	{ "7b9", { 0, 4, 7, 10, 13, } },
 	{ "7#9", { 0, 4, 7, 10, 15, } },
 	{ "9#5b9", { 0, 4, 8, 10, 13, } },
-	{ "m/maj9", { 0, 3, 7, 11, 14, } },
+	{ "m(maj9)", { 0, 3, 7, 11, 14, } },
 	{ "m9", { 0, 3, 7, 10, 14, } },
 	{ "m7b9", { 0, 3, 7, 10, 13, } },
+
+
+	{ "maj11", { 0, 4, 7, 11, 14, 17, } },
+	{ "11", { 0, 4, 7, 10, 14, 17, } },
+	{ "9#11", { 0, 4, 7, 10, 14, 18, } },
+	{ "m(maj11)", { 0, 3, 7, 11, 14, 17, } },
+	{ "m11", { 0, 3, 7, 10, 14, 17, } },
+	{ "aug(maj11)", { 0, 4, 8, 11, 14, 17, } },
+	{ "aug11", { 0, 4, 8, 10, 14, 17, } },
+	{ "m11b5", { 0, 3, 6, 10, 13, 17, } },
+	{ "dim11", { 0, 3, 6, 9, 13, 16, } },
+
+	{ "maj13", { 0, 4, 7, 11, 14, 17, 21, } },
+	{ "13", { 0, 4, 7, 10, 14, 17, 21, } },
+	{ "9b13", { 0, 4, 7, 10, 14, 20, } },
+	{ "m(maj13)", { 0, 3, 7, 11, 14, 17, 21, } },
+	{ "m13", { 0, 3, 7, 10, 14, 17, 21, } },
+	{ "aug(maj13)", { 0, 4, 8, 11, 14, 17, 21, } },
+	{ "aug13", { 0, 4, 8, 10, 14, 17, 21, } },
+	{ "m13b5", { 0, 3, 6, 10, 14, 17, 21, } },
+
+
+
 	{ 0 },
 };
 
@@ -94,15 +146,19 @@ namespace Music {
 	double tuning = 440;
 
 	std::string getChordName(std::vector<int> notes) {
+		if (notes.size() > 12)
+			return "";
+
 		int firstNote = notes.front();
-		for (int& note : notes) {
+		while (notes.front() < 112) {
+			std::sort(notes.begin(), notes.end());
 			std::string result = checkChordOrientationName(notes);
 			if (result.size() > 0) {
 				if (notes[0] != firstNote)
 					return result + "/" + Music::getNoteName(firstNote);
 				else return result;
 			}
-			note += 12;
+			notes[0] += 12;
 		}
 		return "";
 	}
@@ -121,6 +177,10 @@ namespace Music {
 
 	bool isNoteFlat(int note) {
 		return getNoteName(note).length() != 2;
+	}
+
+	bool isBlackKey(int note) {
+		return !isNoteFlat(note);
 	}
 
 	std::string getNoteName(int note) {

@@ -2,10 +2,11 @@
 #define __MKBD_VIRTUALKEYBOARD_HPP__
 
 #include <mkbd/midi/recorder.hpp>
+#include <mkbd/eventemitter.hpp>
 
 #include <SDL2/SDL.h>
 
-class VirtualKeyboard {
+class VirtualKeyboard : public EventEmitter {
 	MidiRecorder* mRcdr;
 
 	int mSustainToggleKey = SDLK_CAPSLOCK;
