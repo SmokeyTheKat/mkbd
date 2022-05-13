@@ -21,8 +21,16 @@ struct Layout {
 		AnchorTopCenter =       (1 << 9),
 	};
 
-	inline Layout(double x, double y, double width, double height, int details = Layout::Default)
+	Layout(double x, double y, double width, double height, int details = Layout::Default)
 	: x(x), y(y), width(width), height(height), details(details) {};
+
+	Layout resetPosition(void) {
+		Layout l = *this;
+		l.details = Layout::Default;
+		l.x = 0;
+		l.y = 0;
+		return l;
+	};
 };
 
 #endif

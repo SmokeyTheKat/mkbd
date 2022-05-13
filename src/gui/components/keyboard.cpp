@@ -82,7 +82,7 @@ void KeyboardComponent::init(void) {
 }
 
 Color KeyboardComponent::getWhiteKeyColor(int key) {
-	if (keys[key]) {
+	if (gConfig.showKeyDownColor && keys[key]) {
 		if (Music::isBlackKey(key))
 			return gConfig.blackKeyDownColor;
 		else return gConfig.whiteKeyDownColor;
@@ -91,7 +91,7 @@ Color KeyboardComponent::getWhiteKeyColor(int key) {
 }
 
 Color KeyboardComponent::getBlackKeyColor(int key) {
-	if (keys[key]) {
+	if (gConfig.showKeyDownColor && keys[key]) {
 		if (Music::isBlackKey(key))
 			return gConfig.blackKeyDownColor;
 		else return gConfig.whiteKeyDownColor;
@@ -114,6 +114,30 @@ void KeyboardComponent::drawKey3DPart(int key, Color color, int x, int width, in
 	);
 }
 
+void KeyboardComponent::drawKeyPushShadowLeft(int i, Color color, int offset) {
+//    int pushDistanceWidth = mPushDistance / 7;
+	int pushDistanceWidth = 0;
+	int pushDistanceHeight = mPushDistance;
+
+	setColor1(RGB_ARGS(color));
+
+	int wid = ((i + 1) * mKeyWidth) - ((i + 1) * mKeyWidth - offset - pushDistanceWidth);
+	fillRectangle((i + 1) * mKeyWidth - offset - pushDistanceWidth, mBorder - 1, pushDistanceWidth, mBlackKeyHeight);
+	fillRectangle((i + 1) * mKeyWidth - offset - pushDistanceWidth, mBorder - 1 + mBlackKeyHeight, wid, pushDistanceHeight);
+}
+
+void KeyboardComponent::drawKeyPushShadowRight(int i, Color color, int offset) {
+//    int pushDistanceWidth = mPushDistance / 7;
+	int pushDistanceWidth = 0;
+	int pushDistanceHeight = mPushDistance;
+
+	setColor1(RGB_ARGS(color));
+
+	int wid = ((i + 1) * mKeyWidth - offset + mBlackKeyWidth) - ((i + 1) * mKeyWidth) + pushDistanceWidth;
+	fillRectangle((i + 1) * mKeyWidth - offset + mBlackKeyWidth, mBorder - 1, pushDistanceWidth, mBlackKeyHeight);
+	fillRectangle((i + 1) * mKeyWidth, mBorder - 1 + mBlackKeyHeight, wid, pushDistanceHeight);
+}
+
 void KeyboardComponent::drawKeyboardWhiteKey(int key, int i) {
 	Color color = getWhiteKeyColor(key);
 	setColor1(RGB_ARGS(color));
@@ -131,6 +155,19 @@ void KeyboardComponent::drawKeyboardBlackKey(int key, int i, int offset) {
 
 	if (gConfig.showKeys3D) {
 		drawKey3DPart(key, color.darken(0.2), (i + 1) * mKeyWidth - offset, mBlackKeyWidth, mBlackKeyHeight);
+
+		color = color.darken(0.2);
+
+//        if (keys[key]) {
+			color = color.darken(0.2);
+//        }
+
+		if (keys[key-1]) {
+			drawKeyPushShadowLeft(i, color, offset);
+		}
+		if (keys[key+1]) {
+			drawKeyPushShadowRight(i, color, offset);
+		}
 	}
 }
 
@@ -209,8 +246,6 @@ void KeyboardComponent::draw(void) {
 	}
 
 	for (int i = 0, key = 9; i < mKeyCount + 10; i++) {
-		Color color = getWhiteKeyColor(key);
-		setColor1(RGB_ARGS(color));
 		key++;
 		if ((i+5) % 7 == 0)
 			drawKeyboardBlackKeyLeft(key++, i);

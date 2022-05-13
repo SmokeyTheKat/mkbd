@@ -17,6 +17,94 @@ void Component::onDrag(int x, int y) {};
 void Component::onKeyDown(int key) {};
 void Component::onKeyUp(int key) {};
 
+void Component::addChild(Component* component) {
+	if (component == this)
+		return;
+
+	if (component->isChildOf(this))
+		return;
+
+	mChildren.push_back(component);
+	component->setParent(this);
+
+	if (!mWindow)
+		return;
+
+	component->setWindow(mWindow);
+	mWindow->setComponentsSize(component);
+	component->init();
+}
+
+bool Component::applyToSelfAndActiveChildren(std::function<bool(Component*)> func) {
+	if (isActive()) {
+		if (!func(this)) {
+			return false;
+		}
+	}
+
+	for (Component* c : getChildren()) {
+		c->applyToSelfAndChildren(func);
+		if (c->isActive()) {
+			if (!func(c)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool Component::applyToSelfAndActiveChildrenReverse(std::function<bool(Component*)> func) {
+	if (isActive()) {
+		if (!func(this)) {
+			return false;
+		}
+	}
+
+	std::vector<Component*> children = getChildren();
+
+	for (auto it = children.rbegin(); it != children.rend(); it++) {
+		Component* c = *it;
+		c->applyToSelfAndChildrenReverse(func);
+		if (c->isActive()) {
+			if (!func(c)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool Component::applyToSelfAndChildren(std::function<bool(Component*)> func) {
+	if (!func(this)) {
+		return false;
+	}
+
+	for (Component* c : getChildren()) {
+		c->applyToSelfAndChildren(func);
+		if (!func(c)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Component::applyToSelfAndChildrenReverse(std::function<bool(Component*)> func) {
+	if (!func(this)) {
+		return false;
+	}
+
+	std::vector<Component*> children = getChildren();
+
+	for (auto it = children.rbegin(); it != children.rend(); it++) {
+		Component* c = *it;
+		c->applyToSelfAndChildrenReverse(func);
+		if (!func(c)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 SDL_Renderer* Component::getRenderer(void) {
 	return mWindow->getRenderer();
 }
@@ -45,6 +133,11 @@ void Component::setColor(int r, int g, int b) {
 void Component::drawLine(int x1, int y1, int x2, int y2) {
 	setColor1();
 	SDL_RenderDrawLine(getRenderer(), mX + x1, mY + y1, mX + x2, mY + y2);
+}
+
+void Component::drawPoint(int x, int y) {
+	setColor1();
+	SDL_RenderDrawPoint(getRenderer(), mX + x, mY + y);
 }
 
 void Component::fillRectangle(int x, int y, int w, int h) {

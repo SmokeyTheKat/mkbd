@@ -4,36 +4,34 @@
 #include <iostream>
 
 InputComponent::InputComponent(Layout layout, std::string text, InputType inputType)
-: Component(layout), mInputType(inputType),
-  mText(layout, text, RESOURCE_DIR "/fonts/FreeSans.ttf", 20, mFgColor) {
-	mText = TextComponent(layout, text, RESOURCE_DIR "/fonts/FreeSans.ttf", 20, mFgColor);
-	std::cout << layout.x << " " << layout.width << " " << mText.getX() << " " << mText.getWidth() << "\n";
+: Component(layout), mInputType(inputType) {
+	mText = new TextComponent(
+		layout.resetPosition(),
+		text,
+		RESOURCE_DIR "/fonts/FreeSans.ttf",
+		20,
+		mFgColor
+	);
+	addChild(mText);
 };
 
 void InputComponent::init(void) {
-	mText.setWindow(mWindow);
-	mWindow->setComponentsSize(&mText);
-	setTextLayout();
 }
 
 void InputComponent::setText(std::string text) {
-	mText.setText(text);
+	mText->setText(text);
 	mCursor = text.length();
 }
 
 void InputComponent::setAlign(FC_AlignEnum align) {
-	mText.setAlign(align);
+	mText->setAlign(align);
 }
 
 void InputComponent::setTextLayout(void) {
-	mText.setX(mX);
-	mText.setY(mY);
-	mText.setWidth(mWidth);
-	mText.setHeight(mHeight);
 }
 
 void InputComponent::onResize(int width, int height) {
-	mWindow->setComponentsSize(&mText);
+	mWindow->setComponentsSize(mText);
 	setTextLayout();
 }
 
@@ -78,7 +76,7 @@ void InputComponent::onKeyDown(int key) {
 
 	if (!keyFitsRestrictions(key)) return;
 
-	std::string text = mText.getText();
+	std::string text = mText->getText();
 
 	switch (key) {
 		case SDLK_BACKSPACE: {
@@ -100,7 +98,7 @@ void InputComponent::onKeyDown(int key) {
 		} break;
 	}
 
-	mText.setText(text);
+	mText->setText(text);
 
 	emit<std::string>("Change", text);
 }
@@ -115,16 +113,15 @@ void InputComponent::draw(void) {
 
 	drawRectangleWithOutline(0, 0, mWidth, mHeight);
 
-	std::string str = mText.getText();
+	std::string str = mText->getText();
 	mCursor = str.length();
 	if (isFocused() && time(0) % 2 == 0) {
 		std::string newstr = str;
 		newstr.insert(mCursor, "|");
-		mText.setText(newstr);
+		mText->setText(newstr);
 	}
-
-	mText.draw();
+	mText->draw();
 
 	if (isFocused())
-		mText.setText(str);
+		mText->setText(str);
 }

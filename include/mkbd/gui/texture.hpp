@@ -18,7 +18,7 @@ public:
 	Texture(const char* path);
 	~Texture(void);
 
-	inline void setRenderer(SDL_Renderer* renderer) { mRenderer = renderer; };
+	void setRenderer(SDL_Renderer* renderer) { mRenderer = renderer; };
 
 	void render(void);
 	void render(int x, int y);

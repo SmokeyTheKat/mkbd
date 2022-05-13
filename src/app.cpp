@@ -62,17 +62,35 @@ void App::generateFooter(void) {
 
 void App::generateHeader(const char* title) {
 	int gap = mHeaderHeight / 4;
-	RectangleComponent* topBar = new RectangleComponent(Layout(0, 0, 0, mHeaderHeight, Layout::FillX), gConfig.accColor);
-	TextComponent* titleText = new TextComponent(Layout(0, 0, 0, mHeaderHeight, Layout::FillX), title, RESOURCE_DIR "/fonts/FreeSans.ttf", 30, gConfig.fgColor);
+
+	RectangleComponent* topBar = new RectangleComponent(
+		Layout(0, 0, 0, mHeaderHeight, Layout::FillX),
+		gConfig.accColor
+	);
+
+	TextComponent* titleText = new TextComponent(
+		Layout(0, 0, 0, mHeaderHeight, Layout::FillX),
+		title,
+		RESOURCE_DIR "/fonts/FreeSans.ttf",
+		30,
+		gConfig.fgColor
+	);
+	titleText->setParent(topBar);
 	titleText->setAlign(FC_ALIGN_CENTER);
 
-	ButtonComponent* backButton = new ButtonComponent(Layout(10, gap, 70, mHeaderHeight - gap * 2), "Back", [this](void) {
+	ButtonComponent* backButton = new ButtonComponent(
+		Layout(10, gap, 70, mHeaderHeight - gap * 2),
+		"Back",
+		[](){},
+		gConfig.accColor, gConfig.fgColor
+	);
+	backButton->on("Click", asFunction<int, int>([this, backButton](int x, int y) {
+		std::cout << backButton->getX() << " " << backButton->getY() << "\n";
 		mWindow.popPage();
-	}, gConfig.accColor, gConfig.fgColor);
+	}));
+	backButton->setParent(topBar);
 
 	mWindow.addComponent(topBar);
-	mWindow.addComponent(backButton);
-	mWindow.addComponent(titleText);
 }
 
 void App::mainMenuPage(void) {

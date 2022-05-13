@@ -5,11 +5,12 @@
 #include <mkbd/music.hpp>
 #include <mkbd/math.hpp>
 #include <mkbd/settings.hpp>
+#include <mkbd/gui/window.hpp>
 
 #include <iostream>
 
 WaterfallComponent::WaterfallComponent(Layout layout, MidiRecorder* recorder)
-: Component(layout), mRcdr(recorder) {
+: Component(layout), mRcdr(recorder), mBackgroundImage(layout, gConfig.waterfallBackgroundImagePath.c_str()) {
 	calculateSizes();
 	mRcdr->on("Event", asFunction<MidiEvent>([this](MidiEvent e) {
 		mEvents.push_back(e);
@@ -18,6 +19,9 @@ WaterfallComponent::WaterfallComponent(Layout layout, MidiRecorder* recorder)
 
 void WaterfallComponent::init(void) {
 	calculateSizes();
+	mWindow->setComponentsSize(&mBackgroundImage);
+	mBackgroundImage.setWindow(mWindow);
+	mBackgroundImage.init();
 }
 
 void WaterfallComponent::onResize(int width, int height) {
@@ -29,7 +33,6 @@ void WaterfallComponent::calculateSizes(void) {
 	mKeyHeight = mHeight;
 	mBlackKeyWidth = (mKeyWidth * 7) / 10;
 	mBlackKeyHeight = (mKeyHeight * 5) / 8;
-
 
 	mKeyPositions.resize(127);
 
@@ -113,10 +116,19 @@ void WaterfallComponent::drawLines(void) {
 	}
 }
 
+void WaterfallComponent::drawBackground(void) {
+	if (gConfig.waterfallBackgroundImage) {
+		mBackgroundImage.draw();
+	} else {
+		setColor(RGB_ARGS(gConfig.waterfallBackgroundColor));
+		fillRectangle(0, 0, mWidth, mHeight);
+	}
+}
+
 void WaterfallComponent::draw(void) {
 	int scale = 240;
-	setColor(35, 35, 35);
-	fillRectangle(0, 0, mWidth, mHeight);
+
+	drawBackground();
 
 	std::vector<std::vector<MidiEvent>::iterator> toDelete;
 
@@ -133,7 +145,7 @@ void WaterfallComponent::draw(void) {
 			int y = rmap(mRcdr->getTime() - it->time, 0, barLength, mHeight, 0);
 			int width = getKeyWidth((*it)[1]);
 
-//            if (y - height > 1 && height < 30) height = 10;
+			if (y + height < mHeight && height < 10) height = 10;
 
 			if (y + height < 0) {
 				toDelete.push_back(it);

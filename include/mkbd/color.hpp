@@ -6,12 +6,117 @@
 #include <mkbd/utils.hpp>
 #include <mkbd/math.hpp>
 #include <algorithm>
+#include <iostream>
+
+enum class ColorFormat {
+	Rgb,
+	Hsv
+};
 
 struct Color {
-	int r, g, b;
+	union {
+		struct {
+			int r, g, b;
+		};
+		struct {
+			int h, s, v;
+		};
+	};
+
 	Color(int r, int g, int b) : r(r), g(g), b(b) {};
+	Color(int a, int b, int c, ColorFormat format) {
+		if (format == ColorFormat::Rgb) {
+			r = a;
+			g = b;
+			b = c;
+		} else if (format == ColorFormat::Hsv) {
+			h = a;
+			s = b;
+			v = c;
+		}
+	}
 	Color(int v) : r(v), g(v), b(v) {};
 	Color(void) : r(0), g(0), b(0) {};
+
+	void toRgb(void) {
+		double nh = h;
+		double ns = s / 100.0;
+		double nv = v / 100.0;
+
+		double c = nv * ns;
+		double x = c * (1.0 - std::abs(std::fmod(nh / 60.0, 2.0) - 1.0));
+		double m = nv - c;
+
+		double nr, ng, nb;
+
+		if (nh < 60.0) {
+			nr = c;
+			ng = x;
+			nb = 0;
+		} else if (nh < 120.0) {
+			nr = x;
+			ng = c;
+			nb = 0;
+		} else if (nh < 180.0) {
+			nr = 0;
+			ng = c;
+			nb = x;
+		} else if (nh < 240.0) {
+			nr = 0;
+			ng = x;
+			nb = c;
+		} else if (nh < 300.0) {
+			nr = x;
+			ng = 0;
+			nb = c;
+		} else if (nh < 360.0) {
+			nr = c;
+			ng = 0;
+			nb = x;
+		}
+
+		nr = (nr + m) * 255.0;
+		ng = (ng + m) * 255.0;
+		nb = (nb + m) * 255.0;
+
+		r = nr;
+		g = ng;
+		b = nb;
+	}
+
+	void toHsv(void) {
+		double nr = r / 255.0;
+		double ng = g / 255.0;
+		double nb = b / 255.0;
+
+		double max = std::max({nr, ng, nb});
+		double min = std::min({nr, ng, nb});
+		double d = max - min;
+
+		double nh, ns, nv;
+
+		if (d == 0) {
+			nh = 0.0;
+		} else if (max == nr) {
+			nh = 60.0 * std::fmod((ng - nb) / d, 6.0);
+		} else if (max == ng) {
+			nh = 60.0 * ((nb - nr) / d + 2.0);
+		} else if (max == nb) {
+			nh = 60.0 * ((nr - ng) / d + 4.0);
+		}
+
+		if (max == 0) {
+			ns = 0;
+		} else {
+			ns = d / max;
+		}
+
+		nv = max;
+
+		h = nh;
+		s = ns * 100.0;
+		v = nv * 100.0;
+	}
 
 	static inline Color none(void) {
 		return Color(-1, -1, -1);

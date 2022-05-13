@@ -128,8 +128,17 @@ void App::settingsPageTabMidiDevice(void) {
 void App::settingsPageTabMidiForwarding(void) {
 	newSettingsPage();
 
-	RectangleComponent* rect = new RectangleComponent(Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 400), Color(255, 255, 0), Color(0, 0, 0));
-	
+	RectangleComponent* rect = new RectangleComponent(
+		Layout(mMenuWidth + 20, mHeaderHeight + 20, 200, 400),
+		Color(255, 255, 0), Color(0, 0, 0)
+	);
+
+	RectangleComponent* test = new RectangleComponent(
+		Layout(50, 20, 50, 50),
+		Color(0, 0, 255), Color(0, 0, 0)
+	);
+	test->setParent(rect);
+
 	mSettingsPage.push_back(rect);
 	mWindow.addComponent(rect);
 }

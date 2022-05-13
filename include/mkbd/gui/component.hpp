@@ -14,7 +14,7 @@ class Window;
 
 class Component : public EventEmitter {
 protected:
-	Window* mWindow;
+	Window* mWindow = 0;
 	Layout mLayout;
 	int mX;
 	int mY;
@@ -28,6 +28,9 @@ protected:
 
 	Color mColor1;
 	Color mColor2;
+
+	Component* mParent = 0;
+	std::vector<Component*> mChildren;
 
 public:
 	Component(Layout layout);
@@ -56,6 +59,37 @@ public:
 	SDL_Renderer* getRenderer(void);
 	Rect getRect(void) { return Rect(mX, mY, mWidth, mHeight); };
 
+	const std::vector<Component*>& getChildren(void) { return mChildren; };
+	void addChild(Component* component);
+
+	bool hasParent(void) { return mParent != 0; };
+	Component* getParent(void) { return mParent; };
+	void setParent(Component* component) { 
+		mParent = component;
+		if (!isChildOf(component)) {
+			component->addChild(this);
+		}
+	};
+
+	bool isChildOf(Component* component) {
+		for (auto c : component->getChildren()) {
+			if (c == this)
+				return true;
+		}
+		return false;
+	};
+
+	void applyToChildren(std::function<void(Component*)> func) {
+		for (Component* c : getChildren()) {
+			func(c);
+		}
+	}
+
+	bool applyToSelfAndActiveChildren(std::function<bool(Component*)> func);
+	bool applyToSelfAndActiveChildrenReverse(std::function<bool(Component*)> func);
+	bool applyToSelfAndChildren(std::function<bool(Component*)> func);
+	bool applyToSelfAndChildrenReverse(std::function<bool(Component*)> func);
+
 	int getX(void) { return mX; };
 	void setX(int x) { mX = x; };
 
@@ -74,14 +108,28 @@ public:
 	void setHovered(bool hovered) { mIsHovered = hovered; };
 
 	bool isVisible(void) { return mIsVisible; };
-	void setVisible(bool visible) { mIsVisible = visible; };
+	void setSelfVisible(bool visible) { mIsVisible = visible; };
+	void setVisible(bool visible) {
+		setSelfVisible(visible);
+		applyToChildren([visible](Component* c) {
+			c->setVisible(visible);
+		});
+	};
 
 	bool isFocused(void) { return mIsFocused; };
 	void setFocused(bool focused) { mIsFocused = focused; };
 
 	bool isActive(void) { return mIsActive; };
-	void setActive(bool active) { mIsActive = active; };
+	void setSelfActive(bool active) { mIsActive = active; };
+	void setActive(bool active) {
+		setSelfActive(active);
+		applyToChildren([active](Component* c) {
+			c->setActive(active);
+		});
+	};
 
+protected:
+	void drawPoint(int x, int y);
 	void drawLine(int x1, int y1, int x2, int y2);
 	void fillRectangle(int x, int y, int w, int h);
 	void drawRectangle(int x, int y, int w, int h);

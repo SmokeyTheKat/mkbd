@@ -16,21 +16,31 @@
 struct ComponentPage : public std::vector<Component*> {
 	void forEachActive(std::function<bool(Component*)> func) {
 		for (Component* c : *this) {
-			if (c->isActive()) {
-				if (!func(c)) {
-					break;
-				}
-			}
+			if (!c->applyToSelfAndActiveChildren(func))
+				break;
 		}
 	}
+
 	void forEachActiveReverse(std::function<bool(Component*)> func) {
 		for (auto it = rbegin(); it != rend(); it++) {
 			Component* c = *it;
-			if (c->isActive()) {
-				if (!func(c)) {
-					return;
-				}
-			}
+			if (!c->applyToSelfAndActiveChildrenReverse(func)) 
+				break;
+		}
+	}
+
+	void forEach(std::function<bool(Component*)> func) {
+		for (Component* c : *this) {
+			if (!c->applyToSelfAndChildren(func))
+				break;
+		}
+	}
+
+	void forEachReverse(std::function<bool(Component*)> func) {
+		for (auto it = rbegin(); it != rend(); it++) {
+			Component* c = *it;
+			if (!c->applyToSelfAndChildrenReverse(func)) 
+				break;
 		}
 	}
 };
@@ -57,6 +67,7 @@ public:
 
 	void close(void);
 
+	void syncComponent(Component* component);
 	void addComponent(Component* graphic);
 	void removeComponent(Component* graphic);
 	void clearPage(void);

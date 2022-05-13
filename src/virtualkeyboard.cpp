@@ -4,6 +4,9 @@
 #include <cstring>
 
 int VirtualKeyboard::keyToNote(int key) {
+	if (key <= 0 || key >= 255)
+		return 0;
+
 	static int convert[255] = {0};
 	if (mSwitch) {
 		mSwitch = false;

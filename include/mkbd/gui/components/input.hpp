@@ -17,7 +17,7 @@ enum class InputType {
 };
 
 class InputComponent : public Component {
-	TextComponent mText;
+	TextComponent* mText;
 	InputType mInputType;
 
 	int mCursor = 0;
@@ -38,17 +38,17 @@ public:
 
 	void setText(std::string text);
 	void setAlign(FC_AlignEnum align);
-	void setFontSize(int fontSize) { mText.setFontSize(fontSize); };
+	void setFontSize(int fontSize) { mText->setFontSize(fontSize); };
 	void setMaxValue(intmax_t maxValue) { mMaxValue = maxValue; };
 	void setMinValue(intmax_t minValue) { mMinValue = minValue; };
 
 	void setBgColor(Color color) { mBgColor = color; };
 	void setFgColor(Color color) {
 		mFgColor = color;
-		mText.setColor(color);
+		mText->setColor(color);
 	};
 
-	TextComponent& getTextComponent(void) { return mText; };
+	TextComponent& getTextComponent(void) { return *mText; };
 
 private:
 	void setTextLayout(void);

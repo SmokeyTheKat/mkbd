@@ -16,13 +16,14 @@
 
 class ButtonComponent : public Component {
 	std::function<void(void)> mCallback = 0;
-	TextComponent mText;
+	TextComponent* mText;
 	Color mFgColor = Color(0, 0, 0);
 	Color mBgColor = Color(150, 150, 150);
 
 public:
-	ButtonComponent(Layout layout, std::string text, std::function<void(void)> callback);
 	ButtonComponent(Layout layout, std::string text, std::function<void(void)> callback, Color bgColor, Color fgColor);
+	ButtonComponent(Layout layout, std::string text, std::function<void(void)> callback)
+	: ButtonComponent(layout, text, callback, Color(0), Color(150)) {};
 
 	void draw(void);
 	void init(void);
@@ -30,9 +31,9 @@ public:
 	void onClick(int button, int x, int y);
 	void onlick(int button, int x, int y);
 
-	void setFontSize(int fontSize) { mText.setFontSize(fontSize); };
+	void setFontSize(int fontSize) { mText->setFontSize(fontSize); };
 	void setBgColor(Color color) { mBgColor = color; };
-	TextComponent& getText(void) { return mText; };
+	TextComponent& getText(void) { return *mText; };
 };
 
 #endif

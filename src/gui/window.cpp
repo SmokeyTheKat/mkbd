@@ -32,6 +32,19 @@ Window::~Window(void) {
 }
 
 void Window::setComponentsSize(Component* g) {
+	int x = 0;
+	int y = 0;
+	int width = mWidth;
+	int height = mHeight;
+	if (g->hasParent()) {
+		Component* p = g->getParent();
+		setComponentsSize(p);
+		x = p->getX();
+		y = p->getY();
+		width = p->getWidth();
+		height = p->getHeight();
+	}
+
 	Layout layout = g->getLayout();
 	if (layout.details & Layout::FillX) {
 		g->setWidth(mWidth - layout.width);
@@ -50,23 +63,23 @@ void Window::setComponentsSize(Component* g) {
 	}
 
 	if (layout.details & Layout::AnchorCenter) {
-		g->setX(layout.x + (mWidth / 2));
-		g->setY(layout.y + (mHeight / 2));
+		g->setX(x + layout.x + width / 2);
+		g->setY(y + layout.y + height / 2);
 	} else if (layout.details & Layout::AnchorTopCenter) {
-		g->setX(layout.x + (mWidth / 2));
-		g->setY(layout.y);
+		g->setX(x + layout.x + width / 2);
+		g->setY(y + layout.y);
 	} else if (layout.details & Layout::AnchorBottomLeft) {
-		g->setX(layout.x);
-		g->setY(mHeight - layout.y);
+		g->setX(x + layout.x);
+		g->setY(y + height - layout.y);
 	} else if (layout.details & Layout::AnchorTopRight) {
-		g->setX(mWidth - layout.x);
-		g->setY(layout.y);
+		g->setX(x + width - layout.x);
+		g->setY(y + layout.y);
 	} else if (layout.details & Layout::AnchorBottomRight) {
-		g->setX(mWidth - layout.x);
-		g->setY(mHeight - layout.y);
+		g->setX(x + width - layout.x);
+		g->setY(y + height - layout.y);
 	} else {
-		g->setX(layout.x);
-		g->setY(layout.y);
+		g->setX(x + layout.x);
+		g->setY(y + layout.y);
 	}
 }
 
@@ -92,11 +105,18 @@ void Window::clearPage(void) {
 	getPage().clear();
 }
 
-void Window::addComponent(Component* graphic) {
-	graphic->setWindow(this);
-	setComponentsSize(graphic);
-	graphic->init();
-	getPage().push_back(graphic);
+void Window::syncComponent(Component* component) {
+	component->setWindow(this);
+	setComponentsSize(component);
+	component->init();
+}
+
+void Window::addComponent(Component* component) {
+	component->applyToSelfAndChildren([this](Component* c) {
+		syncComponent(c);
+		return true;
+	});
+	getPage().push_back(component);
 }
 
 void Window::removeComponent(Component* graphic) {
@@ -147,7 +167,10 @@ void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
 			g->setHovered(true);
 			g->onHover(e.x - g->getX(), e.y - g->getY());
 			g->emit("Hover", e.x - g->getX(), e.y - g->getY());
-			if (mMouseIsDown) g->onDrag(e.x - g->getX(), e.y - g->getY());
+			if (mMouseIsDown) {
+				g->onDrag(e.x - g->getX(), e.y - g->getY());
+				g->emit("Drag", e.x - g->getX(), e.y - g->getY());
+			}
 		} else if (g->isHovered()) {
 			g->setHovered(false);
 			g->onLeave(e.x - g->getX(), e.y - g->getY());
@@ -290,10 +313,11 @@ void Window::clearScreen(void) {
 
 void Window::draw(void) {
 	clearScreen();
-	for (Component* g : getPage()) {
-		if (g->isVisible() && g->isActive()) g->draw();
-		if (mQuit) return;
-	}
+	getPage().forEachActive([this](Component* c) {
+		if (c->isVisible() && c->isActive()) c->draw();
+		if (mQuit) return false;
+		return true;
+	});
 
 	SDL_RenderPresent(mRenderer);
 }

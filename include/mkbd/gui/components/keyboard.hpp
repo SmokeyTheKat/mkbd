@@ -15,6 +15,7 @@ class KeyboardComponent : public Component {
 	int mBlackKeyWidth;
 	int mBlackKeyHeight;
 	double mViewAngle = 0.13;
+	int mPushDistance = 7;
 
 	int mVKey = -1;
 
@@ -38,6 +39,8 @@ private:
 	Color getWhiteKeyColor(int key);
 	Color getBlackKeyColor(int key);
 	void drawKey3DPart(int key, Color color, int x, int width, int height);
+	void drawKeyPushShadowLeft(int i, Color color, int offset);
+	void drawKeyPushShadowRight(int i, Color color, int offset);
 	void drawKeyboardWhiteKey(int key, int i);
 	void drawKeyboardBlackKey(int key, int i, int offset);
 	void drawKeyboardBlackKeyLeft(int key, int i);

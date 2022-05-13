@@ -73,7 +73,7 @@ void MidiRecorder::handleControlChangeEvents(MidiEvent e) {
 void MidiRecorder::handleEvent(MidiEvent e) {
 	if (e.length() == 0) return;
 	e.time = mTimer.now();
-	emit("Event", e);
+	emit<MidiEvent>("Event", e);
 	mEvents.push_back(e);
 	switch (e.getType()) {
 		case MidiEvent::NoteOff: {

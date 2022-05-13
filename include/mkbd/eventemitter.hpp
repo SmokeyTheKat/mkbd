@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <iostream>
 #include <cstddef>
 
 #define SET_FID static std::size_t FID[0]
@@ -30,12 +31,6 @@ class EventEmitter {
 
 		Event(void* vFunc, GroupId group)
 		: vFunc(vFunc), group(group) {};
-
-		template<class... Args, class T = std::function<void(Args...)>>
-		void invoke(Args&&... args) {
-			T& func = *reinterpret_cast<T*>(vFunc);
-			func(std::forward<Args>(args)...);
-		};
 
 		void free(void) {
 			std::free(vFunc);
@@ -78,7 +73,8 @@ public:
 		std::vector<EventList::iterator> toDelete;
 
 		for (auto it = list.begin(); it != list.end(); it++) {
-			it->invoke(std::forward<Args>(args)...);
+			T& func = *reinterpret_cast<T*>(it->vFunc);
+			func(args...);
 
 			if (it->once)
 				toDelete.push_back(it);

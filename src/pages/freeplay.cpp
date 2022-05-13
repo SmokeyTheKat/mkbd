@@ -52,11 +52,19 @@ void App::freePlayPage(void) {
 	mWindow.on("KeyUp", asFunction<int>(std::bind(&VirtualKeyboard::onKeyUp, &vk, _1)), FID);
 
 	vk.on("KeyDown", asFunction<byte>([&piano](byte note) {
+		Color c(125, 25, 212);
+		c.toHsv();
+		c.toRgb();
 		piano.sendEvent(MidiEvent({MidiEvent::NoteOn, note, 100}));
 	}), FID);
 	vk.on("KeyUp", asFunction<byte>([&piano](byte note) {
 		piano.sendEvent(MidiEvent({MidiEvent::NoteOff, note, 0}));
 	}), FID);
+
+	mRecorder.on("Event", asFunction<MidiEvent>([this, &piano](MidiEvent e) {
+		if (e.length() <= 0) return;
+//        piano.sendEvent(e);
+	}));
 
 	mRecorder.on("Update", asFunction(std::bind(&Window::update, &mWindow)));
 
@@ -86,6 +94,15 @@ void App::freePlayPage(void) {
 	mWindow.addComponent(smg);
 	mWindow.addComponent(kg);
 	mWindow.addComponent(tg);
+
+	ColorPickerComponent* cp = new ColorPickerComponent(
+		Layout(100, 100, 200, 200), &gConfig.waterfallBackgroundColor
+	);
+
+	cp->on("Change", asFunction([this](void){
+	}));
+
+//    mWindow.addComponent(cp);
 
 	generatePianoControls();
 
@@ -319,7 +336,7 @@ void App::generateInstrumentPanel(void) {
 	}
 
 	for (auto g : instrumentPanel) {
-		g->setActive(!g->isActive());
+		g->setActive(false);
 	}
 
 	instButton->on("Click", asFunction([instrumentPanel, instButton](void) {
@@ -327,6 +344,7 @@ void App::generateInstrumentPanel(void) {
 			g->setActive(!g->isActive());
 		}
 	}));
+
 
 	instPanelBg->on("OffClick", asFunction<int, int, int>([instrumentPanel, instButton](int button, int x, int y) {
 		for (auto g : instrumentPanel) {
@@ -388,6 +406,19 @@ void App::generateBpmControls(void) {
 		gConfig.accColor,
 		Colors::White
 	);
+
+	ButtonComponent* controlUp = new ButtonComponent(
+		Layout(
+			bpmTextWidth / 2 + bpmButtonSize - 2 + bpmButtonSize - 1, bpmButtonY,
+			bpmButtonSize, bpmButtonSize,
+			Layout::AnchorTopCenter
+		),
+		"+",
+		[](){},
+		gConfig.accColor,
+		Colors::White
+	);
+
 	metOn->on("Click", asFunction([this, metOn](void) {
 		mMetronomeOn = !mMetronomeOn;
 		if (mMetronomeOn) {
@@ -430,5 +461,6 @@ void App::generateBpmControls(void) {
 	mWindow.addComponent(metUp);
 	mWindow.addComponent(metDown);
 	mWindow.addComponent(metOn);
+	mWindow.addComponent(controlUp);
 	mWindow.addComponent(bpmText);
 }
