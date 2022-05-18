@@ -31,8 +31,22 @@ void App::freePlayPage(void) {
 
 	int kgHeight = 200;
 
-	WaterfallComponent* smg = new WaterfallComponent(Layout(0, mPianoControlHeight, 0, kgHeight + mPianoControlHeight, Layout::FillX | Layout::FillY), &mRecorder);
-	KeyboardComponent* kg = new KeyboardComponent(Layout(0, kgHeight, 0, kgHeight, Layout::FillX | Layout::AnchorBottomLeft), &mRecorder);
+	WaterfallComponent* smg = new WaterfallComponent(
+		Layout(
+			0, mPianoControlHeight,
+			0, kgHeight + mPianoControlHeight,
+			Layout::FillX | Layout::FillY
+		),
+		&mRecorder
+	);
+	KeyboardComponent* kg = new KeyboardComponent(
+		Layout(
+			0, 0,
+			0, kgHeight,
+			Layout::FillX | Layout::AnchorBottomLeft
+		),
+		&mRecorder
+	);
 	TextComponent* tg = new TextComponent(
 		Layout(mInstrumentButtonWidth + 40, 50, 0, 100),
 		"Cmaj9",
@@ -209,7 +223,7 @@ void App::generateKeyboardSizePanel(void) {
 
 	ButtonComponent* menuButton = new ButtonComponent(
 		Layout(
-			10 + 50, 5,
+			10, 5,
 			50, mPianoControlHeight - 10,
 			Layout::AnchorTopRight
 		),
@@ -383,7 +397,8 @@ void App::generateBpmControls(void) {
 
 	ButtonComponent* metDown = new ButtonComponent(
 		Layout(
-			-bpmButtonSize - bpmTextWidth / 2 + 1, bpmButtonY,
+			0, 0,
+//            -(bpmButtonSize / 2 + bpmTextWidth / 2) + 1, bpmButtonY,
 			bpmButtonSize, bpmButtonSize,
 			Layout::AnchorTopCenter
 		),
@@ -397,7 +412,7 @@ void App::generateBpmControls(void) {
 
 	ButtonComponent* metOn = new ButtonComponent(
 		Layout(
-			bpmTextWidth / 2 + bpmButtonSize - 2, bpmButtonY,
+			bpmTextWidth / 2 + bpmButtonSize / 2 - 2, bpmButtonY,
 			bpmButtonSize, bpmButtonSize,
 			Layout::AnchorTopCenter
 		),
@@ -409,7 +424,7 @@ void App::generateBpmControls(void) {
 
 	ButtonComponent* controlUp = new ButtonComponent(
 		Layout(
-			bpmTextWidth / 2 + bpmButtonSize - 2 + bpmButtonSize - 1, bpmButtonY,
+			bpmTextWidth / 2 + bpmButtonSize - 2 + bpmButtonSize / 2 - 1, bpmButtonY,
 			bpmButtonSize, bpmButtonSize,
 			Layout::AnchorTopCenter
 		),
@@ -433,7 +448,7 @@ void App::generateBpmControls(void) {
 	}));
 	InputComponent* bpmText = new InputComponent(
 		Layout(
-			-bpmTextWidth / 2, bpmButtonY,
+			0, bpmButtonY,
 			bpmTextWidth, bpmButtonSize,
 			Layout::AnchorTopCenter
 		),
@@ -441,6 +456,8 @@ void App::generateBpmControls(void) {
 		"120",
 		InputType::Number
 	);
+
+	metDown->leftOf(bpmText, -1);
 	bpmText->setBgColor(gConfig.accColor);
 	bpmText->setFgColor(gConfig.fgColor);
 	bpmText->getTextComponent().setAlign(FC_ALIGN_CENTER);

@@ -56,7 +56,14 @@ std::string App::getChord(void) {
 }
 
 void App::generateFooter(void) {
-	RectangleComponent* bottomBar = new RectangleComponent(Layout(0, mHeaderHeight, 0, mHeaderHeight, Layout::FillX | Layout::AnchorBottomLeft), gConfig.accColor);
+	RectangleComponent* bottomBar = new RectangleComponent(
+		Layout(
+			0, 0,
+			0, mHeaderHeight,
+			Layout::FillX | Layout::AnchorBottomLeft
+		),
+		gConfig.accColor
+	);
 	mWindow.addComponent(bottomBar);
 }
 
@@ -107,6 +114,36 @@ void App::mainMenuPage(void) {
 			200, 200
 		), gConfig.accColor, gConfig.borderColor
 	);
+
+	Component* test = new RectangleComponent(
+		Layout(100, 100, 600, 400),
+		Color(255, 255, 0)
+	);
+
+
+	Component* wow = new RectangleComponent(Layout(0, 0, 150, 150, Layout::AnchorCenter), Color(255, 0, 0));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorCenter), Color(0, 0, 255)));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorTopCenter), Color(0, 0, 255)));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorBottomCenter), Color(0, 0, 255)));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorCenterLeft), Color(0, 0, 255)));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorCenterRight), Color(0, 0, 255)));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorTopLeft), Color(0, 0, 255)));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorTopRight), Color(0, 0, 255)));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorBottomLeft), Color(0, 0, 255)));
+	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorBottomRight), Color(0, 0, 255)));
+
+
+	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorTopCenter), Color(255, 0, 0)));
+	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorBottomCenter), Color(255, 0, 0)));
+	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorCenterLeft), Color(255, 0, 0)));
+	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorCenterRight), Color(255, 0, 0)));
+	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorTopLeft), Color(255, 0, 0)));
+	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorTopRight), Color(255, 0, 0)));
+	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorBottomLeft), Color(255, 0, 0)));
+	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorBottomRight), Color(255, 0, 0)));
+	test->addChild(wow);
+
+	mWindow.addComponent(test);
 
 	mWindow.pageLoop();
 }
@@ -272,7 +309,11 @@ void App::chooseKeyboardPage(void) {
 	int buttonGap = 5;
 
 	ButtonListComponent* buttonList = new ButtonListComponent(
-		Layout(buttonWidth / -2, mHeaderHeight + 20, buttonWidth, buttonHeight, Layout::AnchorTopCenter),
+		Layout(
+			0, mHeaderHeight + 20,
+			buttonWidth, buttonHeight,
+			Layout::AnchorTopCenter
+		),
 		buttonGap, buttons, 20, Colors::White, gConfig.accColor
 	);
 

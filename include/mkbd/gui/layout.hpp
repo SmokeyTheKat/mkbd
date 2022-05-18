@@ -19,6 +19,11 @@ struct Layout {
 		AnchorBottomRight =     (1 << 7),
 		AnchorCenter =          (1 << 8),
 		AnchorTopCenter =       (1 << 9),
+		AnchorBottomCenter =    (1 << 10),
+		AnchorCenterLeft =      (1 << 11),
+		AnchorCenterRight =     (1 << 12),
+		PositionRelative =      (1 << 13),
+		PositionAbsolute =      (1 << 14),
 	};
 
 	Layout(double x, double y, double width, double height, int details = Layout::Default)

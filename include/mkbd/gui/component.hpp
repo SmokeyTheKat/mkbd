@@ -59,6 +59,13 @@ public:
 	SDL_Renderer* getRenderer(void);
 	Rect getRect(void) { return Rect(mX, mY, mWidth, mHeight); };
 
+	void leftOf(Component* c, int border = 0) {
+		Layout l = c->getLayout();
+		mLayout.details = l.details;
+		mLayout.y = l.y;
+		mLayout.x = l.x - l.width / 2 - mLayout.width / 2 - border;
+	};
+
 	const std::vector<Component*>& getChildren(void) { return mChildren; };
 	void addChild(Component* component);
 

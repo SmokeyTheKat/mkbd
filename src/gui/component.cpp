@@ -44,11 +44,6 @@ bool Component::applyToSelfAndActiveChildren(std::function<bool(Component*)> fun
 
 	for (Component* c : getChildren()) {
 		c->applyToSelfAndChildren(func);
-		if (c->isActive()) {
-			if (!func(c)) {
-				return false;
-			}
-		}
 	}
 	return true;
 }

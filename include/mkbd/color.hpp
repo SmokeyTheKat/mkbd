@@ -7,6 +7,7 @@
 #include <mkbd/math.hpp>
 #include <algorithm>
 #include <iostream>
+#include <ostream>
 
 enum class ColorFormat {
 	Rgb,
@@ -164,6 +165,11 @@ struct Color {
 		);
 	}
 };
+
+
+inline std::ostream &operator<<(std::ostream &os, Color const& c) { 
+	return os << "(" << c.r << ", " << c.g << ", " << c.b << ")";
+}
 
 namespace Colors {
 	static const Color Black(0, 0, 0);

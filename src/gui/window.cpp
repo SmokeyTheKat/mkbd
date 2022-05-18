@@ -36,6 +36,9 @@ void Window::setComponentsSize(Component* g) {
 	int y = 0;
 	int width = mWidth;
 	int height = mHeight;
+
+	Layout layout = g->getLayout();
+
 	if (g->hasParent()) {
 		Component* p = g->getParent();
 		setComponentsSize(p);
@@ -45,7 +48,6 @@ void Window::setComponentsSize(Component* g) {
 		height = p->getHeight();
 	}
 
-	Layout layout = g->getLayout();
 	if (layout.details & Layout::FillX) {
 		g->setWidth(mWidth - layout.width);
 	} else if (layout.details & Layout::PercentWidth) {
@@ -63,20 +65,29 @@ void Window::setComponentsSize(Component* g) {
 	}
 
 	if (layout.details & Layout::AnchorCenter) {
-		g->setX(x + layout.x + width / 2);
-		g->setY(y + layout.y + height / 2);
+		g->setX(x + layout.x + width / 2 - layout.width / 2);
+		g->setY(y + layout.y + height / 2 - layout.height / 2);
 	} else if (layout.details & Layout::AnchorTopCenter) {
-		g->setX(x + layout.x + width / 2);
+		g->setX(x + layout.x + width / 2 - layout.width / 2);
 		g->setY(y + layout.y);
+	} else if (layout.details & Layout::AnchorBottomCenter) {
+		g->setX(x + layout.x + width / 2 - layout.width / 2);
+		g->setY(y + height - (layout.y + layout.height));
+	} else if (layout.details & Layout::AnchorCenterLeft) {
+		g->setX(x + layout.x);
+		g->setY(y + layout.y + height / 2 - layout.height / 2);
+	} else if (layout.details & Layout::AnchorCenterRight) {
+		g->setX(x + width - (layout.x + layout.width));
+		g->setY(y + layout.y + height / 2 - layout.height / 2);
 	} else if (layout.details & Layout::AnchorBottomLeft) {
 		g->setX(x + layout.x);
-		g->setY(y + height - layout.y);
+		g->setY(y + height - (layout.y + layout.height));
 	} else if (layout.details & Layout::AnchorTopRight) {
-		g->setX(x + width - layout.x);
+		g->setX(x + width - (layout.x + layout.width));
 		g->setY(y + layout.y);
 	} else if (layout.details & Layout::AnchorBottomRight) {
-		g->setX(x + width - layout.x);
-		g->setY(y + height - layout.y);
+		g->setX(x + width - (layout.x + layout.width));
+		g->setY(y + height - (layout.y + layout.height));
 	} else {
 		g->setX(x + layout.x);
 		g->setY(y + layout.y);
