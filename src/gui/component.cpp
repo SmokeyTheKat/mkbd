@@ -161,3 +161,26 @@ void Component::drawRectangleWithOutline(int x, int y, int w, int h) {
 	fillRectangle(x, y, w, h);
 	drawRectangle(x, y, w, h);
 }
+
+void Component::drawCircle(int x0, int y0, int r, int t) {
+	std::vector<SDL_Point> data;
+	int rr = r * r;
+	int tt = t * t;
+	int tr = rr - 2*t*r + tt;
+	for (int y = -r; y <= r; y++) {
+		for (int x = -r; x <= r; x++) {
+			int xx = x * x;
+			int yy = y * y;
+			if (xx + yy <= rr && xx + yy > tr) {
+				data.push_back({x0 + x, y0 + y});
+//                drawPoint(x0 + x, y0 + y);
+			}
+		}
+	}
+	setColor1();
+	SDL_RenderDrawPoints(getRenderer(), data.data(), data.size());
+}
+
+void Component::fillCircle(int x0, int y0, int r) {
+	drawCircle(x0, y0, r, r);
+}

@@ -325,7 +325,11 @@ void Window::clearScreen(void) {
 void Window::draw(void) {
 	clearScreen();
 	getPage().forEachActive([this](Component* c) {
-		if (c->isVisible() && c->isActive()) c->draw();
+		if (c->isVisible() && c->isActive()) {
+			c->emit("Draw");
+			c->draw();
+			c->emit("LateDraw");
+		}
 		if (mQuit) return false;
 		return true;
 	});

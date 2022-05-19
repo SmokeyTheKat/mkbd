@@ -2,9 +2,10 @@
 #define __MKBD_TEXTURE_HPP__
 
 #include <SDL2/SDL.h>
+#include <string>
 
 class Texture {
-	const char* mPath;
+	std::string mPath;
 	SDL_Texture* mTexture = 0;
 	SDL_Renderer* mRenderer;
 	int mWidth;
@@ -14,8 +15,8 @@ class Texture {
 	bool loaded = false;
 
 public:
-	Texture(const char* path, SDL_Renderer* renderer);
-	Texture(const char* path);
+	Texture(std::string path, SDL_Renderer* renderer);
+	Texture(std::string path);
 	~Texture(void);
 
 	void setRenderer(SDL_Renderer* renderer) { mRenderer = renderer; };
@@ -29,6 +30,7 @@ public:
 	void scaleToHeight(int height);
 
 	void load(void);
+	void load(std::string path);
 
 private:
 	void free(void);

@@ -39,6 +39,13 @@ void App::freePlayPage(void) {
 		),
 		&mRecorder
 	);
+	smg->on("LateDraw", asFunction([smg](void) {
+		smg->setColor(RGB_ARGS(Colors::Black));
+		smg->fillCircle(0, 0, 100);
+		smg->setColor(RGB_ARGS(Colors::White));
+		smg->drawCircle(0, 0, 100, 10);
+	}));
+
 	KeyboardComponent* kg = new KeyboardComponent(
 		Layout(
 			0, 0,

@@ -4,10 +4,10 @@
 
 #include <iostream>
 
-Texture::Texture(const char* path, SDL_Renderer* renderer)
-: mPath(path), mRenderer(renderer) { load(); };
+Texture::Texture(std::string path, SDL_Renderer* renderer)
+: mPath(path), mRenderer(renderer) { load(mPath); };
 
-Texture::Texture(const char* path)
+Texture::Texture(std::string path)
 : mPath(path), mRenderer(0) { };
 
 Texture::~Texture(void) { free(); };
@@ -47,11 +47,16 @@ void Texture::scaleToHeight(int height) {
 }
 
 void Texture::load(void) {
+	load(mPath);
+}
+
+void Texture::load(std::string path) {
+	mPath = path;
 	if (mRenderer == 0)
 		return;
 
 	free();
-	SDL_Surface* surface = IMG_Load(mPath);
+	SDL_Surface* surface = IMG_Load(path.c_str());
 	mTexture = SDL_CreateTextureFromSurface(mRenderer, surface);
 	mWidth = surface->w;
 	mHeight = surface->h;

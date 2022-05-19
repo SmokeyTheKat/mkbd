@@ -143,6 +143,13 @@ void App::mainMenuPage(void) {
 	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorBottomRight), Color(255, 0, 0)));
 	test->addChild(wow);
 
+	wow->on("LateDraw", asFunction([wow](void) {
+		wow->setColor(RGB_ARGS(Colors::Black));
+		wow->fillCircle(0, 0, 100);
+		wow->setColor(RGB_ARGS(Colors::White));
+		wow->drawCircle(0, 0, 100, 10);
+	}));
+
 	mWindow.addComponent(test);
 
 	mWindow.pageLoop();

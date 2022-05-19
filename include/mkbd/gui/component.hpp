@@ -135,12 +135,13 @@ public:
 		});
 	};
 
-protected:
 	void drawPoint(int x, int y);
 	void drawLine(int x1, int y1, int x2, int y2);
 	void fillRectangle(int x, int y, int w, int h);
 	void drawRectangle(int x, int y, int w, int h);
 	void drawRectangleWithOutline(int x, int y, int w, int h);
+	void drawCircle(int x0, int y0, int r, int t = 1);
+	void fillCircle(int x, int y, int r);
 };
 
 #endif
