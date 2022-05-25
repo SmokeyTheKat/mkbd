@@ -9,6 +9,15 @@
 
 #define SET_FID static std::size_t FID[0]
 
+#define FUNC(...) VFUNC(FUNC, __VA_ARGS__)
+#define FUNC3(capture, parameters, code) std::function<void parameters>(capture parameters { code })
+#define FUNC2(parameters, code) std::function<void parameters>([] parameters { code })
+
+template<class... Args, class T>
+auto asFunction(T&& f) {
+	return std::function<void(Args...)>(f);
+}
+
 class EventEmitter {
 
 	struct GroupId {
@@ -111,10 +120,5 @@ public:
 		}
 	};
 };
-
-template<class... Args, class T>
-auto asFunction(T&& f) {
-	return std::function<void(Args...)>(f);
-}
 
 #endif

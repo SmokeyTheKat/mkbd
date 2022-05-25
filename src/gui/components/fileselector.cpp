@@ -17,10 +17,10 @@ FileSelectorComponent::FileSelectorComponent(Layout layout, Color bgColor, Color
 	);
 
 	std::cout << "OMG\n";
-	mButton->on("Click", asFunction<int, int, int>([this](int button, int x, int y) {
-//        mPath = FileManager::selectFile("Background Image");
+	mButton->on("Click", FUNC([this], (int button, int x, int y), {
+		mPath = FileManager::selectFile("Background Image");
 		std::cout << mPath << " !!!!!!!\n";
-//        mInput->setText(mPath);
+		mInput->setText(mPath);
 	}));
 
 	addChild(mInput);

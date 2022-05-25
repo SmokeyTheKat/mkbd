@@ -165,6 +165,7 @@ void Component::drawRectangleWithOutline(int x, int y, int w, int h) {
 void Component::drawCircle(int x0, int y0, int r, int t) {
 	x0 += mX;
 	y0 += mY;
+
 	std::vector<SDL_Point> data;
 	int rr = r * r;
 	int tt = t * t;
@@ -175,7 +176,6 @@ void Component::drawCircle(int x0, int y0, int r, int t) {
 			int yy = y * y;
 			if (xx + yy <= rr && xx + yy > tr) {
 				data.push_back({x0 + x, y0 + y});
-//                drawPoint(x0 + x, y0 + y);
 			}
 		}
 	}
@@ -184,5 +184,63 @@ void Component::drawCircle(int x0, int y0, int r, int t) {
 }
 
 void Component::fillCircle(int x0, int y0, int r) {
-	drawCircle(x0, y0, r, r);
+	x0 += mX;
+	y0 += mY;
+
+	std::vector<SDL_Point> data;
+	int rr = r * r;
+	for (int y = -r; y <= r; y++) {
+		for (int x = -r; x <= r; x++) {
+			int xx = x * x;
+			int yy = y * y;
+			if (xx + yy <= rr) {
+				data.push_back({x0 + x, y0 + y});
+			}
+		}
+	}
+	setColor1();
+	SDL_RenderDrawPoints(getRenderer(), data.data(), data.size());
+}
+
+void Component::drawEllipse(int x0, int y0, int w, int h, int t) {
+	x0 += mX;
+	y0 += mY;
+
+	std::vector<SDL_Point> data;
+	int tt = t * t;
+	int ww = w * w;
+	int hh = h * h;
+	int wt = ww - 2*t*w + tt;
+	int ht = hh - 2*t*h + tt;
+	for (int y = -h; y <= h; y++) {
+		for (int x = -w; x <= w; x++) {
+			int xx = x * x;
+			int yy = y * y;
+			if (yy * ww <= hh * ww - (hh * xx) && yy * wt > ht * wt - (ht * xx)) {
+				data.push_back({x0 + x, y0 + y});
+			}
+		}
+	}
+	setColor1();
+	SDL_RenderDrawPoints(getRenderer(), data.data(), data.size());
+}
+
+void Component::fillEllipse(int x0, int y0, int w, int h) {
+	x0 += mX;
+	y0 += mY;
+
+	std::vector<SDL_Point> data;
+	int ww = w * w;
+	int hh = h * h;
+	for (int y = -h; y <= h; y++) {
+		for (int x = -w; x <= w; x++) {
+			int xx = x * x;
+			int yy = y * y;
+			if (yy * ww <= hh * ww - (hh * xx)) {
+				data.push_back({x0 + x, y0 + y});
+			}
+		}
+	}
+	setColor1();
+	SDL_RenderDrawPoints(getRenderer(), data.data(), data.size());
 }
