@@ -40,10 +40,6 @@ void App::freePlayPage(void) {
 		&mRecorder
 	);
 	smg->on("LateDraw", asFunction([smg](void) {
-		smg->setColor(RGB_ARGS(Colors::Black));
-		smg->fillCircle(0, 0, 100);
-		smg->setColor(RGB_ARGS(Colors::White));
-		smg->drawCircle(0, 0, 100, 10);
 	}));
 
 	KeyboardComponent* kg = new KeyboardComponent(
@@ -470,7 +466,7 @@ void App::generateBpmControls(void) {
 	bpmText->getTextComponent().setAlign(FC_ALIGN_CENTER);
 	bpmText->on("Change", asFunction<std::string>([this](std::string text) {
 		int value = 0;
-		if (stringIsNumber(text)) {
+		if (Utils::stringIsNumber(text)) {
 			value = std::stoi(text);
 		}
 		mRecorder.setBpm(value);

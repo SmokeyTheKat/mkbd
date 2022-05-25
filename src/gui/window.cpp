@@ -48,18 +48,27 @@ void Window::setComponentsSize(Component* g) {
 		height = p->getHeight();
 	}
 
+	if (layout.details & Layout::PercentWidth) {
+		layout.width = (double)layout.width / 100.0 * width;
+	}
+	if (layout.details & Layout::PercentHeight) {
+		layout.height = (double)layout.height / 100.0 * height;
+	}
+	if (layout.details & Layout::PercentX) {
+		layout.x = (double)layout.x / 100.0 * width;
+	}
+	if (layout.details & Layout::PercentY) {
+		layout.y = (double)layout.y / 100.0 * height;
+	}
+
 	if (layout.details & Layout::FillX) {
 		g->setWidth(mWidth - layout.width);
-	} else if (layout.details & Layout::PercentWidth) {
-		g->setWidth(mWidth * (layout.width / 100.0));
 	} else {
 		g->setWidth(layout.width);
 	}
 
 	if (layout.details & Layout::FillY) {
 		g->setHeight(mHeight - layout.height);
-	} else if (layout.details & Layout::PercentHeight) {
-		g->setHeight(mHeight * (layout.height / 100.0));
 	} else {
 		g->setHeight(layout.height);
 	}
@@ -324,6 +333,7 @@ void Window::clearScreen(void) {
 
 void Window::draw(void) {
 	clearScreen();
+	emit("Draw");
 	getPage().forEachActive([this](Component* c) {
 		if (c->isVisible() && c->isActive()) {
 			c->emit("Draw");
@@ -333,6 +343,7 @@ void Window::draw(void) {
 		if (mQuit) return false;
 		return true;
 	});
+	emit("LateDraw");
 
 	SDL_RenderPresent(mRenderer);
 }

@@ -163,6 +163,8 @@ void Component::drawRectangleWithOutline(int x, int y, int w, int h) {
 }
 
 void Component::drawCircle(int x0, int y0, int r, int t) {
+	x0 += mX;
+	y0 += mY;
 	std::vector<SDL_Point> data;
 	int rr = r * r;
 	int tt = t * t;

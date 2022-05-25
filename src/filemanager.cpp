@@ -1,9 +1,9 @@
 #include <mkbd/filemanager.hpp>
 
-#include <iostream>
+#include <mkbd/utils.hpp>
+
 #include <string>
 #include <sstream>
-#include <cstdio>
 
 namespace FileManager {
 	std::string selectFile(std::string title, std::string startPath) {
@@ -14,14 +14,7 @@ namespace FileManager {
 
 		std::string cmd = ssCmd.str();
 
-		std::string resultPath;
-
-		FILE* fp = popen(cmd.c_str(), "r");
-		char c;
-		while ((c = fgetc(fp)) != EOF) {
-			resultPath.push_back(c);
-		}
-		pclose(fp);
+		std::string resultPath = Utils::runCommand(cmd);
 
 		return resultPath;
 	}

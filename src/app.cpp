@@ -14,6 +14,7 @@
 #include <mkbd/gui/window.hpp>
 #include <mkbd/virtualkeyboard.hpp>
 #include <mkbd/settings.hpp>
+#include <mkbd/filemanager.hpp>
 
 using namespace std::placeholders;
 
@@ -115,40 +116,10 @@ void App::mainMenuPage(void) {
 		), gConfig.accColor, gConfig.borderColor
 	);
 
-	Component* test = new RectangleComponent(
-		Layout(100, 100, 600, 400),
-		Color(255, 255, 0)
+	FileSelectorComponent* test = new FileSelectorComponent(
+		Layout(300, 200, 200, 40),
+		gConfig.accColor, gConfig.borderColor
 	);
-
-
-	Component* wow = new RectangleComponent(Layout(0, 0, 150, 150, Layout::AnchorCenter), Color(255, 0, 0));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorCenter), Color(0, 0, 255)));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorTopCenter), Color(0, 0, 255)));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorBottomCenter), Color(0, 0, 255)));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorCenterLeft), Color(0, 0, 255)));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorCenterRight), Color(0, 0, 255)));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorTopLeft), Color(0, 0, 255)));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorTopRight), Color(0, 0, 255)));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorBottomLeft), Color(0, 0, 255)));
-	wow->addChild(new RectangleComponent(Layout(0, 0, 25, 25, Layout::AnchorBottomRight), Color(0, 0, 255)));
-
-
-	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorTopCenter), Color(255, 0, 0)));
-	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorBottomCenter), Color(255, 0, 0)));
-	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorCenterLeft), Color(255, 0, 0)));
-	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorCenterRight), Color(255, 0, 0)));
-	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorTopLeft), Color(255, 0, 0)));
-	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorTopRight), Color(255, 0, 0)));
-	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorBottomLeft), Color(255, 0, 0)));
-	test->addChild(new RectangleComponent(Layout(0, 0, 50, 50, Layout::AnchorBottomRight), Color(255, 0, 0)));
-	test->addChild(wow);
-
-	wow->on("LateDraw", asFunction([wow](void) {
-		wow->setColor(RGB_ARGS(Colors::Black));
-		wow->fillCircle(0, 0, 100);
-		wow->setColor(RGB_ARGS(Colors::White));
-		wow->drawCircle(0, 0, 100, 10);
-	}));
 
 	mWindow.addComponent(test);
 
@@ -260,6 +231,9 @@ void App::generateMainMenuButtons(void) {
 			{ "Free Play", std::bind(&App::freePlayPage, this) },
 			{ "Test", std::bind(&App::testPage, this) },
 			{ "Settings", std::bind(&App::settingsPage, this) },
+			{ "test", [this](void){
+				std::cout << FileManager::selectFile("WOW", "../") << "\n";
+			} },
 			{ "Exit", [this](void){
 				mWindow.popPage();
 			} },

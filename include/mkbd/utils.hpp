@@ -4,11 +4,17 @@
 #include <mkbd/color.hpp>
 
 #include <string>
+#include <string_view>
 
 typedef unsigned char byte;
 
 #define MAX(a, b) ((a > b) ? (a) : (b))
 #define MIN(a, b) ((a < b) ? (a) : (b))
+
+namespace Utils {
+	std::string runCommand(std::string_view cmd);
+	bool stringIsNumber(std::string str);
+};
 
 struct FlipFlop {
 	bool state = false;
@@ -35,16 +41,5 @@ struct FlipFlop {
 		return false;
 	};
 };
-
-inline bool stringIsNumber(std::string str) {
-	if (str.length() == 0)
-		return false;
-
-	for (auto& c : str) {
-		if (!std::isdigit(c))
-			return false;
-	}
-	return true;
-}
 
 #endif

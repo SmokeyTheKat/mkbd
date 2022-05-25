@@ -157,7 +157,7 @@ void App::settingsPageTabProformance(void) {
 	input->setMinValue(0);
 
 	input->on("Change", asFunction<std::string>([this](std::string text) {
-		if (stringIsNumber(text)) {
+		if (Utils::stringIsNumber(text)) {
 			int value = std::stoi(text);
 			if (value < 64) return;
 			mAudioPlayer.setSampleSize(value);

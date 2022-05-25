@@ -13,5 +13,6 @@
 #include <mkbd/gui/components/waterfall.hpp>
 #include <mkbd/gui/components/container.hpp>
 #include <mkbd/gui/components/colorpicker.hpp>
+#include <mkbd/gui/components/fileselector.hpp>
 
 #endif
