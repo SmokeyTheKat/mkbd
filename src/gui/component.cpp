@@ -60,11 +60,6 @@ bool Component::applyToSelfAndActiveChildrenReverse(std::function<bool(Component
 	for (auto it = children.rbegin(); it != children.rend(); it++) {
 		Component* c = *it;
 		c->applyToSelfAndChildrenReverse(func);
-		if (c->isActive()) {
-			if (!func(c)) {
-				return false;
-			}
-		}
 	}
 	return true;
 }

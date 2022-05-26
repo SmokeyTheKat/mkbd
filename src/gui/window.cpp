@@ -31,6 +31,14 @@ Window::~Window(void) {
 	close();
 }
 
+void Window::setCursor(SDL_SystemCursor cursor) {
+	if (mCursor) {
+		SDL_FreeCursor(mCursor);
+	}
+	mCursor = SDL_CreateSystemCursor(cursor);
+	SDL_SetCursor(mCursor);
+}
+
 void Window::setComponentsSize(Component* g) {
 	int x = 0;
 	int y = 0;
@@ -182,8 +190,17 @@ void Window::handleMouseButtonUpEvent(const SDL_MouseButtonEvent& e) {
 }
 
 void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
+	bool topFound = false;
 	getPage().forEachActive([&](Component* g) {
 		if (g->getRect().isPointIntersecting(e.x, e.y)) {
+			if (topFound == false) {
+				setCursor(g->getCursor());
+				std::cout << g->getCursor() << "\n";
+			}
+			topFound = true;
+			if (!g->isHovered()) {
+				g->emit("Enter",  e.x - g->getX(), e.y - g->getY());
+			}
 			g->setHovered(true);
 			g->onHover(e.x - g->getX(), e.y - g->getY());
 			g->emit("Hover", e.x - g->getX(), e.y - g->getY());
@@ -198,6 +215,9 @@ void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
 		}
 		return true;
 	});
+	if (topFound == false) {
+		setCursor(SDL_SYSTEM_CURSOR_ARROW);
+	}
 }
 
 void Window::handleKeyDownEvent(const SDL_KeyboardEvent& e) {

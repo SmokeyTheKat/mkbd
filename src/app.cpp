@@ -117,7 +117,7 @@ void App::mainMenuPage(void) {
 	);
 
 	FileSelectorComponent* test = new FileSelectorComponent(
-		Layout(300, 200, 200, 40),
+		Layout(300, 200, 200, 30),
 		gConfig.accColor, gConfig.borderColor
 	);
 

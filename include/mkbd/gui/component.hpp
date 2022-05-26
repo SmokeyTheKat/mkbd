@@ -29,6 +29,8 @@ protected:
 	Color mColor1;
 	Color mColor2;
 
+	SDL_SystemCursor mCursor = SDL_SYSTEM_CURSOR_ARROW;
+
 	Component* mParent = 0;
 	std::vector<Component*> mChildren;
 
@@ -55,6 +57,9 @@ public:
 	void setColor1(void);
 	void setColor2(int r, int g, int b);
 	void setColor2(void);
+
+	void setCursor(SDL_SystemCursor cursor) { mCursor = cursor; };
+	SDL_SystemCursor getCursor(void) { return mCursor; };
 
 	SDL_Renderer* getRenderer(void);
 	Rect getRect(void) { return Rect(mX, mY, mWidth, mHeight); };

@@ -8,6 +8,8 @@
 
 ButtonComponent::ButtonComponent(Layout layout, std::string text, std::function<void(void)> callback, Color bgColor, Color fgColor)
 : Component(layout), mCallback(callback), mBgColor(bgColor), mFgColor(fgColor) {
+	setCursor(SDL_SYSTEM_CURSOR_HAND);
+
 	mText = new TextComponent(
 		layout.resetPosition(),
 		text,

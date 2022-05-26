@@ -61,6 +61,8 @@ class Window : public EventEmitter {
 	bool mQuit = false;
 	bool mNewPage = false;
 
+	SDL_Cursor* mCursor = 0;
+
 public:
 	Window(int width, int height);
 	~Window(void);
@@ -86,6 +88,8 @@ public:
 
 	int getWidth(void) { return mWidth; };
 	int getHeight(void) { return mHeight; };
+
+	void setCursor(SDL_SystemCursor cursor);
 
 	void setBgColor(int r, int g, int b) { mBgColor = Color(r, g, b); };
 
