@@ -35,6 +35,31 @@ void Component::addChild(Component* component) {
 	component->init();
 }
 
+void Component::removeChild(Component* child) {
+	if (!hasChild(child)) return;
+
+	auto it = std::find(mChildren.begin(), mChildren.end(), child);
+	mChildren.erase(it);
+
+	child->setParent(0);
+}
+
+void Component::setParent(Component* component) { 
+	detachParent();
+	mParent = component;
+
+	if (component == 0) {
+		mLayer = 1;
+		return;
+	}
+
+	mLayer = component->getLayer() + 1;
+
+	if (!isChildOf(component)) {
+		component->addChild(this);
+	}
+}
+
 bool Component::applyToSelfAndActiveChildren(std::function<bool(Component*)> func) {
 	if (isActive()) {
 		if (!func(this)) {

@@ -5,6 +5,7 @@
 
 InputComponent::InputComponent(Layout layout, std::string text, InputType inputType)
 : Component(layout), mInputType(inputType) {
+	setCursor(SDL_SYSTEM_CURSOR_IBEAM);
 	mText = new TextComponent(
 		layout.resetPosition(),
 		text,

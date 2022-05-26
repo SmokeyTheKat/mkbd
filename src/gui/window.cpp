@@ -32,6 +32,8 @@ Window::~Window(void) {
 }
 
 void Window::setCursor(SDL_SystemCursor cursor) {
+	if (mCursorType == cursor) return;
+	mCursorType = cursor;
 	if (mCursor) {
 		SDL_FreeCursor(mCursor);
 	}
@@ -190,14 +192,12 @@ void Window::handleMouseButtonUpEvent(const SDL_MouseButtonEvent& e) {
 }
 
 void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
-	bool topFound = false;
+	Component* top = 0;
 	getPage().forEachActive([&](Component* g) {
 		if (g->getRect().isPointIntersecting(e.x, e.y)) {
-			if (topFound == false) {
-				setCursor(g->getCursor());
-				std::cout << g->getCursor() << "\n";
+			if (top == 0 || g->getLayer() >= top->getLayer() && g->getCursor() != SDL_NUM_SYSTEM_CURSORS) {
+				top = g;
 			}
-			topFound = true;
 			if (!g->isHovered()) {
 				g->emit("Enter",  e.x - g->getX(), e.y - g->getY());
 			}
@@ -215,7 +215,9 @@ void Window::handleMouseMotionEvent(const SDL_MouseMotionEvent& e) {
 		}
 		return true;
 	});
-	if (topFound == false) {
+	if (top) {
+		setCursor(top->getCursor());
+	} else {
 		setCursor(SDL_SYSTEM_CURSOR_ARROW);
 	}
 }

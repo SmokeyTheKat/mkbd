@@ -62,6 +62,7 @@ class Window : public EventEmitter {
 	bool mNewPage = false;
 
 	SDL_Cursor* mCursor = 0;
+	SDL_SystemCursor mCursorType = SDL_SYSTEM_CURSOR_ARROW;
 
 public:
 	Window(int width, int height);
@@ -90,6 +91,7 @@ public:
 	int getHeight(void) { return mHeight; };
 
 	void setCursor(SDL_SystemCursor cursor);
+	SDL_SystemCursor getCursor(void) { return mCursorType; };
 
 	void setBgColor(int r, int g, int b) { mBgColor = Color(r, g, b); };
 

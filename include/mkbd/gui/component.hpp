@@ -29,10 +29,12 @@ protected:
 	Color mColor1;
 	Color mColor2;
 
-	SDL_SystemCursor mCursor = SDL_SYSTEM_CURSOR_ARROW;
+	SDL_SystemCursor mCursor = SDL_NUM_SYSTEM_CURSORS;
 
 	Component* mParent = 0;
 	std::vector<Component*> mChildren;
+
+	int mLayer = 1;
 
 public:
 	Component(Layout layout);
@@ -71,25 +73,25 @@ public:
 		mLayout.x = l.x - l.width / 2 - mLayout.width / 2 - border;
 	};
 
+	int getLayer(void) { return mLayer; };
+	void setLayer(int layer) { mLayer = layer; };
+
 	const std::vector<Component*>& getChildren(void) { return mChildren; };
 	void addChild(Component* component);
+	void removeChild(Component* child);
+	void detachParent(void) { 
+		if (mParent) mParent->removeChild(this);
+	};
 
 	bool hasParent(void) { return mParent != 0; };
 	Component* getParent(void) { return mParent; };
-	void setParent(Component* component) { 
-		mParent = component;
-		if (!isChildOf(component)) {
-			component->addChild(this);
-		}
+	void setParent(Component* component);
+
+	bool hasChild(Component* child) {
+		return std::find(mChildren.begin(), mChildren.end(), child) != mChildren.end();
 	};
 
-	bool isChildOf(Component* component) {
-		for (auto c : component->getChildren()) {
-			if (c == this)
-				return true;
-		}
-		return false;
-	};
+	bool isChildOf(Component* component) { return component->hasChild(this); };
 
 	void applyToChildren(std::function<void(Component*)> func) {
 		for (Component* c : getChildren()) {
