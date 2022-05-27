@@ -34,10 +34,13 @@ protected:
 	Component* mParent = 0;
 	std::vector<Component*> mChildren;
 
+	bool mAutoDraw = true;
+
 	int mLayer = 1;
 
 public:
 	Component(Layout layout);
+	virtual ~Component(void) { freeAllChildren(); };
 
 	virtual void draw(void);
 	virtual void init(void);
@@ -79,9 +82,14 @@ public:
 	const std::vector<Component*>& getChildren(void) { return mChildren; };
 	void addChild(Component* component);
 	void removeChild(Component* child);
-	void removeParent(void) { mParent = 0; };
 	void detachParent(void) { 
 		if (mParent) mParent->removeChild(this);
+	};
+
+	void freeAllChildren(void) {
+		for (auto c : mChildren) {
+			delete c;
+		}
 	};
 
 	bool hasParent(void) { return mParent != 0; };
@@ -97,6 +105,12 @@ public:
 	void applyToChildren(std::function<void(Component*)> func) {
 		for (Component* c : getChildren()) {
 			func(c);
+		}
+	}
+	void applyToAllChildren(std::function<void(Component*)> func) {
+		for (Component* c : getChildren()) {
+			func(c);
+			c->applyToAllChildren(func);
 		}
 	}
 
@@ -115,6 +129,9 @@ public:
 	void setWidth(int width) { mWidth = width; };
 	int getHeight(void) { return mHeight; };
 	void setHeight(int height) { mHeight = height; };
+
+	bool isAutoDrawOn(void) { return mAutoDraw; };
+	void setAutoDraw(bool state) { mAutoDraw = state; };
 
 	Layout& getLayout(void) { return mLayout; };
 	void setLayout(Layout layout) { mLayout = layout; };

@@ -358,7 +358,7 @@ void Window::draw(void) {
 	clearScreen();
 	emit("Draw");
 	getPage().forEachActive([this](Component* c) {
-		if (c->isVisible() && c->isActive()) {
+		if (c->isVisible() && c->isActive() && c->isAutoDrawOn()) {
 			c->emit("Draw");
 			c->draw();
 			c->emit("LateDraw");
