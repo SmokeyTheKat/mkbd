@@ -10,7 +10,9 @@
 #include <iostream>
 
 WaterfallComponent::WaterfallComponent(Layout layout, MidiRecorder* recorder)
-: Component(layout), mRcdr(recorder), mBackgroundImage(layout, gConfig.waterfallBackgroundImagePath.c_str()) {
+: Component(layout), mRcdr(recorder),
+  mBackgroundImage(layout, gConfig.waterfallBackgroundImagePath.c_str()),
+  mLateBackgroundImagePath(gConfig.waterfallBackgroundImagePath) {
 	calculateSizes();
 	mRcdr->on("Event", asFunction<MidiEvent>([this](MidiEvent e) {
 		mEvents.push_back(e);
@@ -117,6 +119,10 @@ void WaterfallComponent::drawLines(void) {
 }
 
 void WaterfallComponent::drawBackground(void) {
+	if (mLateBackgroundImagePath != gConfig.waterfallBackgroundImagePath) {
+		mBackgroundImage.getTexture()->load(gConfig.waterfallBackgroundImagePath);
+		mLateBackgroundImagePath = gConfig.waterfallBackgroundImagePath;
+	}
 	if (gConfig.waterfallBackgroundImage) {
 		mBackgroundImage.draw();
 	} else {

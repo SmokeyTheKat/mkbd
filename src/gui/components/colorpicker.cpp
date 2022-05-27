@@ -4,11 +4,15 @@
 
 ColorPickerComponent::ColorPickerComponent(Layout layout, Color* colorOut)
 : Component(layout), mColorOut(colorOut) {
-	mDrawArea = new DrawAreaComponent(layout);
+	mDrawArea = new DrawAreaComponent(layout.resetPosition());
+	mDrawArea->on("Init", asFunction(std::bind(&ColorPickerComponent::initData, this)));
 	addChild(mDrawArea);
 };
 
 void ColorPickerComponent::init(void) {
+}
+
+void ColorPickerComponent::initData(void) {
 	std::vector<Color>& data = mDrawArea->getData();
 	int i = 0;
 	for (int y = 0; y < mHeight; y++) {

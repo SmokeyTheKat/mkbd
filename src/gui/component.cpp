@@ -24,6 +24,8 @@ void Component::addChild(Component* component) {
 	if (component->isChildOf(this))
 		return;
 
+	component->removeParent();
+
 	mChildren.push_back(component);
 	component->setParent(this);
 

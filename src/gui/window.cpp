@@ -139,6 +139,7 @@ void Window::syncComponent(Component* component) {
 	component->setWindow(this);
 	setComponentsSize(component);
 	component->init();
+	component->emit("Init");
 }
 
 void Window::addComponent(Component* component) {

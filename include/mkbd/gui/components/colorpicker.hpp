@@ -20,6 +20,8 @@ class ColorPickerComponent : public Component {
 public:
 	ColorPickerComponent(Layout layout, Color* colorOut);
 
+	void initData(void);
+
 	void init(void);
 	void draw(void);
 	void onClick(int button, int x, int y);

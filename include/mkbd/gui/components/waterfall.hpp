@@ -9,6 +9,7 @@
 #include <mkbd/midi/keyboard.hpp>
 
 #include <vector>
+#include <string>
 
 class WaterfallComponent : public Component {
 	MidiRecorder* mRcdr;
@@ -16,6 +17,8 @@ class WaterfallComponent : public Component {
 	std::vector<int> mKeyPositions;
 
 	ImageComponent mBackgroundImage;
+
+	std::string mLateBackgroundImagePath = "";
 
 	Color mWhiteKeyColor = Color(161, 229, 92);
 	Color mBlackKeyColor = Color(86, 157, 17);

@@ -113,13 +113,39 @@ void App::freePlayPage(void) {
 	mWindow.addComponent(tg);
 
 	ColorPickerComponent* cp = new ColorPickerComponent(
-		Layout(100, 100, 200, 200), &gConfig.waterfallBackgroundColor
+		Layout(100, 100, 100, 100), &gConfig.waterfallBackgroundColor
 	);
 
 	cp->on("Change", asFunction([this](void){
 	}));
 
-//    mWindow.addComponent(cp);
+	FileSelectorComponent* test = new FileSelectorComponent(
+		Layout(300, 200, 200, 30),
+		gConfig.accColor, gConfig.borderColor
+	);
+
+	test->on("Change", asFunction([this, test](void) {
+		gConfig.waterfallBackgroundImage = true;
+		gConfig.waterfallBackgroundImagePath = test->getPath();
+		std::cout << gConfig.waterfallBackgroundImagePath << "\n";
+	}));
+
+//    ButtonComponent(Layout layout, std::string text, std::function<void(void)> callback, Color bgColor, Color fgColor);
+	ButtonComponent* off = new ButtonComponent(
+		Layout(300, 240, 200, 30),
+		"Color",
+		[](){}, gConfig.accColor, Colors::White
+	);
+	off->on("Click", FUNC((int b, int x, int y), {
+		gConfig.waterfallBackgroundImage = false;
+		
+	}));
+
+	mWindow.addComponent(off);
+
+	mWindow.addComponent(test);
+
+	mWindow.addComponent(cp);
 
 	generatePianoControls();
 

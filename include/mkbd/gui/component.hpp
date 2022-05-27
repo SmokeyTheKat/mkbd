@@ -79,6 +79,7 @@ public:
 	const std::vector<Component*>& getChildren(void) { return mChildren; };
 	void addChild(Component* component);
 	void removeChild(Component* child);
+	void removeParent(void) { mParent = 0; };
 	void detachParent(void) { 
 		if (mParent) mParent->removeChild(this);
 	};

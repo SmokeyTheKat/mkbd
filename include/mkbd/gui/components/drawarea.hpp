@@ -13,6 +13,7 @@ public:
 	DrawAreaComponent(Layout layout);
 
 	void draw(void);
+	void resize(int width, int height);
 	void init(void);
 
 	std::vector<Color>& getData(void) { return mData; };

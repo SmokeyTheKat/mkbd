@@ -14,7 +14,9 @@ public:
 	ImageComponent(Layout layout, const char* path);
 	void draw(void);
 	void init(void);
-	
+
+	Texture* getTexture(void) { return &mTexture; };
+
 private:
 };
 

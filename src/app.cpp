@@ -116,13 +116,6 @@ void App::mainMenuPage(void) {
 		), gConfig.accColor, gConfig.borderColor
 	);
 
-	FileSelectorComponent* test = new FileSelectorComponent(
-		Layout(300, 200, 200, 30),
-		gConfig.accColor, gConfig.borderColor
-	);
-
-	mWindow.addComponent(test);
-
 	mWindow.pageLoop();
 }
 

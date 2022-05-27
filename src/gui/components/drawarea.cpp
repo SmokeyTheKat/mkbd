@@ -1,10 +1,13 @@
 #include <mkbd/gui/components/drawarea.hpp>
 DrawAreaComponent::DrawAreaComponent(Layout layout)
 : Component(layout) {
-	mData.resize(mWidth * mHeight);
 }
 
 void DrawAreaComponent::init(void) {
+	mData.resize(mWidth * mHeight);
+}
+
+void DrawAreaComponent::resize(int width, int height) {
 }
 
 void DrawAreaComponent::draw(void) {

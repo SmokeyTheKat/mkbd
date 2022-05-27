@@ -13,6 +13,10 @@ namespace Utils {
 		}
 		pclose(fp);
 
+		if (result.back() == '\n') {
+			result.pop_back();
+		}
+
 		return result;
 	}
 
