@@ -57,7 +57,7 @@ public:
 	void setWindow(Window* window) { mWindow = window; };
 	Window* getWindow(void) { return mWindow; };
 
-	void updatePosition(void);
+	void sync(void);
 
 	void setColor(int r, int g, int b);
 	void setColor1(int r, int g, int b);
@@ -135,8 +135,8 @@ public:
 	bool isAutoDrawOn(void) { return mAutoDraw; };
 	void setAutoDraw(bool state) { mAutoDraw = state; };
 
-	Layout& getLayout(void) { return mLayout; };
-	void setLayout(Layout layout) { mLayout = layout; };
+	Layout getLayout(void) { return mLayout; };
+	void setLayout(Layout layout) { mLayout = layout; sync(); };
 
 	bool isHovered(void) { return mIsHovered; };
 	void setHovered(bool hovered) { mIsHovered = hovered; };

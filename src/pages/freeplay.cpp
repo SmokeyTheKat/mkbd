@@ -120,7 +120,7 @@ void App::freePlayPage(void) {
 	}));
 
 	FileSelectorComponent* test = new FileSelectorComponent(
-		Layout(0, 30, 200, 30),
+		Layout(0, 0, 200, 30),
 		gConfig.accColor, gConfig.borderColor
 	);
 
@@ -130,45 +130,27 @@ void App::freePlayPage(void) {
 		std::cout << gConfig.waterfallBackgroundImagePath << "\n";
 	}));
 
-//    ButtonComponent(Layout layout, std::string text, std::function<void(void)> callback, Color bgColor, Color fgColor);
 	ButtonComponent* off = new ButtonComponent(
-		Layout(0, 40 + 30, 200, 30),
+		Layout(0, 40, 200, 30),
 		"Color",
 		[](){}, gConfig.accColor, Colors::White
 	);
 	off->on("Click", FUNC((int b, int x, int y), {
 		gConfig.waterfallBackgroundImage = false;
-		
 	}));
 
 	CheckBoxComponent* cb = new CheckBoxComponent(
-		Layout(0, 0, 30, 30),
+		Layout(0, 80, 30, 30),
 		gConfig.accColor, Colors::Black
 	);
 	cb->on("Change", FUNC((bool b), {
 		gConfig.keyBounceIn = b;
 	}));
 
-	Component* c = new RectangleComponent(
-		Layout(100, 100, 300, 30),
-		Colors::White
+	
+	FrameComponent* c = new FrameComponent(
+		Layout(100, 100, 300, 500)
 	);
-
-	int ix, iy;
-
-	c->on("Click", asFunction<int, int, int>([c, &ix, &iy](int b, int x, int y) {
-		ix = x;
-		iy = y;
-	}));
-
-	c->on("Drag", asFunction<int, int>([c, &ix, &iy](int x, int y) {
-		std::cout << x << ", " << y << "\n";
-		int nx = x - ix;
-		int ny = y - iy;
-		c->getLayout().x += nx;
-		c->getLayout().y += ny;
-		c->updatePosition();
-	}));
 
 	c->addChild(cb);
 	c->addChild(off);

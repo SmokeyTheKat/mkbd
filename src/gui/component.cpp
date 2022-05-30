@@ -19,7 +19,7 @@ void Component::onDrag(int x, int y) {};
 void Component::onKeyDown(int key) {};
 void Component::onKeyUp(int key) {};
 
-void Component::updatePosition(void) {
+void Component::sync(void) {
 	applyToAllChildren([this](Component* c) {
 		getWindow()->setComponentsSize(c);
 	});
@@ -105,9 +105,6 @@ bool Component::applyToSelfAndChildren(std::function<bool(Component*)> func) {
 
 	for (Component* c : getChildren()) {
 		c->applyToSelfAndChildren(func);
-		if (!func(c)) {
-			return false;
-		}
 	}
 	return true;
 }
@@ -122,9 +119,6 @@ bool Component::applyToSelfAndChildrenReverse(std::function<bool(Component*)> fu
 	for (auto it = children.rbegin(); it != children.rend(); it++) {
 		Component* c = *it;
 		c->applyToSelfAndChildrenReverse(func);
-		if (!func(c)) {
-			return false;
-		}
 	}
 	return true;
 }

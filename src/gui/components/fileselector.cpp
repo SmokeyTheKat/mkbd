@@ -19,6 +19,7 @@ FileSelectorComponent::FileSelectorComponent(Layout layout, Color bgColor, Color
 	mButton->setFontSize(15);
 
 	mButton->on("Click", FUNC([this], (int button, int x, int y), {
+		std::cout << "OMG\n";
 		mPath = FileManager::selectFile("Background Image");
 		mInput->setText(mPath);
 		mWindow->setCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
