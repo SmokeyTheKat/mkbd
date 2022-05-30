@@ -57,6 +57,8 @@ public:
 	void setWindow(Window* window) { mWindow = window; };
 	Window* getWindow(void) { return mWindow; };
 
+	void updatePosition(void);
+
 	void setColor(int r, int g, int b);
 	void setColor1(int r, int g, int b);
 	void setColor1(void);
@@ -162,6 +164,8 @@ public:
 
 	void drawPoint(int x, int y);
 	void drawLine(int x1, int y1, int x2, int y2);
+	void fillRoundedRectangle(int x, int y, int w, int h, int rad);
+	void drawRoundedRectangle(int x, int y, int w, int h, int rad);
 	void fillRectangle(int x, int y, int w, int h);
 	void drawRectangle(int x, int y, int w, int h);
 	void drawRectangleWithOutline(int x, int y, int w, int h);

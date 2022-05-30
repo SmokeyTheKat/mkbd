@@ -9,6 +9,7 @@ using namespace std::placeholders;
 
 KeyboardComponent::KeyboardComponent(Layout layout, MidiRecorder* rcdr)
 : Component(layout), mRcdr(rcdr) {
+	setCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
 	calculateSizes();
 	rcdr->on("NoteOn", asFunction<byte, byte>(std::bind(&KeyboardComponent::onNoteOn, this, _1, _2)));
 	rcdr->on("NoteOff", asFunction<byte>(std::bind(&KeyboardComponent::onNoteOff, this, _1)));

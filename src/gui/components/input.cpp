@@ -13,6 +13,7 @@ InputComponent::InputComponent(Layout layout, std::string text, InputType inputT
 		20,
 		mFgColor
 	);
+	mText->setAutoDraw(false);
 	addChild(mText);
 };
 

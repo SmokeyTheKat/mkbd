@@ -21,6 +21,7 @@ struct Settings {
 	std::string waterfallBackgroundImagePath = RESOURCE_DIR "/images/waterfall4.jpg";
 
 	bool waterfallBackgroundImage = false;
+	bool keyBounceIn = false;
 	bool showKeyPress = true;
 	bool showKeys3D = true;
 	bool showKeyDownColor = true;

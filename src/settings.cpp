@@ -2,14 +2,6 @@
 
 
 
-
-
-
-
-
-
-
-
 Settings gConfig;
 
 

@@ -2,6 +2,8 @@
 
 #include <mkbd/gui/window.hpp>
 
+#include <SDL2/SDL2_gfxPrimitives.h>
+
 Component::Component(Layout layout)
 : mLayout(layout) {};
 
@@ -16,6 +18,12 @@ void Component::onLeave(int x, int y) {};
 void Component::onDrag(int x, int y) {};
 void Component::onKeyDown(int key) {};
 void Component::onKeyUp(int key) {};
+
+void Component::updatePosition(void) {
+	applyToAllChildren([this](Component* c) {
+		getWindow()->setComponentsSize(c);
+	});
+}
 
 void Component::addChild(Component* component) {
 	if (component == this)
@@ -147,8 +155,7 @@ void Component::setColor(int r, int g, int b) {
 }
 
 void Component::drawLine(int x1, int y1, int x2, int y2) {
-	setColor1();
-	SDL_RenderDrawLine(getRenderer(), mX + x1, mY + y1, mX + x2, mY + y2);
+	lineRGBA(getRenderer(), mX + x1, mY + y1, mX + x2, mY + y2, RGB_ARGS(mColor1), 255);
 }
 
 void Component::drawPoint(int x, int y) {
@@ -156,26 +163,34 @@ void Component::drawPoint(int x, int y) {
 	SDL_RenderDrawPoint(getRenderer(), mX + x, mY + y);
 }
 
+void Component::fillRoundedRectangle(int x, int y, int w, int h, int rad) {
+	x += mX;
+	y += mY;
+	roundedBoxRGBA(getRenderer(), x, y, x+w, y+h, rad, RGB_ARGS(mColor1), 255);
+	if (2 * rad > h) return;
+	if (2 * rad > w) return;
+	aacircleRGBA(getRenderer(), x+rad, y+rad, rad, RGB_ARGS(mColor1), 255);
+	aacircleRGBA(getRenderer(), x+w-rad, y+rad, rad, RGB_ARGS(mColor1), 255);
+	aacircleRGBA(getRenderer(), x+rad, y+h-rad, rad, RGB_ARGS(mColor1), 255);
+	aacircleRGBA(getRenderer(), x+w-rad, y+h-rad, rad, RGB_ARGS(mColor1), 255);
+}
+
+void Component::drawRoundedRectangle(int x, int y, int w, int h, int rad) {
+	x += mX;
+	y += mY;
+	roundedRectangleRGBA(getRenderer(), x, y, x+w+1, y+h+1, rad, RGB_ARGS(mColor2), 255);
+}
+
 void Component::fillRectangle(int x, int y, int w, int h) {
-	setColor1();
-	SDL_Rect rect = {
-		.x = x + mX,
-		.y = y + mY,
-		.w = w,
-		.h = h,
-	};
-	SDL_RenderFillRect(getRenderer(), &rect);
+	x += mX;
+	y += mY;
+	boxRGBA(getRenderer(), x, y, x+w, y+h, RGB_ARGS(mColor1), 255);
 }
 
 void Component::drawRectangle(int x, int y, int w, int h) {
-	setColor2();
-	SDL_Rect rect = {
-		.x = x + mX,
-		.y = y + mY,
-		.w = w,
-		.h = h,
-	};
-	SDL_RenderDrawRect(getRenderer(), &rect);
+	x += mX;
+	y += mY;
+	rectangleRGBA(getRenderer(), x, y, x+w+1, y+h+1, RGB_ARGS(mColor2), 255);
 }
 
 void Component::drawRectangleWithOutline(int x, int y, int w, int h) {
@@ -186,41 +201,14 @@ void Component::drawRectangleWithOutline(int x, int y, int w, int h) {
 void Component::drawCircle(int x0, int y0, int r, int t) {
 	x0 += mX;
 	y0 += mY;
-
-	std::vector<SDL_Point> data;
-	int rr = r * r;
-	int tt = t * t;
-	int tr = rr - 2*t*r + tt;
-	for (int y = -r; y <= r; y++) {
-		for (int x = -r; x <= r; x++) {
-			int xx = x * x;
-			int yy = y * y;
-			if (xx + yy <= rr && xx + yy > tr) {
-				data.push_back({x0 + x, y0 + y});
-			}
-		}
-	}
-	setColor1();
-	SDL_RenderDrawPoints(getRenderer(), data.data(), data.size());
+	for (int i = 0; i < t; i++)
+		circleRGBA(getRenderer(), x0, y0, r - i, RGB_ARGS(mColor2), 255);
 }
 
 void Component::fillCircle(int x0, int y0, int r) {
 	x0 += mX;
 	y0 += mY;
-
-	std::vector<SDL_Point> data;
-	int rr = r * r;
-	for (int y = -r; y <= r; y++) {
-		for (int x = -r; x <= r; x++) {
-			int xx = x * x;
-			int yy = y * y;
-			if (xx + yy <= rr) {
-				data.push_back({x0 + x, y0 + y});
-			}
-		}
-	}
-	setColor1();
-	SDL_RenderDrawPoints(getRenderer(), data.data(), data.size());
+	filledCircleRGBA(getRenderer(), x0, y0, r, RGB_ARGS(mColor1), 255);
 }
 
 void Component::drawEllipse(int x0, int y0, int w, int h, int t) {

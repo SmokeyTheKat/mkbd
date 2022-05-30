@@ -39,6 +39,13 @@ struct Color {
 	Color(int v) : r(v), g(v), b(v) {};
 	Color(void) : r(0), g(0), b(0) {};
 
+	operator int() const {
+		char data[4] = {
+			r, g, b, 0xff
+		};
+		return *(int*)data;
+	};
+
 	void toRgb(void) {
 		double nh = h;
 		double ns = s / 100.0;

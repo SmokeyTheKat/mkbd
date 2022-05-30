@@ -120,7 +120,7 @@ void App::freePlayPage(void) {
 	}));
 
 	FileSelectorComponent* test = new FileSelectorComponent(
-		Layout(300, 200, 200, 30),
+		Layout(0, 30, 200, 30),
 		gConfig.accColor, gConfig.borderColor
 	);
 
@@ -132,7 +132,7 @@ void App::freePlayPage(void) {
 
 //    ButtonComponent(Layout layout, std::string text, std::function<void(void)> callback, Color bgColor, Color fgColor);
 	ButtonComponent* off = new ButtonComponent(
-		Layout(300, 240, 200, 30),
+		Layout(0, 40 + 30, 200, 30),
 		"Color",
 		[](){}, gConfig.accColor, Colors::White
 	);
@@ -141,11 +141,42 @@ void App::freePlayPage(void) {
 		
 	}));
 
-	mWindow.addComponent(off);
+	CheckBoxComponent* cb = new CheckBoxComponent(
+		Layout(0, 0, 30, 30),
+		gConfig.accColor, Colors::Black
+	);
+	cb->on("Change", FUNC((bool b), {
+		gConfig.keyBounceIn = b;
+	}));
 
-	mWindow.addComponent(test);
+	Component* c = new RectangleComponent(
+		Layout(100, 100, 300, 30),
+		Colors::White
+	);
 
-	mWindow.addComponent(cp);
+	int ix, iy;
+
+	c->on("Click", asFunction<int, int, int>([c, &ix, &iy](int b, int x, int y) {
+		ix = x;
+		iy = y;
+	}));
+
+	c->on("Drag", asFunction<int, int>([c, &ix, &iy](int x, int y) {
+		std::cout << x << ", " << y << "\n";
+		int nx = x - ix;
+		int ny = y - iy;
+		c->getLayout().x += nx;
+		c->getLayout().y += ny;
+		c->updatePosition();
+	}));
+
+	c->addChild(cb);
+	c->addChild(off);
+	c->addChild(test);
+
+	mWindow.addComponent(c);
+
+//    mWindow.addComponent(cp);
 
 	generatePianoControls();
 

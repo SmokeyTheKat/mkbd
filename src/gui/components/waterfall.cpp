@@ -151,14 +151,14 @@ void WaterfallComponent::draw(void) {
 			int y = rmap(mRcdr->getTime() - it->time, 0, barLength, mHeight, 0);
 			int width = getKeyWidth((*it)[1]);
 
-			if (y + height < mHeight && height < 10) height = 10;
+			if ((!gConfig.keyBounceIn || (y + height < mHeight - 1)) && height < 20) height = 20;
 
 			if (y + height < 0) {
 				toDelete.push_back(it);
 				continue;
 			}
 
-			if (y < 0) {
+			if (gConfig.keyBounceIn && y < 0) {
 				height += y;
 				y = 0;
 			}
@@ -167,7 +167,11 @@ void WaterfallComponent::draw(void) {
 			else
 				setColor1(RGB_ARGS(gConfig.whiteKeyDownColor));
 			setColor2(0, 0, 0);
-			fillRectangle(mKeyPositions[(*it)[1]], y, width-2, height);
+			fillRoundedRectangle(mKeyPositions[(*it)[1]], y, width-2, height, 6);
+			if (y + height >= mHeight - 1)
+				fillRectangle(mKeyPositions[(*it)[1]], y + 10, width-2, height - 10);
+			if (y == 0)
+				fillRectangle(mKeyPositions[(*it)[1]], y, width-2, 10);
 		}
 	}
 

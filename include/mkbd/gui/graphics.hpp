@@ -14,5 +14,6 @@
 #include <mkbd/gui/components/container.hpp>
 #include <mkbd/gui/components/colorpicker.hpp>
 #include <mkbd/gui/components/fileselector.hpp>
+#include <mkbd/gui/components/checkbox.hpp>
 
 #endif
