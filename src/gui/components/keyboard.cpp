@@ -11,17 +11,7 @@ KeyboardComponent::KeyboardComponent(Layout layout, MidiRecorder* rcdr)
 : Component(layout), mRcdr(rcdr) {
 	setCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
 	calculateSizes();
-	rcdr->on("NoteOn", asFunction<byte, byte>(std::bind(&KeyboardComponent::onNoteOn, this, _1, _2)));
-	rcdr->on("NoteOff", asFunction<byte>(std::bind(&KeyboardComponent::onNoteOff, this, _1)));
 };
-
-void KeyboardComponent::onNoteOn(byte note, byte velocity) {
-	keys[note - 12] = 1;
-}
-
-void KeyboardComponent::onNoteOff(byte note) {
-	keys[note - 12] = 0;
-}
 
 int KeyboardComponent::getKeyAtPos(int x, int y) {
 	y -= mBorder;
@@ -29,7 +19,7 @@ int KeyboardComponent::getKeyAtPos(int x, int y) {
 	for (int note = 0; note < mKeyPositions.size(); note++) {
 		if (y >= mBlackKeyHeight) break;
 
-		if (!Music::isNoteFlat(note)) {
+		if (Music::isBlackKey(note)) {
 			int v = mKeyPositions[note];
 			if (x >= v && x < v + mBlackKeyWidth) {
 				return note;
@@ -38,7 +28,7 @@ int KeyboardComponent::getKeyAtPos(int x, int y) {
 	}
 	for (int note = 0; note < mKeyPositions.size(); note++) {
 		int vw = mKeyWidth;
-		if (!Music::isNoteFlat(note)) {
+		if (Music::isBlackKey(note)) {
 			continue;
 		}
 		int v = mKeyPositions[note];
@@ -83,19 +73,17 @@ void KeyboardComponent::init(void) {
 }
 
 Color KeyboardComponent::getWhiteKeyColor(int key) {
-	if (gConfig.showKeyDownColor && keys[key]) {
-		if (Music::isBlackKey(key))
-			return gConfig.blackKeyDownColor;
-		else return gConfig.whiteKeyDownColor;
+	if (gConfig.showKeyDownColor && mRcdr->getNoteState(key)) {
+		if (!Music::isBlackKey(key))
+			return gConfig.whiteKeyDownColor;
 	}
 	return gConfig.whiteKeyColor;
 }
 
 Color KeyboardComponent::getBlackKeyColor(int key) {
-	if (gConfig.showKeyDownColor && keys[key]) {
+	if (gConfig.showKeyDownColor && mRcdr->getNoteState(key)) {
 		if (Music::isBlackKey(key))
 			return gConfig.blackKeyDownColor;
-		else return gConfig.whiteKeyDownColor;
 	}
 	return gConfig.blackKeyColor;
 }
@@ -104,7 +92,7 @@ void KeyboardComponent::drawKey3DPart(int key, Color color, int x, int width, in
 	color = color.darken(0.2);
 	setColor1(RGB_ARGS(color));
 	double angle = mViewAngle;
-	if (keys[key]) {
+	if (mRcdr->getNoteState(key)) {
 		if (gConfig.showKeyPress)
 			angle *= 0.5;
 	}
@@ -159,14 +147,14 @@ void KeyboardComponent::drawKeyboardBlackKey(int key, int i, int offset) {
 
 		color = color.darken(0.2);
 
-//        if (keys[key]) {
+//        if (mRcdr->getNoteState(key)) {
 			color = color.darken(0.2);
 //        }
 
-		if (keys[key-1]) {
+		if (mRcdr->getNoteState(key-1)) {
 			drawKeyPushShadowLeft(i, color, offset);
 		}
-		if (keys[key+1]) {
+		if (mRcdr->getNoteState(key+1)) {
 			drawKeyPushShadowRight(i, color, offset);
 		}
 	}
@@ -195,7 +183,7 @@ void KeyboardComponent::calculateSizes(void) {
 
 	mKeyPositions.resize(127);
 
-	for (int i = 0, key = 9 + 12; i < mKeyCount + 0; i++) {
+	for (int i = 0, key = 9; i < mKeyCount; i++) {
 		mKeyPositions[key] = i * mKeyWidth;
 
 		key++;
@@ -234,7 +222,7 @@ void KeyboardComponent::draw(void) {
 	setColor1(RGB_ARGS(gConfig.whiteKeyColor));
 	setColor2(RGB_ARGS(gConfig.blackKeyColor));
 
-	for (int i = 0, key = 9; i < mKeyCount + 10; i++) {
+	for (int i = 0, key = 9+12; i < mKeyCount + 10; i++) {
 		drawKeyboardWhiteKey(key, i);
 
 		key++;
@@ -246,7 +234,7 @@ void KeyboardComponent::draw(void) {
 		else if ((i+5) % 7 == 5) key++;
 	}
 
-	for (int i = 0, key = 9; i < mKeyCount + 10; i++) {
+	for (int i = 0, key = 9+12; i < mKeyCount + 10; i++) {
 		key++;
 		if ((i+5) % 7 == 0)
 			drawKeyboardBlackKeyLeft(key++, i);

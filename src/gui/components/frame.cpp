@@ -13,7 +13,6 @@ FrameComponent::FrameComponent(Layout layout, int dragBarHeight)
 }
 
 void FrameComponent::addChild(Component* component) {
-	std::cout << "111111\n";
 	mArea->addChild(component);
 }
 

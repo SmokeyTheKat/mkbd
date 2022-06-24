@@ -36,13 +36,17 @@ struct MidiEvent {
 	: MidiEvent({0}, 0) {};
 	MidiEvent(const RawMidiEvent& data)
 	: MidiEvent(data, 0) {};
+	MidiEvent(byte typeChannel, const RawMidiEvent& data)
+	: MidiEvent(data, 0) { raw.insert(raw.begin(), typeChannel); };
+	MidiEvent(byte typeChannel, const RawMidiEvent& data, double time)
+	: MidiEvent(data, time) { raw.insert(raw.begin(), typeChannel); };
 	MidiEvent(const RawMidiEvent& data, double time)
 	: raw(data), time(time) {
 		if (raw.size() >= 1 && raw[0] < 0x10)
 			raw[0] *= 0x10;
 	};
 
-	byte getType(void) {
+	byte getType(void) const {
 		if (raw.size() == 0)
 			return 0;
 		return raw[0] / 0x10;
@@ -56,13 +60,37 @@ struct MidiEvent {
 	};
 	void setChannel(byte channel) { raw[0] = getType() * 0x10 + channel; };
 
-	int length(void) { return raw.size(); };
+	int length(void) const { return raw.size(); };
 
 	byte& operator[](int index) { 
 		if (index >= raw.size()) raw.resize(index + 1);
 		return raw[index];
 	}
+
+	const byte& operator[](int index) const { 
+		return raw[index];
+	}
 };
+
+
+inline std::ostream &operator<<(std::ostream &os, MidiEvent const& m) { 
+	const char* EVENT_NAMES[255];
+	for (int i = 0; i < 255; i++) {
+		EVENT_NAMES[i] = "OMG";
+	}
+	EVENT_NAMES[0x08]="NoteOff";
+	EVENT_NAMES[0x09]="NoteOn";
+	EVENT_NAMES[0x0a]="AfterTouch";
+	EVENT_NAMES[0x0b]="ControlChange";
+	EVENT_NAMES[0x0c]="ProgramChange";
+	EVENT_NAMES[0x0d]="PressureChannel";
+	EVENT_NAMES[0x0e]="PitchWheel";
+	os << "[" << EVENT_NAMES[(int)m.getType()] << ": ";
+	for (int i = 0; i < m.length(); i++) {
+		os << (int)m[i] << ", ";
+	}
+	return os << ": " << m.time << "]";
+}
 
 class MidiDevice {
 public:
@@ -83,17 +111,12 @@ private:
 	RtMidiOut* mRtmOut;
 	Info mInfo;
 
-	bool noteStates[255] = { 0 };
-
 public:
 	MidiDevice(int port);
 	~MidiDevice(void);
 
 	MidiEvent getEvent(void) const;
 	void sendEvent(const MidiEvent& e) const;
-
-	void setNoteState(byte note, bool state) { noteStates[note] = state; };
-	bool getNoteState(byte note) const { return noteStates[note]; };
 
 	static std::vector<Info> getDevices(void);
 

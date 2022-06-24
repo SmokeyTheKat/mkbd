@@ -4,6 +4,7 @@
 #include <mkbd/color.hpp>
 
 #include <string>
+#include <vector>
 #include <string_view>
 
 typedef unsigned char byte;
@@ -34,9 +35,83 @@ typedef unsigned char byte;
 #define _VFUNC(name, n) _VFUNC_(name, n)
 #define VFUNC(func, ...) _VFUNC(func, __NARG__(__VA_ARGS__)) (__VA_ARGS__)
 
+enum class NumberFormat {
+	BigEndiain,
+	LittleEndiain,
+};
+
 namespace Utils {
+	int getVarIntLength(const std::vector<byte>& data);
 	std::string runCommand(std::string_view cmd);
 	bool stringIsNumber(std::string str);
+};
+
+
+class File {
+	std::string mPath;
+	std::vector<byte> mData;
+	int mPosition = 0;
+
+public:
+	File(std::string path)
+	: mPath(path) {};
+
+	void open(void);
+
+	int length(void) { return mData.size(); };
+
+	byte& front(void) { return mData[0]; };
+
+	int getPosition(void) { return mPosition; };
+
+	byte& operator[](int idx) {
+		return mData[idx];
+	};
+
+	std::vector<byte> pop(int count) {
+		std::vector<byte> slice(mData.begin(), mData.begin() + count);
+		mData.erase(mData.begin(), mData.begin() + count);
+		mPosition += count;
+		return slice;
+	};
+
+	std::string popString(int count) {
+		std::string slice(mData.begin(), mData.begin() + count);
+		pop(count);
+		return slice;
+	};
+
+	template<class T = uintmax_t>
+	T popNumber(int count, NumberFormat format = NumberFormat::BigEndiain) {
+		T value = 0;
+		if (format == NumberFormat::LittleEndiain) {
+			value = *(T*)&mData[0];
+		}
+		else {
+			for (int i = count - 1, j = 0; i >= 0; i--, j += 8)
+				value |= (int)mData[i] << j;
+		}
+		pop(count);
+		return value;
+	};
+
+	template<class T = uintmax_t>
+	T popVarInt(NumberFormat format = NumberFormat::BigEndiain) {
+		int length = Utils::getVarIntLength(mData);
+		T result = 0;
+		for (int i = 0; i < length; i++) {
+			int b = mData[i];
+			if (b & 0x80) {
+				result += (b & 0x7f);
+				result <<= 7;
+			} else {
+				result += b;
+			}
+		};
+
+		pop(length);
+		return result;
+	};
 };
 
 struct FlipFlop {

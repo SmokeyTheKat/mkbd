@@ -161,8 +161,8 @@ void Component::fillRoundedRectangle(int x, int y, int w, int h, int rad) {
 	x += mX;
 	y += mY;
 	roundedBoxRGBA(getRenderer(), x, y, x+w, y+h, rad, RGB_ARGS(mColor1), 255);
-	if (2 * rad > h) return;
-	if (2 * rad > w) return;
+//    if (2 * rad > h) return;
+//    if (2 * rad > w) return;
 	aacircleRGBA(getRenderer(), x+rad, y+rad, rad, RGB_ARGS(mColor1), 255);
 	aacircleRGBA(getRenderer(), x+w-rad, y+rad, rad, RGB_ARGS(mColor1), 255);
 	aacircleRGBA(getRenderer(), x+rad, y+h-rad, rad, RGB_ARGS(mColor1), 255);

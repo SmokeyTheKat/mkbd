@@ -14,6 +14,8 @@
 #include <mkbd/gui/window.hpp>
 #include <mkbd/virtualkeyboard.hpp>
 #include <mkbd/settings.hpp>
+#include <mkbd/midi/file.hpp>
+#include <mkbd/midi/track.hpp>
 
 using namespace std::placeholders;
 
@@ -104,6 +106,23 @@ void App::freePlayPage(void) {
 
 	mRecorder.on("NoteOff", asFunction<byte>([this, &tg](byte note) {
 		tg->setText(getChord());
+	}));
+
+	std::vector<MidiTrack>* tracks = new std::vector<MidiTrack>(MidiReader::load("./test.mid"));
+	for (MidiTrack& mt : *tracks) {
+		mt.attachRecorder(&mRecorder);
+	}
+	mRecorder.on("FirstNote", asFunction([this, tracks](void) {
+		for (MidiTrack& mt : *tracks) {
+			mt.reset();
+		}
+	}));
+	mRecorder.on("Update", asFunction([this, tracks](void) {
+		for (MidiTrack& mt : *tracks) {
+			if (mt.isNextEventReady()) {
+				mt.emit();
+			}
+		}
 	}));
 
 	attachRecorderToAudioPlayer();

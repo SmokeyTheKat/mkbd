@@ -173,12 +173,8 @@ namespace Music {
 		return ((getNoteName(note)[0] - 'A' + 5) % 7) + (7 * (getNoteOctave(note)));
 	}
 
-	bool isNoteFlat(int note) {
-		return getNoteName(note).length() != 2;
-	}
-
 	bool isBlackKey(int note) {
-		return !isNoteFlat(note);
+		return getNoteName(note).length() == 2;
 	}
 
 	std::string getNoteName(int note) {

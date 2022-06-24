@@ -41,7 +41,7 @@ int App::main(void) {
 std::string App::getChord(void) {
 	std::vector<int> notes;
 	for (int i = 0; i < 256; i++) {
-		if (mRecorder.getDevice()->getNoteState(i))
+		if (mRecorder.getSustainedNoteState(i))
 			notes.push_back(i);
 	}
 
@@ -216,6 +216,8 @@ void App::testPage(void) {
 	mWindow.clearGroup(FID);
 }
 
+#include <mkbd/midi/file.hpp>
+
 void App::generateMainMenuButtons(void) {
 	ButtonListComponent* buttonList = new ButtonListComponent(
 		Layout(10, mHeaderHeight + 20, mMenuWidth, 50),
@@ -225,7 +227,6 @@ void App::generateMainMenuButtons(void) {
 			{ "Test", std::bind(&App::testPage, this) },
 			{ "Settings", std::bind(&App::settingsPage, this) },
 			{ "test", [this](void){
-				std::cout << FileManager::selectFile("WOW", "../") << "\n";
 			} },
 			{ "Exit", [this](void){
 				mWindow.popPage();
