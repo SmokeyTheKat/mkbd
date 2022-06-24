@@ -16,14 +16,10 @@ class KeyboardComponent : public Component {
 	int mBlackKeyHeight;
 	double mViewAngle = 0.13;
 	int mPushDistance = 7;
-
+	bool mLatch = true;
 	int mVKey = -1;
 
 public:
-	bool keys[255] = {
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	};
-
 	KeyboardComponent(Layout layout, MidiRecorder* rcdr);
 	void draw(void);
 	void init(void);
@@ -46,9 +42,6 @@ private:
 	void drawKeyboardBlackKeyLeft(int key, int i);
 	void drawKeyboardBlackKeyRight(int key, int i);
 	void drawKeyboardBlackKeyMiddle(int key, int i);
-
-	void onNoteOn(byte note, byte velocity);
-	void onNoteOff(byte note);
 };
 
 #endif

@@ -1,8 +1,22 @@
 #include <mkbd/utils.hpp>
 
+#include <fstream>
+#include <iterator>
+
 #include <cstdio>
 
+void File::open(void) {
+	std::ifstream fs(mPath, std::ios::binary);
+	mData = std::vector<byte>(std::istreambuf_iterator<char>(fs), {});
+};
+
 namespace Utils {
+	int getVarIntLength(const std::vector<byte>& data) {
+		int count = 0;
+		while (data[count++] >= 128);
+		return count;
+	}
+
 	std::string runCommand(std::string_view cmd) {
 		std::string result;
 

@@ -8,6 +8,7 @@
 #include <mkbd/eventemitter.hpp>
 
 #include <vector>
+#include <array>
 #include <functional>
 
 class MidiRecorder : public EventEmitter {
@@ -20,16 +21,21 @@ class MidiRecorder : public EventEmitter {
 		: callback(callback), time(time), full(full) {};
 	};
 
+	using Notes = std::array<Music::Note, 255>;
+
 	MidiDevice* mDevice;
 	Timer mTimer;
 
 	std::vector<MidiEvent> mEvents;
-
 	std::vector<TimedCallback> mTimedCallbacks;
+	Notes mNotes;
+	Notes mSustainedNotes;
 
 	int mBpm = 100;
 	bool mStopping = false;
 	bool mStarting = false;
+
+	int mSustainLevel = 0;
 
 public:
 	MidiRecorder(void)
@@ -43,6 +49,14 @@ public:
 	void stop(void) { mStopping = true; };
 	void clear(void) { mEvents.clear(); };
 	void restart(void) { mStarting = true; clear(); };
+
+	bool isSustaining(void) { return mSustainLevel > 0; };
+	int getSustainLevel(void) { return mSustainLevel; };
+
+	Music::Note getNoteState(int note) { return mNotes[note]; };
+	Music::Note getSustainedNoteState(int note) { return mSustainedNotes[note]; };
+	Notes getNotes(void) { return mNotes; };
+	Notes getSustainedNotes(void) { return mSustainedNotes; };
 
 	void sendEvent(MidiEvent e) { handleEvent(e); };
 
