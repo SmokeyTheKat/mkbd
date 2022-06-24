@@ -9,6 +9,13 @@
 namespace Music {
 	extern double tuning;
 
+	static constexpr const char* circleOfFifths[] = {
+		"C", "G", "D", "A", "E", "B", "F#", "Db", "Ab", "Eb", "Bb", "F"
+	};
+	static constexpr const char* circleOfFourths[] = {
+		"C", "F", "Bb", "Eb", "Ab", "Db", "F#", "B", "E", "A", "D", "G"
+	};
+
 	struct Note {
 		byte note;
 		byte velocity;

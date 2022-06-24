@@ -5,13 +5,14 @@ bool MidiTrack::isNextEventReady(void) {
 	if (mRcdr == 0) return false;
 	return mCurrentTime >= 0 &&
 		   mEvents.size() > 0 &&
-		   mRcdr->getTime() > mCurrentTime + mEvents.front().time;
+		   mRcdr->getTime() > mCurrentTime + getNextTime();
 }
 
 void MidiTrack::emit(void) {
 	if (mRcdr == 0) return;
 
-	mCurrentTime += mEvents.front().time;
+	mCurrentTime += getNextTime();
 	mRcdr->sendEvent(mEvents.front());
 	mEvents.erase(mEvents.begin());
 }
+

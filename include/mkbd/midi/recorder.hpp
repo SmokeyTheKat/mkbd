@@ -31,7 +31,7 @@ class MidiRecorder : public EventEmitter {
 	Notes mNotes;
 	Notes mSustainedNotes;
 
-	int mBpm = 100;
+	int mBpm = 120;
 	bool mStopping = false;
 	bool mStarting = false;
 
@@ -53,6 +53,7 @@ public:
 	bool isSustaining(void) { return mSustainLevel > 0; };
 	int getSustainLevel(void) { return mSustainLevel; };
 
+	void resetNotes(void) { mNotes.fill(Music::Note::None()); mSustainedNotes.fill(Music::Note::None()); };
 	Music::Note getNoteState(int note) { return mNotes[note]; };
 	Music::Note getSustainedNoteState(int note) { return mSustainedNotes[note]; };
 	Notes getNotes(void) { return mNotes; };
@@ -70,7 +71,7 @@ public:
 	Timer& getTimer(void) { return mTimer; };
 	double getTime(void) { return mTimer.now(); };
 
-	int getBpm(void) { return mBpm; };
+	double getBpm(void) { return mBpm; };
 	void setBpm(int bpm) { mBpm = bpm; };
 
 private:

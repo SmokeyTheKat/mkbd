@@ -34,7 +34,7 @@ class EventEmitter {
 	};
 
 	struct Event {
-		void* vFunc;
+		void* vFunc = 0;
 		GroupId group = 0;
 		bool once = false;
 
@@ -42,7 +42,7 @@ class EventEmitter {
 		: vFunc(vFunc), group(group) {};
 
 		void free(void) {
-			std::free(vFunc);
+//            std::free(vFunc);
 		}
 	};
 
@@ -77,12 +77,13 @@ public:
 		if (events.find(name) == events.end())
 			return;
 
-		EventList& list = events[name];
+		EventList list = events[name];
 
 		std::vector<EventList::iterator> toDelete;
 
 		for (auto it = list.begin(); it != list.end(); it++) {
 			T& func = *reinterpret_cast<T*>(it->vFunc);
+			if (!(&func)) continue;
 			func(args...);
 
 			if (it->once)

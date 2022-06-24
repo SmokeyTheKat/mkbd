@@ -154,62 +154,23 @@ void App::generateMainMenuHeader(void) {
 void App::testPage(void) {
 	SET_FID;
 
-	chooseKeyboardPage();
-
 	mWindow.newPage();
 
-	MidiDevice piano(mMidiPort);
-	mRecorder = MidiRecorder(&piano, 120);
-
-	mAudioPlayer.start();
-
-	SheetMusicComponent* smg = new SheetMusicComponent(
-		Layout(0, 0, 0, 300, Layout::FillX),
-		&mRecorder
-	);
-	mWindow.addComponent(smg);
-
-	KeyboardComponent* kg = new KeyboardComponent(
-		Layout(0, 300, 0, 300, Layout::FillX | Layout::FillY),
-		&mRecorder
-	);
-	mWindow.addComponent(kg);
-
-	TextComponent* tg = new TextComponent(
-		Layout(0, 40, 0, 100),
-		"Cmaj9",
-		RESOURCE_DIR "/fonts/FreeSans.ttf",
-		50,
-		Color(255, 255, 255)
-	);
-	mWindow.addComponent(tg);
-
-	mRecorder.on("Update", asFunction(std::bind(&Window::update, &mWindow)));
-
-	VirtualKeyboard vk(&mRecorder);
-	mWindow.on("KeyDown", asFunction<int>(std::bind(&VirtualKeyboard::onKeyDown, &vk, _1)), FID);
-	mWindow.on("KeyUp", asFunction<int>(std::bind(&VirtualKeyboard::onKeyUp, &vk, _1)), FID);
-
-	vk.on("KeyDown", asFunction<byte>([&piano](byte note) {
-		piano.sendEvent(MidiEvent({MidiEvent::NoteOn, note, 100}));
-	}), FID);
-	vk.on("KeyUp", asFunction<byte>([&piano](byte note) {
-		piano.sendEvent(MidiEvent({MidiEvent::NoteOff, note, 0}));
-	}), FID);
-
-	mRecorder.on("NoteOn", asFunction<byte, byte>([this, &tg](byte note, byte velocity) {
-		tg->setText(getChord());
-	}));
-
-	mRecorder.on("NoteOff", asFunction<byte>([this, &tg](byte note) {
-		tg->setText(getChord());
-	}));
-
-	attachRecorderToAudioPlayer();
-
-	mAudioPlayer.unpause();
-
-	mRecorder.record(0);
+	int s = 30;
+	for (int x = 0; x < 50; x++) {
+		for (int y = 0; y < 20; y++) {
+			auto b = new ButtonComponent(
+				Layout(x * s, y * s, s, s),
+				"!", [](){},
+				gConfig.accColor, gConfig.fgColor
+			);
+			b->on("Click", asFunction<int, int>([this](int, int) {
+				mWindow.popPage();
+			}));
+		
+			mWindow.addComponent(b);
+		}
+	}
 
 	mWindow.pageLoop();
 

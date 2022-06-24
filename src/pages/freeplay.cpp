@@ -16,6 +16,7 @@
 #include <mkbd/settings.hpp>
 #include <mkbd/midi/file.hpp>
 #include <mkbd/midi/track.hpp>
+#include <mkbd/filemanager.hpp>
 
 using namespace std::placeholders;
 
@@ -108,24 +109,22 @@ void App::freePlayPage(void) {
 		tg->setText(getChord());
 	}));
 
-	std::vector<MidiTrack>* tracks = new std::vector<MidiTrack>(MidiReader::load("./test.mid"));
-	for (MidiTrack& mt : *tracks) {
-		mt.attachRecorder(&mRecorder);
-	}
-	mRecorder.on("FirstNote", asFunction([this, tracks](void) {
-		for (MidiTrack& mt : *tracks) {
-			mt.reset();
-		}
-	}));
-	mRecorder.on("Update", asFunction([this, tracks](void) {
-		for (MidiTrack& mt : *tracks) {
-			if (mt.isNextEventReady()) {
-				mt.emit();
-			}
-		}
-	}));
-
-	attachRecorderToAudioPlayer();
+//    std::vector<MidiTrack>* tracks = new std::vector<MidiTrack>(MidiReader::load("./test.mid"));
+//    for (MidiTrack& mt : *tracks) {
+//        mt.attachRecorder(&mRecorder);
+//    }
+//    mRecorder.on("FirstNote", asFunction([this, tracks](void) {
+//        for (MidiTrack& mt : *tracks) {
+//            mt.reset();
+//        }
+//    }));
+//    mRecorder.on("Update", asFunction([this, tracks](void) {
+//        for (MidiTrack& mt : *tracks) {
+//            if (mt.isNextEventReady()) {
+//                mt.emit();
+//            }
+//        }
+//    }));
 
 	mWindow.addComponent(smg);
 	mWindow.addComponent(kg);
@@ -158,6 +157,39 @@ void App::freePlayPage(void) {
 		gConfig.waterfallBackgroundImage = false;
 	}));
 
+	ButtonComponent* mid = new ButtonComponent(
+		Layout(0, 130, 200, 30),
+		"Color",
+		[](){}, gConfig.accColor, Colors::White
+	);
+	mRecorder.on("Event", asFunction<MidiEvent>([this, &piano](MidiEvent e) {
+//        piano.sendEvent(e);
+	}));
+	mid->on("Click", asFunction<int, int, int>([this](int b, int x, int y) {
+		SET_FID;
+		std::string filePath = FileManager::selectFile("Open Midi File");
+		std::vector<MidiTrack>* tracks = new std::vector<MidiTrack>(MidiReader::load(filePath));
+		for (MidiTrack& mt : *tracks) {
+			mt.attachRecorder(&mRecorder);
+			mt.reset();
+		}
+//        mRecorder.on("FirstNote", asFunction([this, tracks](void) {
+//            std::cout << "OMG\n";
+//            for (MidiTrack& mt : *tracks) {
+//                mt.reset();
+//            }
+//        }));
+		mRecorder.resetNotes();
+		mRecorder.clearGroup(FID);
+		mRecorder.on("Update", asFunction([this, tracks](void) {
+			for (MidiTrack& mt : *tracks) {
+				if (mt.isNextEventReady()) {
+					mt.emit();
+				}
+			}
+		}), FID);
+	}));
+
 	CheckBoxComponent* cb = new CheckBoxComponent(
 		Layout(0, 80, 30, 30),
 		gConfig.accColor, Colors::Black
@@ -166,20 +198,22 @@ void App::freePlayPage(void) {
 		gConfig.keyBounceIn = b;
 	}));
 
-	
 	FrameComponent* c = new FrameComponent(
 		Layout(100, 100, 300, 500)
 	);
 
 	c->addChild(cb);
+	c->addChild(mid);
 	c->addChild(off);
 	c->addChild(test);
 
-//    mWindow.addComponent(c);
+	mWindow.addComponent(c);
 
 //    mWindow.addComponent(cp);
 
 	generatePianoControls();
+
+	attachRecorderToAudioPlayer();
 
 	mWindow.update();
 
