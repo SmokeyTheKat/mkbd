@@ -156,7 +156,7 @@ void App::freePlayPage(void) {
 	c->addChild(off);
 	c->addChild(test);
 
-	mWindow.addComponent(c);
+//    mWindow.addComponent(c);
 
 //    mWindow.addComponent(cp);
 
