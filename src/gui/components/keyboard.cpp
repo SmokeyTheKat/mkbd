@@ -47,7 +47,7 @@ void KeyboardComponent::onClick(int button, int x, int y) {
 void KeyboardComponent::onDrag(int x, int y) {
 	int key = getKeyAtPos(x, y);
 	if (mVKey != key) {
-		if (mVKey != -1)
+		if (mVKey >= 0)
 			mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, mVKey, 0}));
 
 		onClick(0, x, y);
@@ -55,12 +55,14 @@ void KeyboardComponent::onDrag(int x, int y) {
 }
 
 void KeyboardComponent::onMouseUp(int button, int x, int y) {
-	mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, mVKey, 0}));
+	if (mVKey >= 0)
+		mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, mVKey, 0}));
 	mVKey = -1;
 }
 
 void KeyboardComponent::onLeave(int x, int y) {
-	mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, mVKey, 0}));
+	if (mVKey >= 0)
+		mRcdr->sendEvent(MidiEvent({MidiEvent::NoteOff, mVKey, 0}));
 	mVKey = -1;
 }
 

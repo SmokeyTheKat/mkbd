@@ -21,7 +21,7 @@ protected:
 	int mWidth;
 	int mHeight;
 
-	bool mIsHovered = true;
+	bool mIsHovered = false;
 	bool mIsFocused = false;
 	bool mIsVisible = true;
 	bool mIsActive = true;

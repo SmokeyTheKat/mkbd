@@ -43,8 +43,6 @@ void App::freePlayPage(void) {
 		),
 		&mRecorder
 	);
-	smg->on("LateDraw", asFunction([smg](void) {
-	}));
 
 	KeyboardComponent* kg = new KeyboardComponent(
 		Layout(

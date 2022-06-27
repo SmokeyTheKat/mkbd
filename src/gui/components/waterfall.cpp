@@ -273,8 +273,6 @@ void WaterfallComponent::drawTracks(void) {
 }
 
 void WaterfallComponent::draw(void) {
-	int scale = 240;
-
 	drawBackground();
 
 	drawLines();
