@@ -213,6 +213,9 @@ void WaterfallComponent::drawInput(void) {
 }
 
 void WaterfallComponent::drawTrack(MidiTrack* track) {
+	if (!track->isPlaying())
+		return;
+
 	double beatLength = 60.0 / mRcdr->getBpm();
 	double barLength = beatLength * 4.0;
 	std::vector<std::vector<MidiEvent>::iterator> toDelete;
@@ -222,7 +225,8 @@ void WaterfallComponent::drawTrack(MidiTrack* track) {
 	double now = track->getCurrentTime();
 
 	double time = startTime - barLength;
-	for (auto it = events.begin(); it != events.end(); it++) {
+	auto it = events.begin();
+	for (; it != events.end(); it++) {
 		time += it->time * (60.0 / mRcdr->getBpm());
 		if (time > now) {
 			break;
@@ -233,7 +237,6 @@ void WaterfallComponent::drawTrack(MidiTrack* track) {
 
 			int height = rmap(length, 0, barLength, 0, mHeight);
 			int y = rmap(now - time - length, 0, barLength, 0, mHeight);
-			std::cout << y << "\n";
 			int width = getKeyWidth((*it)[1]);
 
 			if ((!gConfig.keyBounceIn || (y + height < mHeight - 1)) && height < 20) height = 20;
@@ -257,12 +260,7 @@ void WaterfallComponent::drawTrack(MidiTrack* track) {
 				fillRectangle(mKeyPositions[(*it)[1]], y + 10, width-2, height - 10);
 			if (y == 0)
 				fillRectangle(mKeyPositions[(*it)[1]], y, width-2, 10);
-//            return;
 		}
-	}
-
-	for (auto it : toDelete) {
-//        mEvents.erase(it);
 	}
 }
 

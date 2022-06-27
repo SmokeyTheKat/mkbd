@@ -3,6 +3,9 @@
 #include <mkbd/gui/window.hpp>
 
 #include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_opengl.h>
+#include <GL/gl.h>
+
 
 Component::Component(Layout layout)
 : mLayout(layout) {};
@@ -132,7 +135,7 @@ void Component::setColor1(int r, int g, int b) {
 }
 
 void Component::setColor1(void) {
-	SDL_SetRenderDrawColor(getRenderer(), RGB_ARGS(mColor1), 255);
+	glColor3ub(RGB_ARGS(mColor1));
 }
 
 void Component::setColor2(int r, int g, int b) {
@@ -140,7 +143,7 @@ void Component::setColor2(int r, int g, int b) {
 }
 
 void Component::setColor2(void) {
-	SDL_SetRenderDrawColor(getRenderer(), RGB_ARGS(mColor2), 255);
+	glColor3ub(RGB_ARGS(mColor2));
 }
 
 void Component::setColor(int r, int g, int b) {
@@ -149,42 +152,49 @@ void Component::setColor(int r, int g, int b) {
 }
 
 void Component::drawLine(int x1, int y1, int x2, int y2) {
-	lineRGBA(getRenderer(), mX + x1, mY + y1, mX + x2, mY + y2, RGB_ARGS(mColor1), 255);
+	setColor1();
+	glBegin(GL_LINES);
+		glVertex2i(mX + x1, mY + y1);
+		glVertex2i(mX + x2, mY + y2);
+	glEnd();
 }
 
 void Component::drawPoint(int x, int y) {
-	setColor1();
-	SDL_RenderDrawPoint(getRenderer(), mX + x, mY + y);
+//    setColor1();
+//    SDL_RenderDrawPoint(getRenderer(), mX + x, mY + y);
 }
 
 void Component::fillRoundedRectangle(int x, int y, int w, int h, int rad) {
-	x += mX;
-	y += mY;
-	roundedBoxRGBA(getRenderer(), x, y, x+w, y+h, rad, RGB_ARGS(mColor1), 255);
-//    if (2 * rad > h) return;
-//    if (2 * rad > w) return;
-	aacircleRGBA(getRenderer(), x+rad, y+rad, rad, RGB_ARGS(mColor1), 255);
-	aacircleRGBA(getRenderer(), x+w-rad, y+rad, rad, RGB_ARGS(mColor1), 255);
-	aacircleRGBA(getRenderer(), x+rad, y+h-rad, rad, RGB_ARGS(mColor1), 255);
-	aacircleRGBA(getRenderer(), x+w-rad, y+h-rad, rad, RGB_ARGS(mColor1), 255);
+	fillRectangle(x, y, w, h);
 }
 
 void Component::drawRoundedRectangle(int x, int y, int w, int h, int rad) {
-	x += mX;
-	y += mY;
-	roundedRectangleRGBA(getRenderer(), x, y, x+w+1, y+h+1, rad, RGB_ARGS(mColor2), 255);
+	drawRectangle(x, y, w, h);
 }
 
 void Component::fillRectangle(int x, int y, int w, int h) {
-	x += mX;
-	y += mY;
-	boxRGBA(getRenderer(), x, y, x+w, y+h, RGB_ARGS(mColor1), 255);
+	setColor1();
+	glRecti(
+		mX + x, mY + y,
+		mX + x + w, mY + y + h
+	);
 }
 
 void Component::drawRectangle(int x, int y, int w, int h) {
-	x += mX;
-	y += mY;
-	rectangleRGBA(getRenderer(), x, y, x+w+1, y+h+1, RGB_ARGS(mColor2), 255);
+	setColor2();
+	glBegin(GL_LINES);
+		glVertex2i(mX + x,     mY + y);
+		glVertex2i(mX + x + w, mY + y);
+
+		glVertex2i(mX + x + w, mY + y);
+		glVertex2i(mX + x + w, mY + y + h);
+
+		glVertex2i(mX + x + w, mY + y + h);
+		glVertex2i(mX + x,     mY + y + h);
+
+		glVertex2i(mX + x,     mY + y + h);
+		glVertex2i(mX + x,     mY + y);
+	glEnd();
 }
 
 void Component::drawRectangleWithOutline(int x, int y, int w, int h) {
@@ -193,57 +203,13 @@ void Component::drawRectangleWithOutline(int x, int y, int w, int h) {
 }
 
 void Component::drawCircle(int x0, int y0, int r, int t) {
-	x0 += mX;
-	y0 += mY;
-	for (int i = 0; i < t; i++)
-		circleRGBA(getRenderer(), x0, y0, r - i, RGB_ARGS(mColor2), 255);
 }
 
 void Component::fillCircle(int x0, int y0, int r) {
-	x0 += mX;
-	y0 += mY;
-	filledCircleRGBA(getRenderer(), x0, y0, r, RGB_ARGS(mColor1), 255);
 }
 
 void Component::drawEllipse(int x0, int y0, int w, int h, int t) {
-	x0 += mX;
-	y0 += mY;
-
-	std::vector<SDL_Point> data;
-	int tt = t * t;
-	int ww = w * w;
-	int hh = h * h;
-	int wt = ww - 2*t*w + tt;
-	int ht = hh - 2*t*h + tt;
-	for (int y = -h; y <= h; y++) {
-		for (int x = -w; x <= w; x++) {
-			int xx = x * x;
-			int yy = y * y;
-			if (yy * ww <= hh * ww - (hh * xx) && yy * wt > ht * wt - (ht * xx)) {
-				data.push_back({x0 + x, y0 + y});
-			}
-		}
-	}
-	setColor1();
-	SDL_RenderDrawPoints(getRenderer(), data.data(), data.size());
 }
 
 void Component::fillEllipse(int x0, int y0, int w, int h) {
-	x0 += mX;
-	y0 += mY;
-
-	std::vector<SDL_Point> data;
-	int ww = w * w;
-	int hh = h * h;
-	for (int y = -h; y <= h; y++) {
-		for (int x = -w; x <= w; x++) {
-			int xx = x * x;
-			int yy = y * y;
-			if (yy * ww <= hh * ww - (hh * xx)) {
-				data.push_back({x0 + x, y0 + y});
-			}
-		}
-	}
-	setColor1();
-	SDL_RenderDrawPoints(getRenderer(), data.data(), data.size());
 }

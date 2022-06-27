@@ -28,6 +28,7 @@ public:
 	double getCurrentTime(void) const { return mRcdr->getTime(); };
 
 	bool isNextEventReady(void);
+	bool isPlaying(void) { return mPtr < mEvents.size(); };
 	double getNextTime(void) { return mEvents[mPtr].time * (60.0 / mRcdr->getBpm()); };
 };
 

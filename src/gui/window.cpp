@@ -4,6 +4,8 @@
 #include <mkbd/gui/texture.hpp>
 
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_opengl.h>
+#include <GL/gl.h>
 
 #include <iostream>
 
@@ -14,13 +16,15 @@ Window::Window(int width, int height)
 		SDL_WINDOWPOS_UNDEFINED,
 		mWidth,
 		mHeight,
-		SDL_WINDOW_SHOWN
+		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL
 	);
 
 	SDL_SetWindowResizable(mWindow, SDL_TRUE);
 
-	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
-	FontManager::setRenderer(mRenderer);
+	SDL_GLContext glcontext = SDL_GL_CreateContext(mWindow);
+
+//    mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
+//    FontManager::setRenderer(mRenderer);
 
 	mPages.push(ComponentPage());
 
@@ -350,8 +354,13 @@ void Window::pageLoop(void) {
 }
 
 void Window::clearScreen(void) {
-	SDL_SetRenderDrawColor(mRenderer, RGB_ARGS(mBgColor), 255);
-	SDL_RenderClear(mRenderer);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, mWidth, mHeight, 0, -1.0, 1.0);
+
+	glViewport(0, 0, mWidth, mHeight);
+	glClearColor(1.f, 0.f, 1.f, 0.f);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Window::draw(void) {
@@ -368,5 +377,6 @@ void Window::draw(void) {
 	});
 	emit("LateDraw");
 
-	SDL_RenderPresent(mRenderer);
+
+	SDL_GL_SwapWindow(mWindow);
 }
