@@ -67,9 +67,9 @@ void WaterfallComponent::calculateSizes(void) {
 	}
 }
 
-double WaterfallComponent::getKeyPressLength(std::vector<MidiEvent>::iterator it) {
+double WaterfallComponent::getKeyPressLength(const std::vector<MidiEvent>& events, std::vector<MidiEvent>::iterator it) {
 	MidiEvent startEvent = *it;
-	for (; it != mEvents.end(); it++) {
+	for (; it != events.end(); it++) {
 		MidiEvent event = *it;
 		if (event.getType() == MidiEvent::NoteOff && startEvent[1] == event[1]) {
 			return event.time - startEvent.time;
@@ -77,6 +77,22 @@ double WaterfallComponent::getKeyPressLength(std::vector<MidiEvent>::iterator it
 		}
 	}
 	return mRcdr->getTime() - startEvent.time;
+}
+
+
+double WaterfallComponent::getTrackKeyPressLength(const std::vector<MidiEvent>& events, std::vector<MidiEvent>::iterator it) {
+	MidiEvent startEvent = *it;
+	double length = 0;
+	for (; it != events.end(); it++) {
+		MidiEvent event = *it;
+		length += event.time * (60.0 / mRcdr->getBpm());
+		if (event.getType() == MidiEvent::NoteOff && startEvent[1] == event[1]) {
+			return length;
+			break;
+		}
+	}
+	std::cout << "FKLJSDLFKSD:FSLFJ\n";
+	return length;
 }
 
 int WaterfallComponent::getKeyWidth(int key) {
@@ -93,16 +109,39 @@ void WaterfallComponent::drawLines(void) {
 	double barLength = beatLength * 4.0;
 
 
+//    setColor(125, 125, 125);
+//    for (int i = 0; i < 4; i++) {
+//        double y = std::fmod(time - i * beatLength, barLength);
+//        y = rmap(y, 0, barLength, mHeight, 0);
+//        drawLine(0, y, mWidth, y);
+//    }
+//
+//    setColor(255, 255, 255);
+//    double y = std::fmod(time, barLength);
+//    y = rmap(y, 0, barLength, mHeight, 0);
+//    drawLine(0, y, mWidth, y);
+//
+//    setColor(125, 125, 125);
+//    for (int i = 24; i < 109; i += 12) {
+//        int x = mKeyPositions[i];
+//        drawLine(x, 0, x, mHeight);
+//    }
+//
+//    setColor(80, 80, 80);
+//    for (int i = 29; i < 109; i += 12) {
+//        int x = mKeyPositions[i];
+//        drawLine(x, 0, x, mHeight);
+//    }
 	setColor(125, 125, 125);
 	for (int i = 0; i < 4; i++) {
 		double y = std::fmod(time - i * beatLength, barLength);
-		y = rmap(y, 0, barLength, mHeight, 0);
+		y = rmap(y, 0, barLength, 0, mHeight);
 		drawLine(0, y, mWidth, y);
 	}
 
 	setColor(255, 255, 255);
 	double y = std::fmod(time, barLength);
-	y = rmap(y, 0, barLength, mHeight, 0);
+	y = rmap(y, 0, barLength, 0, mHeight);
 	drawLine(0, y, mWidth, y);
 
 	setColor(125, 125, 125);
@@ -131,21 +170,14 @@ void WaterfallComponent::drawBackground(void) {
 	}
 }
 
-void WaterfallComponent::draw(void) {
-	int scale = 240;
-
-	drawBackground();
-
-	std::vector<std::vector<MidiEvent>::iterator> toDelete;
-
-	drawLines();
-
+void WaterfallComponent::drawInput(void) {
 	double beatLength = 60.0 / mRcdr->getBpm();
 	double barLength = beatLength * 4.0;
+	std::vector<std::vector<MidiEvent>::iterator> toDelete;
 
 	for (auto it = mEvents.begin(); it != mEvents.end(); it++) {
 		if (it->getType() == MidiEvent::NoteOn) {
-			double length = getKeyPressLength(it);
+			double length = getKeyPressLength(mEvents, it);
 
 			int height = rmap(length, 0, barLength, 0, mHeight);
 			int y = rmap(mRcdr->getTime() - it->time, 0, barLength, mHeight, 0);
@@ -178,4 +210,74 @@ void WaterfallComponent::draw(void) {
 	for (auto it : toDelete) {
 		mEvents.erase(it);
 	}
+}
+
+void WaterfallComponent::drawTrack(MidiTrack* track) {
+	double beatLength = 60.0 / mRcdr->getBpm();
+	double barLength = beatLength * 4.0;
+	std::vector<std::vector<MidiEvent>::iterator> toDelete;
+
+	std::vector<MidiEvent>& events = track->getEvents();
+	double startTime = track->getStartTime();
+	double now = track->getCurrentTime();
+
+	double time = startTime - barLength;
+	for (auto it = events.begin(); it != events.end(); it++) {
+		time += it->time * (60.0 / mRcdr->getBpm());
+		if (time > now) {
+			break;
+		}
+		if (it->getType() == MidiEvent::NoteOn) {
+			double length = getTrackKeyPressLength(events, it);
+//            if (length <= 0) continue;
+
+			int height = rmap(length, 0, barLength, 0, mHeight);
+			int y = rmap(now - time - length, 0, barLength, 0, mHeight);
+			std::cout << y << "\n";
+			int width = getKeyWidth((*it)[1]);
+
+			if ((!gConfig.keyBounceIn || (y + height < mHeight - 1)) && height < 20) height = 20;
+
+			if (y >= mHeight) {
+//                toDelete.push_back(it);
+				continue;
+			}
+
+			if (gConfig.keyBounceIn && y < 0) {
+				height += y;
+				y = 0;
+			}
+			if (getKeyWidth((*it)[1]) < getKeyWidth((*it)[1] + 1))
+				setColor1(RGB_ARGS(gConfig.blackKeyDownColor));
+			else
+				setColor1(RGB_ARGS(gConfig.whiteKeyDownColor));
+			setColor2(0, 0, 0);
+			fillRoundedRectangle(mKeyPositions[(*it)[1]], y, width-2, height, 6);
+			if (y + height >= mHeight - 1)
+				fillRectangle(mKeyPositions[(*it)[1]], y + 10, width-2, height - 10);
+			if (y == 0)
+				fillRectangle(mKeyPositions[(*it)[1]], y, width-2, 10);
+//            return;
+		}
+	}
+
+	for (auto it : toDelete) {
+//        mEvents.erase(it);
+	}
+}
+
+void WaterfallComponent::drawTracks(void) {
+	for (auto t : mTracks) {
+		drawTrack(t);
+	}
+}
+
+void WaterfallComponent::draw(void) {
+	int scale = 240;
+
+	drawBackground();
+
+	drawLines();
+//    drawInput();
+	drawTracks();
 }

@@ -28,6 +28,7 @@ void App::freePlayPage(void) {
 	mWindow.newPage();
 
 	MidiDevice piano(mMidiPort);
+	MidiDevice piano2(2);
 	mRecorder = MidiRecorder(&piano, 120);
 
 	mAudioPlayer.start();
@@ -165,10 +166,33 @@ void App::freePlayPage(void) {
 	mRecorder.on("Event", asFunction<MidiEvent>([this, &piano](MidiEvent e) {
 //        piano.sendEvent(e);
 	}));
-	mid->on("Click", asFunction<int, int, int>([this](int b, int x, int y) {
+	mRecorder.on("SustainChange", asFunction<byte>([this, &piano, &piano2](byte val) {
+//        std::cout << (int)val << "\n";
+		uint16_t value = rmap(55, 0, 127, 0, 16000);
+		byte b1 = (value << 2) >> 9;
+		byte b2 = (value << 9) >> 9;
+		b1 &= ~(1 << 7);
+		b2 &= ~(1 << 7);
+//        std::cout << value << " " << (int)b1 << " " << (int)b2 << "\n";
+//        MidiEvent e = MidiEvent(MidiEvent::PitchWheel, { b2, b1 });
+//        std::cout << e << "\n";
+//        piano.sendEvent(e);
+//        piano.sendEvent(MidiEvent(MidiEvent::ControlChange, { 1, val }));
+	}));
+	mRecorder.on("NoteOn", asFunction<byte, byte>([this, &piano2](byte note, byte vel) {
+//        piano2.sendEvent(MidiEvent(MidiEvent::NoteOn, { note, vel }));
+	}));
+	mRecorder.on("NoteOff", asFunction<byte>([this, &piano2](byte note) {
+//        piano2.sendEvent(MidiEvent(MidiEvent::NoteOff, { note, 0 }));
+	}));
+	mid->on("Click", asFunction<int, int, int>([this, smg](int b, int x, int y) {
 		SET_FID;
 		std::string filePath = FileManager::selectFile("Open Midi File");
 		std::vector<MidiTrack>* tracks = new std::vector<MidiTrack>(MidiReader::load(filePath));
+		smg->clearTracks();
+		for (auto& t : *tracks) {
+			smg->addTrack(&t);
+		}
 		for (MidiTrack& mt : *tracks) {
 			mt.attachRecorder(&mRecorder);
 			mt.reset();
@@ -562,9 +586,6 @@ void App::generateBpmControls(void) {
 			value = std::stoi(text);
 		}
 		mRecorder.setBpm(value);
-	}));
-	bpmText->on("Hover", asFunction<int, int>([this](int x, int y) {
-		std::cout << "hover " << x << " " << y << "\n";
 	}));
 	mRecorder.on("Update", asFunction([this, bpmText](void) {
 		bpmText->setText(std::to_string(mRecorder.getBpm()));

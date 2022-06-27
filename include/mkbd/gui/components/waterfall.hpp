@@ -7,6 +7,7 @@
 
 #include <mkbd/midi/recorder.hpp>
 #include <mkbd/midi/keyboard.hpp>
+#include <mkbd/midi/track.hpp>
 
 #include <vector>
 #include <string>
@@ -15,6 +16,8 @@ class WaterfallComponent : public Component {
 	MidiRecorder* mRcdr;
 	std::vector<MidiEvent> mEvents;
 	std::vector<int> mKeyPositions;
+
+	std::vector<MidiTrack*> mTracks;
 
 	ImageComponent mBackgroundImage;
 
@@ -34,14 +37,21 @@ public:
 	void draw(void);
 	void init(void);
 	void onResize(int width, int height);
+
+	void addTrack(MidiTrack* track) { mTracks.push_back(track); };
+	void clearTracks(void) { mTracks.clear(); };
 	
 private:
-	double getKeyPressLength(std::vector<MidiEvent>::iterator it);
+	double getKeyPressLength(const std::vector<MidiEvent>& events, std::vector<MidiEvent>::iterator it);
+	double getTrackKeyPressLength(const std::vector<MidiEvent>& events, std::vector<MidiEvent>::iterator it);
 	void calculateSizes(void);
 	int getKeyWidth(int key);
 
 	void drawBackground(void);
 	void drawLines(void);
+	void drawInput(void);
+	void drawTracks(void);
+	void drawTrack(MidiTrack* track);
 };
 
 #endif

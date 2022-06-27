@@ -6,7 +6,6 @@ FrameComponent::FrameComponent(Layout layout, int dragBarHeight)
 	Layout areaLayout = mLayout.resetPosition();
 	areaLayout.y = mDragBarHeight;
 	areaLayout.height -= mDragBarHeight;
-	std::cout << areaLayout.y << " " << mLayout.y << "\n";
 //    mArea = new RectangleComponent(areaLayout, Colors::Yellow);
 	mArea = new Component(areaLayout);
 	Component::addChild(mArea);

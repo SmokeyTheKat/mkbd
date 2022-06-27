@@ -36,14 +36,19 @@ struct MidiEvent {
 	: MidiEvent({0}, 0) {};
 	MidiEvent(const RawMidiEvent& data)
 	: MidiEvent(data, 0) {};
-	MidiEvent(byte typeChannel, const RawMidiEvent& data)
-	: MidiEvent(data, 0) { raw.insert(raw.begin(), typeChannel); };
-	MidiEvent(byte typeChannel, const RawMidiEvent& data, double time)
-	: MidiEvent(data, time) { raw.insert(raw.begin(), typeChannel); };
 	MidiEvent(const RawMidiEvent& data, double time)
 	: raw(data), time(time) {
 		if (raw.size() >= 1 && raw[0] < 0x10)
 			raw[0] *= 0x10;
+	};
+	MidiEvent(byte typeChannel, const RawMidiEvent& data)
+	: MidiEvent(typeChannel, data, 0) {};
+	MidiEvent(byte typeChannel, const RawMidiEvent& data, double time)
+	: raw(data), time(time) {
+		if (typeChannel < 0x10) {
+			typeChannel *= 0x10;
+		}
+		raw.insert(raw.begin(), typeChannel);
 	};
 
 	byte getType(void) const {

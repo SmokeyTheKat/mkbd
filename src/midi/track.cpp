@@ -12,7 +12,6 @@ void MidiTrack::emit(void) {
 	if (mRcdr == 0) return;
 
 	mCurrentTime += getNextTime();
-	mRcdr->sendEvent(mEvents.front());
-	mEvents.erase(mEvents.begin());
+	mRcdr->sendEvent(mEvents[mPtr++]);
 }
 

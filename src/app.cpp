@@ -93,7 +93,7 @@ void App::generateHeader(const char* title) {
 		gConfig.accColor, gConfig.fgColor
 	);
 	backButton->on("Click", asFunction<int, int>([this, backButton](int x, int y) {
-		std::cout << backButton->getX() << " " << backButton->getY() << "\n";
+//        std::cout << backButton->getX() << " " << backButton->getY() << "\n";
 		mWindow.popPage();
 	}));
 	backButton->setParent(topBar);

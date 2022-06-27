@@ -10,8 +10,10 @@
 class MidiTrack {
 	std::vector<MidiEvent> mEvents;
 	double mCurrentTime = 0;
+	double mStartTime = 0;
 	MidiRecorder* mRcdr = 0;
 	double mBpm = 120;
+	int mPtr = 0;
 
 public:
 	MidiTrack(const std::vector<MidiEvent>& events)
@@ -19,9 +21,14 @@ public:
 
 	void attachRecorder(MidiRecorder* rcdr) { mRcdr = rcdr; };
 	void emit(void);
+	void reset(void) { mStartTime = mRcdr->getTime() + 2; mCurrentTime = mStartTime; };
+
+	std::vector<MidiEvent>& getEvents(void) { return mEvents; };
+	double getStartTime(void) const { return mStartTime; };
+	double getCurrentTime(void) const { return mRcdr->getTime(); };
+
 	bool isNextEventReady(void);
-	void reset(void) { mCurrentTime = mRcdr->getTime(); };
-	double getNextTime(void) { return mEvents.front().time * (60.0 / mRcdr->getBpm()); };
+	double getNextTime(void) { return mEvents[mPtr].time * (60.0 / mRcdr->getBpm()); };
 };
 
 #endif
