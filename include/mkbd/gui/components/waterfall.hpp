@@ -2,7 +2,7 @@
 #define __MKBD_GUI_WATERFALL_HPP__
 
 #include <mkbd/gui/component.hpp>
-#include <mkbd/gui/components/image.hpp>
+#include <mkbd/gui/texture.hpp>
 #include <mkbd/gui/layout.hpp>
 
 #include <mkbd/midi/recorder.hpp>
@@ -19,7 +19,7 @@ class WaterfallComponent : public Component {
 
 	std::vector<MidiTrack*> mTracks;
 
-	ImageComponent mBackgroundImage;
+	Texture mBackgroundTexture;
 
 	std::string mLateBackgroundImagePath = "";
 

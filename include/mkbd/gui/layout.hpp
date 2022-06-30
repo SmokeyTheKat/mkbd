@@ -1,6 +1,16 @@
 #ifndef __MKBD_GUI_LAYOUT_HPP__
 #define __MKBD_GUI_LAYOUT_HPP__
 
+enum class VAlign {
+	Top,
+	Middle,
+	Bottom
+};
+enum class HAlign {
+	Left,
+	Middle,
+	Right
+};
 
 struct Layout {
 	double x, y;

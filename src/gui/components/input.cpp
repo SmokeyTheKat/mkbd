@@ -14,6 +14,8 @@ InputComponent::InputComponent(Layout layout, std::string text, InputType inputT
 		mFgColor
 	);
 	mText->setAutoDraw(false);
+	mText->setVAlign(VAlign::Middle);
+	mText->setHAlign(HAlign::Left);
 	addChild(mText);
 };
 
@@ -23,10 +25,6 @@ void InputComponent::init(void) {
 void InputComponent::setText(std::string text) {
 	mText->setText(text);
 	mCursor = text.length();
-}
-
-void InputComponent::setAlign(FC_AlignEnum align) {
-	mText->setAlign(align);
 }
 
 void InputComponent::setTextLayout(void) {

@@ -43,6 +43,12 @@ void App::freePlayPage(void) {
 		),
 		&mRecorder
 	);
+	smg->on("LateDraw", asFunction([smg](void) {
+		smg->drawEllipse(340, 300, 0, 10, 30, 15);
+		smg->drawEllipse(300, 280, 0, 10, 30, 15);
+		smg->fillCircle(500, 250, 100);
+		smg->drawCircle(300, 250, 100);
+	}));
 
 	KeyboardComponent* kg = new KeyboardComponent(
 		Layout(
@@ -577,7 +583,7 @@ void App::generateBpmControls(void) {
 	metDown->leftOf(bpmText, -1);
 	bpmText->setBgColor(gConfig.accColor);
 	bpmText->setFgColor(gConfig.fgColor);
-	bpmText->getTextComponent().setAlign(FC_ALIGN_CENTER);
+	bpmText->getTextComponent().setHAlign(HAlign::Middle);
 	bpmText->on("Change", asFunction<std::string>([this](std::string text) {
 		int value = 0;
 		if (Utils::stringIsNumber(text)) {

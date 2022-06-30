@@ -84,7 +84,7 @@ void App::generateHeader(const char* title) {
 		gConfig.fgColor
 	);
 	titleText->setParent(topBar);
-	titleText->setAlign(FC_ALIGN_CENTER);
+	titleText->setHAlign(HAlign::Middle);
 
 	ButtonComponent* backButton = new ButtonComponent(
 		Layout(10, gap, 70, mHeaderHeight - gap * 2),
@@ -156,9 +156,9 @@ void App::testPage(void) {
 
 	mWindow.newPage();
 
-	int s = 30;
-	for (int x = 0; x < 50; x++) {
-		for (int y = 0; y < 20; y++) {
+	int s = 15;
+	for (int x = 0; x < 100; x++) {
+		for (int y = 0; y < 100; y++) {
 			auto b = new ButtonComponent(
 				Layout(x * s, y * s, s, s),
 				"!", [](){},

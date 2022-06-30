@@ -16,15 +16,12 @@ void SheetMusicComponent::init(void) {
 	mLineGap = mHeight / 2 / 6;
 	mBarGap = mWidth / 4;
 
-	mTrebleClefTexture.setRenderer(getRenderer());
 	mTrebleClefTexture.load();
 	mTrebleClefTexture.scaleToHeight(mHeight / 2);
 
-	mBassClefTexture.setRenderer(getRenderer());
 	mBassClefTexture.load();
 	mBassClefTexture.scaleToHeight(mHeight / 2 - 40);
 
-	mQuaterNoteTexture.setRenderer(getRenderer());
 	mQuaterNoteTexture.load();
 }
 

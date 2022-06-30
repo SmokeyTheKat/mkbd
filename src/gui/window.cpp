@@ -11,6 +11,17 @@
 
 Window::Window(int width, int height)
 : mWidth(width), mHeight(height) {
+	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+	SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 );
+	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
+	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
+	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
+	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
+
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 0 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+
 	mWindow = SDL_CreateWindow(
 		"Window", SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
@@ -359,7 +370,7 @@ void Window::clearScreen(void) {
 	glOrtho(0, mWidth, mHeight, 0, -1.0, 1.0);
 
 	glViewport(0, 0, mWidth, mHeight);
-	glClearColor(1.f, 0.f, 1.f, 0.f);
+	glClearColor((double)mBgColor.r / 255.0, (double)mBgColor.g / 255.0, (double)mBgColor.b / 255.0, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 

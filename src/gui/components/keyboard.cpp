@@ -22,7 +22,7 @@ int KeyboardComponent::getKeyAtPos(int x, int y) {
 		if (Music::isBlackKey(note)) {
 			int v = mKeyPositions[note];
 			if (x >= v && x < v + mBlackKeyWidth) {
-				return note;
+				return note + 12;
 			}
 		}
 	}
@@ -33,7 +33,7 @@ int KeyboardComponent::getKeyAtPos(int x, int y) {
 		}
 		int v = mKeyPositions[note];
 		if (x >= v && x < v + vw) {
-			return note;
+			return note + 12;
 		}
 	}
 	return -1;

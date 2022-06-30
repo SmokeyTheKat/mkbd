@@ -11,7 +11,7 @@
 
 WaterfallComponent::WaterfallComponent(Layout layout, MidiRecorder* recorder)
 : Component(layout), mRcdr(recorder),
-  mBackgroundImage(layout, gConfig.waterfallBackgroundImagePath.c_str()),
+  mBackgroundTexture(gConfig.waterfallBackgroundImagePath.c_str()),
   mLateBackgroundImagePath(gConfig.waterfallBackgroundImagePath) {
 	calculateSizes();
 	mRcdr->on("Event", asFunction<MidiEvent>([this](MidiEvent e) {
@@ -21,9 +21,6 @@ WaterfallComponent::WaterfallComponent(Layout layout, MidiRecorder* recorder)
 
 void WaterfallComponent::init(void) {
 	calculateSizes();
-	mWindow->setComponentsSize(&mBackgroundImage);
-	mBackgroundImage.setWindow(mWindow);
-	mBackgroundImage.init();
 }
 
 void WaterfallComponent::onResize(int width, int height) {
@@ -159,11 +156,11 @@ void WaterfallComponent::drawLines(void) {
 
 void WaterfallComponent::drawBackground(void) {
 	if (mLateBackgroundImagePath != gConfig.waterfallBackgroundImagePath) {
-		mBackgroundImage.getTexture()->load(gConfig.waterfallBackgroundImagePath);
+		mBackgroundTexture.load(gConfig.waterfallBackgroundImagePath);
 		mLateBackgroundImagePath = gConfig.waterfallBackgroundImagePath;
 	}
 	if (gConfig.waterfallBackgroundImage) {
-		mBackgroundImage.draw();
+		mBackgroundTexture.render(mX, mY, mWidth, mHeight);
 	} else {
 		setColor(RGB_ARGS(gConfig.waterfallBackgroundColor));
 		fillRectangle(0, 0, mWidth, mHeight);
@@ -273,7 +270,7 @@ void WaterfallComponent::drawTracks(void) {
 void WaterfallComponent::draw(void) {
 	drawBackground();
 
-	drawLines();
-//    drawInput();
+//    drawLines();
+	drawInput();
 	drawTracks();
 }

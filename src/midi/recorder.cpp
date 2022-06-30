@@ -112,7 +112,7 @@ std::vector<MidiEvent> MidiRecorder::record(double time) {
 
 		emit("Update");
 		handleEvent(mDevice->getEvent());
-		usleep(100);
+		usleep(10);
 	}
 
 	return mEvents;

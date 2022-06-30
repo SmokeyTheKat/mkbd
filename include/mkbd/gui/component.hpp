@@ -171,7 +171,7 @@ public:
 	void drawRectangleWithOutline(int x, int y, int w, int h);
 	void drawCircle(int x0, int y0, int r, int t = 1);
 	void fillCircle(int x, int y, int r);
-	void drawEllipse(int x0, int y0, int w, int h, int t);
+	void drawEllipse(int x, int y, int a0, int a1, int rx, int ry);
 	void fillEllipse(int x0, int y0, int w, int h);
 };
 

@@ -37,7 +37,6 @@ public:
 	void onKeyDown(int key);
 
 	void setText(std::string text);
-	void setAlign(FC_AlignEnum align);
 	void setFontSize(int fontSize) { mText->setFontSize(fontSize); };
 	void setMaxValue(intmax_t maxValue) { mMaxValue = maxValue; };
 	void setMinValue(intmax_t minValue) { mMinValue = minValue; };

@@ -1,13 +1,15 @@
 #ifndef __MKBD_TEXTURE_HPP__
 #define __MKBD_TEXTURE_HPP__
 
-#include <SDL2/SDL.h>
 #include <string>
+
+#include <SDL2/SDL.h>
+#include <GL/gl.h>
 
 class Texture {
 	std::string mPath;
-	SDL_Texture* mTexture = 0;
-	SDL_Renderer* mRenderer;
+	GLuint mTexture;
+	SDL_Surface* mSurface = 0;
 	int mWidth;
 	int mHeight;
 	int mX = 0;
@@ -15,11 +17,8 @@ class Texture {
 	bool loaded = false;
 
 public:
-	Texture(std::string path, SDL_Renderer* renderer);
 	Texture(std::string path);
 	~Texture(void);
-
-	void setRenderer(SDL_Renderer* renderer) { mRenderer = renderer; };
 
 	void render(void);
 	void render(int x, int y);

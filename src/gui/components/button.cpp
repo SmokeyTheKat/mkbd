@@ -17,7 +17,8 @@ ButtonComponent::ButtonComponent(Layout layout, std::string text, std::function<
 		20,
 		mFgColor
 	);
-	mText->setAlign(FC_ALIGN_CENTER);
+	mText->setVAlign(VAlign::Middle);
+	mText->setHAlign(HAlign::Middle);
 	addChild(mText);
 };
 

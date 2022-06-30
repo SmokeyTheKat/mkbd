@@ -4,7 +4,6 @@ ImageComponent::ImageComponent(Layout layout, const char* path)
 : Component(layout), mTexture(path) {};
 
 void ImageComponent::init(void) {
-	mTexture.setRenderer(getRenderer());
 	mTexture.load();
 }
 
