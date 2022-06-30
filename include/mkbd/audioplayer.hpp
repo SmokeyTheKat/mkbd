@@ -16,7 +16,7 @@ class AudioPlayer {
 		inline static long count = 0;
 
 	public:
-		Generator generator;
+		Generator* generator;
 		long id;
 		double freq;
 		double gain;
@@ -24,7 +24,7 @@ class AudioPlayer {
 		bool isFadingOut = false;
 		double fadeOutTime = -1;
 
-		AudioSample(Generator generator, double freq, double gain)
+		AudioSample(Generator* generator, double freq, double gain)
 		: generator(generator), freq(freq), gain(gain * 100.0), id(count) {
 			count++;
 		};
@@ -32,15 +32,15 @@ class AudioPlayer {
 		double getFadeOutTime(void) { return t - fadeOutTime; };
 
 		double fadeOut(void) {
-			return generator.fadeOut(getFadeOutTime());
+			return generator->fadeOut(getFadeOutTime());
 		};
 
 		double sample(void) {
-			return generator.sample(t, freq) * gain;
+			return generator->sample(t, freq) * gain;
 		};
 
 		bool isAudiable(void) {
-			return generator.getModifyers(t) > audioCutoff && ((!isFadingOut && fadeOutTime < 0) || fadeOut() > audioCutoff);
+			return generator->getModifyers(t) > audioCutoff && ((!isFadingOut && fadeOutTime < 0) || fadeOut() > audioCutoff);
 		};
 
 		static void resetCount(void) { count = 0; };
@@ -69,7 +69,7 @@ public:
 
 	void deleteSample(long id);
 
-	void noteOn(Generator generator, double freq, double gain);
+	void noteOn(Generator* generator, double freq, double gain);
 	void noteOff(double freq);
 
 	void setSampleSize(int sampleSize) { mSampleSize = sampleSize; };

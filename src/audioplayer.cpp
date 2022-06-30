@@ -112,7 +112,7 @@ void AudioPlayer::deleteSample(long id) {
 		AudioSample::resetCount();
 }
 
-void AudioPlayer::noteOn(Generator generator, double freq, double gain) {
+void AudioPlayer::noteOn(Generator* generator, double freq, double gain) {
 	mMtx.lock();
 
 	mSamples.push_back(AudioSample(generator, freq, gain));

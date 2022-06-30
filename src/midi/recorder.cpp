@@ -111,8 +111,16 @@ std::vector<MidiEvent> MidiRecorder::record(double time) {
 		}
 
 		emit("Update");
+		std::vector<MidiEvent> bufferedEvents;
+		MidiEvent e = mDevice->getEvent();
+		int i = 0;
+		do {
+			handleEvent(e);
+			e = mDevice->getEvent();
+//            i++;
+		} while (e.length() > 0  && i < 20);
 		handleEvent(mDevice->getEvent());
-		usleep(10);
+		usleep(1);
 	}
 
 	return mEvents;
