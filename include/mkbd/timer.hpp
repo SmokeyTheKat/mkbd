@@ -4,14 +4,35 @@
 #include <chrono>
 
 class Timer {
-	std::chrono::steady_clock::time_point mStart;
-	std::chrono::steady_clock::time_point mLap;
+	using Clock = std::chrono::steady_clock;
+
+	Clock::time_point mStartTime;
+
+	bool mIsPaused = true;
+	double mPauseStartTime = 0;
+	double mPauseDuration = 0;
+	double mLapStartTime = 0;
+
 public:
-	void start(void);
+	Timer(void) { setClockStartTime(); };
+
 	double now(void);
+	double unpause(void);
+	double pause(void);
+	void reset(void);
+
+	void skip(double duration);
+
+	bool isPaused(void) { return mIsPaused; };
+
 	double lap(void);
 	double getLap(void);
+	void resetLap(void);
+
 	double stop(void);
+private:
+	void setClockStartTime(void);
+	double getClockTime(void);
 };
 
 #endif

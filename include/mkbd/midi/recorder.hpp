@@ -48,7 +48,7 @@ public:
 	std::vector<MidiEvent> record(double time);
 	void stop(void) { mStopping = true; };
 	void clear(void) { mEvents.clear(); };
-	void restart(void) { mStarting = true; clear(); };
+	void restart(void) { mStarting = true; clear(); mTimer.reset(); };
 
 	bool isSustaining(void) { return mSustainLevel > 0; };
 	int getSustainLevel(void) { return mSustainLevel; };

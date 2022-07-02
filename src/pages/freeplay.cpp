@@ -28,7 +28,7 @@ void App::freePlayPage(void) {
 	mWindow.newPage();
 
 	MidiDevice piano(mMidiPort);
-	MidiDevice piano2(2);
+	MidiDevice piano2(0);
 	mRecorder = MidiRecorder(&piano, 120);
 
 	mAudioPlayer.start();
@@ -107,11 +107,11 @@ void App::freePlayPage(void) {
 	}));
 
 	mRecorder.on("NoteOn", asFunction<byte, byte>([this, &tg](byte note, byte velocity) {
-//        tg->setText(getChord());
+		tg->setText(getChord());
 	}));
 
 	mRecorder.on("NoteOff", asFunction<byte>([this, &tg](byte note) {
-//        tg->setText(getChord());
+		tg->setText(getChord());
 	}));
 
 //    std::vector<MidiTrack>* tracks = new std::vector<MidiTrack>(MidiReader::load("./test.mid"));
@@ -146,6 +146,14 @@ void App::freePlayPage(void) {
 		Layout(0, 0, 200, 30),
 		gConfig.accColor, gConfig.borderColor
 	);
+	test->on("PreOpen", asFunction([this](void) {
+		std::cout << "open\n";
+		mRecorder.getTimer().pause();
+	}));
+	test->on("Change", asFunction([this](void) {
+		std::cout << "Close\n";
+		mRecorder.getTimer().unpause();
+	}));
 
 	test->on("Change", asFunction([this, test](void) {
 		gConfig.waterfallBackgroundImage = true;
@@ -189,10 +197,11 @@ void App::freePlayPage(void) {
 	mRecorder.on("NoteOff", asFunction<byte>([this, &piano2](byte note) {
 //        piano2.sendEvent(MidiEvent(MidiEvent::NoteOff, { note, 0 }));
 	}));
-	mid->on("Click", asFunction<int, int, int>([this, smg](int b, int x, int y) {
+	std::vector<MidiTrack>* tracks;
+	mid->on("Click", asFunction<int, int, int>([this, smg, &tracks](int b, int x, int y) {
 		SET_FID;
 		std::string filePath = FileManager::selectFile("Open Midi File");
-		std::vector<MidiTrack>* tracks = new std::vector<MidiTrack>(MidiReader::load(filePath));
+		tracks = new std::vector<MidiTrack>(MidiReader::load(filePath));
 		smg->clearTracks();
 		for (auto& t : *tracks) {
 			smg->addTrack(&t);
@@ -208,6 +217,7 @@ void App::freePlayPage(void) {
 //            }
 //        }));
 		mRecorder.resetNotes();
+		mRecorder.getTimer().reset();
 		mRecorder.clearGroup(FID);
 		mRecorder.on("Update", asFunction([this, tracks](void) {
 			for (MidiTrack& mt : *tracks) {
@@ -235,7 +245,46 @@ void App::freePlayPage(void) {
 	c->addChild(off);
 	c->addChild(test);
 
+	ButtonComponent* tog = new ButtonComponent(
+		Layout(400, 200, 200, 30),
+		"TOGGLE",
+		[](){}, gConfig.accColor, Colors::White
+	);
+	tog->on("Click", asFunction<int, int, int>([this](int b, int x, int y) {
+		if (mRecorder.getTimer().isPaused())
+			mRecorder.getTimer().unpause();
+		else mRecorder.getTimer().pause();
+	}));
+
+	ButtonComponent* bck = new ButtonComponent(
+		Layout(600, 200, 100, 30),
+		"BACK",
+		[](){}, gConfig.accColor, Colors::White
+	);
+	bck->on("Click", asFunction<int, int, int>([this, &tracks](int b, int x, int y) {
+		mRecorder.getTimer().skip(-1);
+		for (auto& t : *tracks) {
+			t.resync();
+		}
+		mRecorder.resetNotes();
+	}));
+	ButtonComponent* fwd = new ButtonComponent(
+		Layout(700, 200, 100, 30),
+		"BACK",
+		[](){}, gConfig.accColor, Colors::White
+	);
+	fwd->on("Click", asFunction<int, int, int>([this, &tracks](int b, int x, int y) {
+		mRecorder.getTimer().skip(1);
+		for (auto& t : *tracks) {
+			t.resync();
+		}
+		mRecorder.resetNotes();
+	}));
+
 	mWindow.addComponent(c);
+	mWindow.addComponent(tog);
+	mWindow.addComponent(bck);
+	mWindow.addComponent(fwd);
 
 //    mWindow.addComponent(cp);
 

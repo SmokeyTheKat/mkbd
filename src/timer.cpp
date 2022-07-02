@@ -2,29 +2,65 @@
 
 #include <iostream>
 
-void Timer::start(void) {
-	mStart = std::chrono::steady_clock::now();
-	mLap = std::chrono::steady_clock::now();
+void Timer::setClockStartTime(void) {
+	mStartTime = Clock::now();
+}
+
+double Timer::getClockTime(void) {
+	Clock::time_point clockTime = Clock::now();
+	std::chrono::milliseconds clockMillTime = std::chrono::duration_cast<std::chrono::milliseconds>(clockTime - mStartTime);
+	return std::chrono::duration<double>(clockMillTime).count();
+}
+
+double Timer::pause(void) {
+	if (!mIsPaused) {
+		mIsPaused = true;
+		mPauseStartTime = getClockTime();
+		return now();
+	}
+	return -1;
+}
+
+double Timer::unpause(void) {
+	if (mIsPaused) {
+		double cTime = getClockTime();
+		mIsPaused = false;
+		mPauseDuration += cTime - mPauseStartTime;
+		return now();
+	}
+	return -1;
+}
+
+double Timer::now(void) {
+	if (mIsPaused) {
+		return mPauseStartTime - mPauseDuration;
+	} else {
+		return getClockTime() - mPauseDuration;
+	}
+}
+
+void Timer::reset(void) {
+	setClockStartTime();
+	mIsPaused = true;
+	mPauseStartTime = 0;
+	mPauseDuration = 0;
+	mLapStartTime = 0;
+}
+
+void Timer::skip(double duration) {
+	mPauseDuration -= duration;
 }
 
 double Timer::lap(void) {
 	double lapTime = getLap();
-	mLap = std::chrono::steady_clock::now();
+	resetLap();
 	return lapTime;
 }
 
+void Timer::resetLap(void) {
+	mLapStartTime = getClockTime();
+}
+
 double Timer::getLap(void) {
-	std::chrono::steady_clock::time_point cur = std::chrono::steady_clock::now();
-	std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(cur - mLap);
-	return std::chrono::duration<double>(duration).count();
-}
-
-double Timer::now(void) {
-	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-	std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - mStart);
-	return std::chrono::duration<double>(duration).count();
-}
-
-double Timer::stop(void) {
-	return now();
+	return now() - mLapStartTime;
 }

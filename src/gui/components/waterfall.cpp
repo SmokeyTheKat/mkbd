@@ -270,7 +270,7 @@ void WaterfallComponent::drawTracks(void) {
 void WaterfallComponent::draw(void) {
 	drawBackground();
 
-//    drawLines();
-	drawInput();
+	drawLines();
+//    drawInput();
 	drawTracks();
 }

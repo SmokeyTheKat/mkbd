@@ -30,7 +30,7 @@ void MidiRecorder::handleNoteOffEvent(MidiEvent e) {
 
 void MidiRecorder::handleNoteOnEvent(MidiEvent e) {
 	if (mStarting == true) {
-		mTimer.start();
+		mTimer.unpause();
 		clear();
 		e.time = mTimer.now();
 		emit("FirstNote");
