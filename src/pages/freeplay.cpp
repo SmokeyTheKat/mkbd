@@ -44,10 +44,10 @@ void App::freePlayPage(void) {
 		&mRecorder
 	);
 	smg->on("LateDraw", asFunction([smg](void) {
-		smg->drawEllipse(340, 300, 0, 10, 30, 15);
-		smg->drawEllipse(300, 280, 0, 10, 30, 15);
-		smg->fillCircle(500, 250, 100);
-		smg->drawCircle(300, 250, 100);
+//        smg->drawEllipse(340, 300, 0, 10, 30, 15);
+//        smg->drawEllipse(300, 280, 0, 10, 30, 15);
+//        smg->fillCircle(500, 250, 100);
+//        smg->drawCircle(300, 250, 100);
 	}));
 
 	KeyboardComponent* kg = new KeyboardComponent(
@@ -197,18 +197,45 @@ void App::freePlayPage(void) {
 	mRecorder.on("NoteOff", asFunction<byte>([this, &piano2](byte note) {
 //        piano2.sendEvent(MidiEvent(MidiEvent::NoteOff, { note, 0 }));
 	}));
+
 	std::vector<MidiTrack>* tracks;
-	mid->on("Click", asFunction<int, int, int>([this, smg, &tracks](int b, int x, int y) {
+
+	SeekBarComponent* sb = new SeekBarComponent(
+		Layout(0, kgHeight, 0, 30, Layout::FillX | Layout::AnchorBottomLeft),
+		&mRecorder.getTimer()
+	);
+	sb->setLength(0);
+	sb->on("Seek", asFunction([this, &tracks](void) {
+		for (auto& t : *tracks) {
+			t.resync();
+		}
+		mRecorder.resetNotes();
+	}));
+
+	mid->on("Click", asFunction<int, int, int>([this, smg, &tracks, sb](int b, int x, int y) {
 		SET_FID;
+
+		mRecorder.clearGroup(FID);
+		mRecorder.restart();
+
 		std::string filePath = FileManager::selectFile("Open Midi File");
 		tracks = new std::vector<MidiTrack>(MidiReader::load(filePath));
-		smg->clearTracks();
-		for (auto& t : *tracks) {
-			smg->addTrack(&t);
-		}
 		for (MidiTrack& mt : *tracks) {
 			mt.attachRecorder(&mRecorder);
 			mt.reset();
+		}
+		double max = 0;
+		for (auto& t : *tracks) {
+			double tlength = t.getLength();
+			if (tlength > max) {
+				max = tlength;
+			}
+		}
+		sb->setLength(max);
+		smg->clearTracks();
+		mRecorder.setBpm((*tracks)[0].getBpm());
+		for (auto& t : *tracks) {
+			smg->addTrack(&t);
 		}
 //        mRecorder.on("FirstNote", asFunction([this, tracks](void) {
 //            std::cout << "OMG\n";
@@ -216,9 +243,6 @@ void App::freePlayPage(void) {
 //                mt.reset();
 //            }
 //        }));
-		mRecorder.resetNotes();
-		mRecorder.getTimer().reset();
-		mRecorder.clearGroup(FID);
 		mRecorder.on("Update", asFunction([this, tracks](void) {
 			for (MidiTrack& mt : *tracks) {
 				if (mt.isNextEventReady()) {
@@ -287,6 +311,7 @@ void App::freePlayPage(void) {
 	mWindow.addComponent(fwd);
 
 //    mWindow.addComponent(cp);
+	mWindow.addComponent(sb);
 
 	generatePianoControls();
 

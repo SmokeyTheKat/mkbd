@@ -10,6 +10,14 @@ bool MidiTrack::isNextEventReady(void) {
 		   mRcdr->getTime() > mCurrentTime + getNextTime();
 }
 
+double MidiTrack::getLength(void) {
+	double length = 0;
+	for (auto e : mEvents) {
+		length += e.time;
+	}
+	return length * (60.0 / mRcdr->getBpm());
+}
+
 void MidiTrack::nextEvent(void) {
 	mCurrentTime += getNextTime();
 	mPtr++;

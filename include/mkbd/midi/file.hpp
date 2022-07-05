@@ -8,6 +8,12 @@
 #include <mkbd/midi/track.hpp>
 #include <mkbd/utils.hpp>
 
+//class MidiFile {
+//    std::vector<MidiTrack> mTracks;
+//
+//public:
+//};
+
 namespace MidiReader {
 	struct Header {
 		uint32_t headerLength;

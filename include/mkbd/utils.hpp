@@ -41,6 +41,10 @@ enum class NumberFormat {
 };
 
 namespace Utils {
+	int getMillsFromTime(double time);
+	int getSecsFromTime(double time);
+	int getMinsFromTime(double time);
+	std::string timeToString(double time);
 	int getVarIntLength(const std::vector<byte>& data);
 	std::string runCommand(std::string_view cmd);
 	bool stringIsNumber(std::string str);

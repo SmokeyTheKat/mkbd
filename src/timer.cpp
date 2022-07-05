@@ -47,6 +47,10 @@ void Timer::reset(void) {
 	mLapStartTime = 0;
 }
 
+void Timer::set(double time) {
+	mPauseDuration = (now() + mPauseDuration) - time;
+}
+
 void Timer::skip(double duration) {
 	mPauseDuration -= duration;
 }

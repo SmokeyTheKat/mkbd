@@ -46,8 +46,8 @@ public:
 	: mDevice(device), mBpm(bpm) {};
 
 	std::vector<MidiEvent> record(double time);
-	void stop(void) { mStopping = true; };
-	void clear(void) { mEvents.clear(); };
+	void stop(void) { mStopping = true; resetNotes(); };
+	void clear(void) { mEvents.clear(); resetNotes(); };
 	void restart(void) { mStarting = true; clear(); mTimer.reset(); };
 
 	bool isSustaining(void) { return mSustainLevel > 0; };

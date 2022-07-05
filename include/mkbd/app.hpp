@@ -65,6 +65,8 @@ private:
 	void generateInstrumentPanel(void);
 	void generateBpmControls(void);
 
+	void midiPlayerPage(std::string filePath);
+
 	void settingsPage(void);
 	void settingsPageTabMidiDevice(void);
 	void settingsPageTabMidiForwarding(void);

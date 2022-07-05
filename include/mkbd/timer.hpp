@@ -22,6 +22,7 @@ public:
 	void reset(void);
 
 	void skip(double duration);
+	void set(double time);
 
 	bool isPaused(void) { return mIsPaused; };
 

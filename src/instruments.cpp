@@ -24,7 +24,8 @@ Generator piano3Gen {
 
 Generator synthGen {
 	.waveform = Waves::synth,
-	.release = LinearRelease<2000>,
+	.release = LinearRelease<800>,
+//    .release = LinearRelease<2000>,
 	.fadeOut = LinearRelease<100>,
 };
 

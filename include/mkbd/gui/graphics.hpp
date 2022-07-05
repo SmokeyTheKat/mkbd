@@ -16,5 +16,6 @@
 #include <mkbd/gui/components/fileselector.hpp>
 #include <mkbd/gui/components/checkbox.hpp>
 #include <mkbd/gui/components/frame.hpp>
+#include <mkbd/gui/components/seekbar.hpp>
 
 #endif

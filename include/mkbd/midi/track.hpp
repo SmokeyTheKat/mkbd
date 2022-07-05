@@ -28,6 +28,9 @@ public:
 	double getStartTime(void) const { return mStartTime; };
 	double getCurrentTime(void) const { return mRcdr->getTime(); };
 
+	double getLength(void);
+	double getBpm(void) { return mBpm; };
+
 	bool eventsPresent(void) { return mEvents.size() > 0; };
 	bool isNextEventReady(void);
 	bool isPlaying(void) { return mPtr < mEvents.size(); };
