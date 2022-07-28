@@ -3,7 +3,7 @@ PREFIX=~/.local
 RESOURCE_DIR=$(realpath ./resources)
 
 CC=g++
-CFLAGS=-std=c++17 -Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -DRESOURCE_DIR=\"${RESOURCE_DIR}\" -lasound -lpthread -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_gfx -lGL -L/home/william/Programs/libdrawtext/ -Wl,-rpath=/home/william/Programs/libdrawtext/ -ldrawtext -lfreetype
+CFLAGS=-std=c++17 -Wno-narrowing -g -I./include/ -D__LINUX_ALSA__ -DRESOURCE_DIR=\"${RESOURCE_DIR}\" -lasound -lpthread -lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_gfx -lGL -Llib/ -Wl,-rpath=lib/ -ldrawtext -lfreetype
 
 TARGET=./mkbd
 
