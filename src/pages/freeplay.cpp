@@ -198,57 +198,60 @@ void App::freePlayPage(void) {
 //        piano2.sendEvent(MidiEvent(MidiEvent::NoteOff, { note, 0 }));
 	}));
 
-	std::vector<MidiTrack>* tracks;
+	MidiFile* mfile = new MidiFile();
+
+//    std::vector<MidiTrack>* tracks;
 
 	SeekBarComponent* sb = new SeekBarComponent(
 		Layout(0, kgHeight, 0, 30, Layout::FillX | Layout::AnchorBottomLeft),
 		&mRecorder.getTimer()
 	);
 	sb->setLength(0);
-	sb->on("Seek", asFunction([this, &tracks](void) {
-		for (auto& t : *tracks) {
-			t.resync();
-		}
-		mRecorder.resetNotes();
+	sb->on("Seek", asFunction([this, mfile](void) {
+//        for (auto& t : *tracks) {
+//            t.resync();
+//        }
+//        mRecorder.resetNotes();
 	}));
 
-	mid->on("Click", asFunction<int, int, int>([this, smg, &tracks, sb](int b, int x, int y) {
+	mid->on("Click", asFunction<int, int, int>([this, smg, mfile, sb](int b, int x, int y) {
 		SET_FID;
 
 		mRecorder.clearGroup(FID);
 		mRecorder.restart();
 
 		std::string filePath = FileManager::selectFile("Open Midi File");
-		tracks = new std::vector<MidiTrack>(MidiReader::load(filePath));
-		for (MidiTrack& mt : *tracks) {
-			mt.attachRecorder(&mRecorder);
-			mt.reset();
-		}
+//        mfile.load(filePath);
+//        for (MidiTrack& mt : *tracks) {
+//            mt.attachRecorder(&mRecorder);
+//            mt.reset();
+//            std::cout << mt.getTLength(mRecorder.getBpm()) << "\n";
+//        }
 		double max = 0;
-		for (auto& t : *tracks) {
-			double tlength = t.getLength();
-			if (tlength > max) {
-				max = tlength;
-			}
-		}
+//        for (auto& t : *tracks) {
+//            double tlength = t.getLength();
+//            if (tlength > max) {
+//                max = tlength;
+//            }
+//        }
 		sb->setLength(max);
 		smg->clearTracks();
-		mRecorder.setBpm((*tracks)[0].getBpm());
-		for (auto& t : *tracks) {
-			smg->addTrack(&t);
-		}
+//        mRecorder.setBpm((*tracks)[0].getBpm());
+//        for (auto& t : *tracks) {
+//            smg->addTrack(&t);
+//        }
 //        mRecorder.on("FirstNote", asFunction([this, tracks](void) {
 //            std::cout << "OMG\n";
 //            for (MidiTrack& mt : *tracks) {
 //                mt.reset();
 //            }
 //        }));
-		mRecorder.on("Update", asFunction([this, tracks](void) {
-			for (MidiTrack& mt : *tracks) {
-				if (mt.isNextEventReady()) {
-					mt.emit();
-				}
-			}
+		mRecorder.on("Update", asFunction([this](void) {
+//            for (MidiTrack& mt : *tracks) {
+//                if (mt.isNextEventReady()) {
+//                    mt.emit();
+//                }
+//            }
 		}), FID);
 	}));
 
@@ -285,11 +288,11 @@ void App::freePlayPage(void) {
 		"BACK",
 		[](){}, gConfig.accColor, Colors::White
 	);
-	bck->on("Click", asFunction<int, int, int>([this, &tracks](int b, int x, int y) {
+	bck->on("Click", asFunction<int, int, int>([this](int b, int x, int y) {
 		mRecorder.getTimer().skip(-1);
-		for (auto& t : *tracks) {
-			t.resync();
-		}
+//        for (auto& t : *tracks) {
+//            t.resync();
+//        }
 		mRecorder.resetNotes();
 	}));
 	ButtonComponent* fwd = new ButtonComponent(
@@ -297,11 +300,11 @@ void App::freePlayPage(void) {
 		"BACK",
 		[](){}, gConfig.accColor, Colors::White
 	);
-	fwd->on("Click", asFunction<int, int, int>([this, &tracks](int b, int x, int y) {
+	fwd->on("Click", asFunction<int, int, int>([this](int b, int x, int y) {
 		mRecorder.getTimer().skip(1);
-		for (auto& t : *tracks) {
-			t.resync();
-		}
+//        for (auto& t : *tracks) {
+//            t.resync();
+//        }
 		mRecorder.resetNotes();
 	}));
 

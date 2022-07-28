@@ -7,7 +7,7 @@
 #include <functional>
 #include <iostream>
 
-typedef std::function<double(double,double)> Waveform;
+typedef std::function<double(double&,double)> Waveform;
 typedef std::function<double(double)> Modifyer;
 
 template<int A>

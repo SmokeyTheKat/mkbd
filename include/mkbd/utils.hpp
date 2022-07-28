@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <string_view>
+#include <cctype>
 
 typedef unsigned char byte;
 
@@ -72,6 +73,24 @@ public:
 		return mData[idx];
 	};
 
+	void skipWhiteSpace(void) {
+		while (mData.size() > 0 && isspace(front())) {
+			pop(1);
+		}
+	};
+
+	int matchNextByte(byte b, int from = 0) {
+		int i = from;
+		while (i < mData.size() && mData[i] != b) i++;
+		return i;
+	};
+
+	int matchNextWhiteSpace(int from = 0) {
+		int i = from;
+		while (i < mData.size() && !isspace(mData[i])) i++;
+		return i;
+	};
+
 	std::vector<byte> pop(int count) {
 		std::vector<byte> slice(mData.begin(), mData.begin() + count);
 		mData.erase(mData.begin(), mData.begin() + count);
@@ -83,6 +102,22 @@ public:
 		std::string slice(mData.begin(), mData.begin() + count);
 		pop(count);
 		return slice;
+	};
+
+	std::string popWord(void) {
+		std::string str = popString(matchNextWhiteSpace());
+		return str;
+	}
+
+	std::string popStringUntil(byte b) {
+		std::string str = popString(matchNextByte(b));
+		pop(1);
+		return str;
+	}
+
+	byte popByte(void) {
+		std::vector<byte> data = pop(1);
+		return data[0];
 	};
 
 	template<class T = uintmax_t>

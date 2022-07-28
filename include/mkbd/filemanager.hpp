@@ -5,6 +5,7 @@
 
 namespace FileManager {
 	std::string selectFile(std::string title, std::string startPath = "");
+	bool fileExists(std::string path);
 };
 
 

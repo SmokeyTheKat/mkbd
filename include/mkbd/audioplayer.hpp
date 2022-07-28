@@ -52,7 +52,7 @@ class AudioPlayer {
 	std::vector<AudioSample> mSamples;
 
 	int mSampleRate = 44100;
-	int mSampleSize = 128;
+	int mSampleSize = 512;
 
 	bool mSustain = false;
 	bool mIsPlaying = false;

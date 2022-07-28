@@ -16,6 +16,11 @@ namespace Music {
 		"C", "F", "Bb", "Eb", "Ab", "Db", "F#", "B", "E", "A", "D", "G"
 	};
 
+	struct Meter {
+		int noteCount = 4;
+		int noteSize = 4;
+	};
+
 	struct Note {
 		byte note;
 		byte velocity;

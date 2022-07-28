@@ -4,6 +4,7 @@
 
 #include <string>
 #include <sstream>
+#include <fstream>
 
 namespace FileManager {
 	std::string selectFile(std::string title, std::string startPath) {
@@ -18,4 +19,10 @@ namespace FileManager {
 
 		return resultPath;
 	}
+
+	bool fileExists(std::string path) {
+		std::ifstream fs(path);
+		return fs.good();
+	}
+
 };

@@ -8,25 +8,31 @@
 #include <mkbd/midi/track.hpp>
 #include <mkbd/utils.hpp>
 
-//class MidiFile {
-//    std::vector<MidiTrack> mTracks;
-//
-//public:
-//};
+enum class MidiFileFormat {
+	Single,
+	Synchronous,
+	Asynchronous
+};
 
-namespace MidiReader {
-	struct Header {
-		uint32_t headerLength;
-		uint16_t fileFormat;
-		uint16_t trackCount;
-		uint16_t tickInterval;
-	};
+struct MidiHeader {
+	MidiFileFormat format;
+	int trackCount;
+	int ticksPerBeat;
+};
 
-	struct TrackHeader {
-		uint32_t trackLength;
-	};
+struct MidiFile {
+	std::string filePath;
+	std::vector<MidiTrack> tracks;
 
-	std::vector<MidiTrack> load(std::string path);
+	MidiFileFormat format;
+	int ticksPerBeat;
+
+	MidiFile(void) {};
+	MidiFile(std::string path) { load(path); };
+	void load(std::string path);
+	bool isEmpty(void) { return tracks.size() == 0; };
+
+private:
 };
 
 #endif

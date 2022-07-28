@@ -24,10 +24,11 @@ class SampledInstrument {
 	int mHighestNote;
 
 	struct NoteSample {
+		int shift = 0;
 		std::string path;
 		SDL_AudioSpec spec;
-		uint32_t length;
-		int16_t* buffer;
+		uint32_t length = 0;
+		int16_t* buffer = 0;
 	};
 
 	std::vector<NoteSample> mSamples;
@@ -45,6 +46,7 @@ public:
 	void setVolume(double volume) { mVolume = volume; };
 
 private:
+	int getClosestNoteTo(int to);
 	double waveform(double t, double freq);
 };
 

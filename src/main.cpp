@@ -67,10 +67,14 @@
 //    recorder.record(0);
 //}
 
+#include <mkbd/sfz.hpp>
+
 int main(int argc, char** argv) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		std::cout << "Could not initialize everyting lol! Error: " << SDL_GetError() << "\n";
 	}
+
+	sfztest();
 
 	srand(time(0));
 
