@@ -22,6 +22,15 @@ struct SfzParamaters {
 	};
 
 	template<class T>
+	T tryGet(std::string name, T defaultValue) {
+		if (has(name)) {
+			return get<T>(name);
+		} else {
+			return defaultValue;
+		}
+	};
+
+	template<class T>
 	void set(std::string name, T value) {
 		paramaters[name] = std::to_string(value);
 	};
@@ -88,7 +97,7 @@ class SfzParser {
 	
 public:
 	SfzParser(std::string path);
-	void parse(void);
+	std::vector<SfzRegion> parse(void);
 
 private:
 	void parseHeader(void);

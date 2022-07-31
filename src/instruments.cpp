@@ -3,8 +3,9 @@
 SampledInstrument pianoInstrument("Piano", RESOURCE_DIR "/sounds/piano/", 21, 88 + 21);
 Generator pianoGen {
 	.waveform = pianoInstrument.getWaveform(),
+	.attack = LinearAttack<2>,
 	.release = Cutoff<3000>,
-	.fadeOut = LinearRelease<100>,
+	.fadeOut = LinearRelease<200>,
 };
 
 SampledInstrument piano2Instrument("Piano2", RESOURCE_DIR "/sounds/piano2/", 21, 88 + 21, SampleFormat::Numbers);
@@ -15,7 +16,7 @@ Generator piano2Gen {
 };
 
 Generator piano3Gen {
-	.waveform = [](double t, double freq) -> double {
+	.waveform = [](double t, double freq, double vel) -> double {
 		return 0.5 * Waves::piano(t, freq);
 	},
 	.release = Cutoff<3000>,
@@ -23,14 +24,16 @@ Generator piano3Gen {
 };
 
 Generator synthGen {
-	.waveform = Waves::synth,
+	.waveform = [](double t, double freq, double vel) -> double {
+		return Waves::synth(t, freq);
+	},
 	.release = LinearRelease<800>,
 //    .release = LinearRelease<2000>,
 	.fadeOut = LinearRelease<100>,
 };
 
 Generator brassGen {
-	.waveform = [](double t, double freq) -> double {
+	.waveform = [](double t, double freq, double vel) -> double {
 		return Waves::multi(t, freq, 1.5, 2.0, 0.4);
 	},
 	.release = LinearRelease<9500>,
@@ -38,14 +41,14 @@ Generator brassGen {
 };
 
 Generator phoneGen {
-	.waveform = [](double t, double freq) -> double {
+	.waveform = [](double t, double freq, double vel) -> double {
 		return 0.25 * Waves::pulse(t, freq, 25) + 0.25 * Waves::sawtooth(t, freq) + 0.0001 * Waves::noise();
 	},
 	.fadeOut = LinearRelease<200>,
 };
 
 Generator reedGen {
-	.waveform = [](double t, double freq) -> double {
+	.waveform = [](double t, double freq, double vel) -> double {
 		return 0.5 * Waves::triangle(t, freq * 2) +
 			   0.25 * Waves::sine(t, freq) +
 			   0.25 * Waves::sawtooth(t, freq) +
@@ -55,7 +58,7 @@ Generator reedGen {
 };
 
 Generator organGen {
-	.waveform = [](double& t, double freq) -> double {
+	.waveform = [](double t, double freq, double vel) -> double {
 		t += rmap(Waves::sine(t, 5.0), -1, 1, 0, 1.00);
 		return rmap(Waves::sine(t, 4.0), -1, 1, 1.0, 1) * (Waves::sine(t, freq * 1.0) +
 			   0.5 * Waves::sine(t, freq * 2.0) +
@@ -66,7 +69,7 @@ Generator organGen {
 };
 
 Generator metronomeGen {
-	.waveform = [](double t, double freq) -> double {
+	.waveform = [](double t, double freq, double vel) -> double {
 		return 0.5 * Waves::multi(t, freq, 1.5, 2.0, 0.4);
 	},
 	.release = LinearRelease<20>,

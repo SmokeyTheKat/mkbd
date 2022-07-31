@@ -639,7 +639,7 @@ void App::generateBpmControls(void) {
 		if (mMetronomeOn) {
 			metOn->getText().setColor(Colors::Green);
 			mRecorder.on("Beat", asFunction([this](void) {
-				mAudioPlayer.noteOn(&metronomeGen, Music::noteToFreq(66), 50);
+				mAudioPlayer.noteOn(&metronomeGen, Music::noteToFreq(66), 127, 50);
 			}), &mMetronomeOn);
 		} else {
 			metOn->getText().setColor(Colors::White);

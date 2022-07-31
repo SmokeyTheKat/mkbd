@@ -5,8 +5,8 @@
 #include <iostream>
 
 void sfztest(void) {
-	SfzParser p("./test.sfz");
-	p.parse();
+//    SfzParser p("./test.sfz");
+//    p.parse();
 }
 
 SfzParser::SfzParser(std::string path)
@@ -72,7 +72,7 @@ void SfzParser::nextLine(void) {
 	mFile.pop(1);
 }
 
-void SfzParser::parse(void) {
+std::vector<SfzRegion> SfzParser::parse(void) {
 	while (mFile.length() > 0) {
 		mFile.skipWhiteSpace();
 		if (isAtComment()) {
@@ -81,13 +81,28 @@ void SfzParser::parse(void) {
 			parseHeader();
 		} else if (isAtParamater()) {
 			parseParamater();
+		} else {
+			if (mFile.length() > 0) {
+				mFile.pop(1);
+			}
 		}
 	}
 
 	std::cout << "\n";
-	auto& r = groups[1].regions[2];
+
+	std::vector<SfzRegion> regions;
+	for (auto& g : groups) {
+		for (auto& r : g.regions) {
+			regions.push_back(r);
+		}
+	}
+
+	auto& r = regions[0];
 	for (auto it = r.paramaters.begin(); it != r.paramaters.end(); it++) {
 		std::cout << it->first << ": " << r.get<std::string>(it->first) << "\n";
 	}
+
+	return regions;
+
 }
 

@@ -141,7 +141,7 @@ static std::string checkChordOrientationName(std::vector<int> notes) {
 
 
 namespace Music {
-	double tuning = 440;
+	double tuning = 330;
 
 	std::string getChordName(std::vector<int> notes) {
 		if (notes.size() > 12)
@@ -167,6 +167,10 @@ namespace Music {
 
 	int freqToNote(double freq) {
 		return std::round(12.0 * logn(freq / tuning, 2.0) + 69.0);
+	}
+
+	double centsToFreqRatio(double cents) {
+		return std::pow(2, cents / 1200.0);
 	}
 
 	int getNoteId(int note) {

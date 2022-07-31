@@ -2,6 +2,7 @@
 #define __MKBD_SAMPLEDINSTRUMENTS_HPP__
 
 #include <mkbd/generator.hpp>
+#include <mkbd/sample.hpp>
 
 #include <SDL2/SDL.h>
 
@@ -23,21 +24,13 @@ class SampledInstrument {
 	int mLowestNote;
 	int mHighestNote;
 
-	struct NoteSample {
-		int shift = 0;
-		std::string path;
-		SDL_AudioSpec spec;
-		uint32_t length = 0;
-		int16_t* buffer = 0;
-	};
-
-	std::vector<NoteSample> mSamples;
+	std::vector<std::vector<Sample>> mSampleGroups;
 
 public:
 	SampledInstrument(const std::string& name, const std::string& path, int low, int high, SampleFormat format = SampleFormat::Names);
 
 	Waveform getWaveform(void)  {
-		return std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2);
+		return std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 	};
 
 	void load(void);
@@ -47,7 +40,7 @@ public:
 
 private:
 	int getClosestNoteTo(int to);
-	double waveform(double t, double freq);
+	double waveform(double t, double freq, double vel);
 };
 
 #endif

@@ -2,11 +2,14 @@
 #define __MKBD_AUDIOPLAYER_HPP__
 
 #include <mkbd/generator.hpp>
+#include <mkbd/sample.hpp>
 
+#include <cctype>
 #include <vector>
 #include <thread>
 #include <mutex>
 #include <SDL2/SDL.h>
+
 
 constexpr double audioCutoff = 0.001;
 
@@ -20,12 +23,13 @@ class AudioPlayer {
 		long id;
 		double freq;
 		double gain;
+		double vel = 127;
 		double t = 0;
 		bool isFadingOut = false;
 		double fadeOutTime = -1;
 
-		AudioSample(Generator* generator, double freq, double gain)
-		: generator(generator), freq(freq), gain(gain * 100.0), id(count) {
+		AudioSample(Generator* generator, double freq, double vel, double gain)
+		: generator(generator), freq(freq), vel(vel), gain(gain * 100.0), id(count) {
 			count++;
 		};
 
@@ -36,7 +40,7 @@ class AudioPlayer {
 		};
 
 		double sample(void) {
-			return generator->sample(t, freq) * gain;
+			return generator->sample(t, freq, vel) * gain;
 		};
 
 		bool isAudiable(void) {
@@ -52,7 +56,7 @@ class AudioPlayer {
 	std::vector<AudioSample> mSamples;
 
 	int mSampleRate = 44100;
-	int mSampleSize = 512;
+	int mSampleSize = 1024;
 
 	bool mSustain = false;
 	bool mIsPlaying = false;
@@ -69,7 +73,7 @@ public:
 
 	void deleteSample(long id);
 
-	void noteOn(Generator* generator, double freq, double gain);
+	void noteOn(Generator* generator, double freq, double vel, double gain);
 	void noteOff(double freq);
 
 	void setSampleSize(int sampleSize) { mSampleSize = sampleSize; };

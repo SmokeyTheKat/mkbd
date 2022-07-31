@@ -61,7 +61,7 @@ int16_t AudioPlayer::generateSample(AudioSample& s) {
 			value *= s.fadeOut();
 		}
 	}
-	return shrink<double, int16_t>(value);
+	return value;
 }
 
 void AudioPlayer::removeInaudiableSamples(void) {
@@ -85,7 +85,7 @@ void AudioPlayer::fillAudioBuffer(int16_t* buffer, int length) {
 		intmax_t sample = 0;
 		for (auto& s : mSamples) {
 			sample += generateSample(s);
-			s.t += 0.010;
+			s.t += 0.01;
 		}
 		*buffer++ = shrink<intmax_t, int16_t>(sample);
 	}
@@ -112,10 +112,10 @@ void AudioPlayer::deleteSample(long id) {
 		AudioSample::resetCount();
 }
 
-void AudioPlayer::noteOn(Generator* generator, double freq, double gain) {
+void AudioPlayer::noteOn(Generator* generator, double freq, double vel, double gain) {
 	mMtx.lock();
 
-	mSamples.push_back(AudioSample(generator, freq, gain));
+	mSamples.push_back(AudioSample(generator, freq, vel, gain));
 
 	mMtx.unlock();
 }

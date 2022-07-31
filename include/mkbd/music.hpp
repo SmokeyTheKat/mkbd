@@ -44,6 +44,7 @@ namespace Music {
 
 	double noteToFreq(int note);
 	int freqToNote(double freq);
+	double centsToFreqRatio(double cents);
 
 	int getNoteId(int note);
 	bool isBlackKey(int note);
