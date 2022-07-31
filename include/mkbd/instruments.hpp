@@ -4,25 +4,29 @@
 #include <mkbd/generator.hpp>
 #include <mkbd/sampledinstruments.hpp>
 
+#include <vector>
+
+extern std::vector<SampledInstrument> instruments;
+
 extern SampledInstrument pianoInstrument;
-extern Generator pianoGen;
+extern Generator* pianoGen;
 
 extern SampledInstrument piano2Instrument;
-extern Generator piano2Gen;
+extern Generator* piano2Gen;
 
-extern Generator piano3Gen;
+extern Generator* piano3Gen;
 
-extern Generator synthGen;
+extern Generator* synthGen;
 
-extern Generator brassGen;
+extern Generator* brassGen;
 
-extern Generator phoneGen;
+extern Generator* phoneGen;
 
-extern Generator reedGen;
+extern Generator* reedGen;
 
-extern Generator organGen;
+extern Generator* organGen;
 
-extern Generator metronomeGen;
+extern Generator* metronomeGen;
 
 
 #endif

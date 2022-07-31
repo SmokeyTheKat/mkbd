@@ -3,8 +3,10 @@
 #include <mkbd/utils.hpp>
 
 #include <string>
+#include <vector>
 #include <sstream>
 #include <fstream>
+#include <filesystem>
 
 namespace FileManager {
 	std::string selectFile(std::string title, std::string startPath) {
@@ -23,6 +25,18 @@ namespace FileManager {
 	bool fileExists(std::string path) {
 		std::ifstream fs(path);
 		return fs.good();
+	}
+
+	std::vector<std::string> getAllFolders(std::string path) {
+		std::vector<std::string> folders;
+		for (const auto& entry : std::filesystem::directory_iterator(path)) {
+			folders.insert(folders.begin(), entry.path());
+		}
+		return folders;
+	}
+
+	std::string getPathBaseName(std::string path) {
+		return path.substr(path.find_last_of("/\\") + 1);
 	}
 
 };

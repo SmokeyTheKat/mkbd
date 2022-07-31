@@ -17,6 +17,18 @@
 #include <mkbd/midi/file.hpp>
 #include <mkbd/midi/track.hpp>
 #include <mkbd/filemanager.hpp>
+//    [&, gen=gen, idx=idx](Layout layout) -> Component* { \
+
+
+#define InstrumentButtonCreater(text, gen, idx) \
+	[=, this](Layout layout) -> Component* { \
+		ButtonComponent* bg = new ButtonComponent(layout, (text), [=, this](void) { \
+			mActiveGen = (gen); \
+			mCurrentInstrument = (idx); \
+		}, Colors::White, Colors::Black); \
+		bg->setFontSize(13); \
+		return bg; \
+	}
 
 using namespace std::placeholders;
 
@@ -359,140 +371,131 @@ void App::generatePianoControls(void) {
 }
 
 void App::generateKeyboardSizePanel(void) {
-#define InstrumentButtonCreater(text, gen, idx) \
-	[this](Layout layout) -> Component* { \
-		ButtonComponent* bg = new ButtonComponent(layout, (text), [this](void) { \
-			mActiveGen = (gen); \
-			mCurrentInstrument = (idx); \
-		}, Colors::White, Colors::Black); \
-		bg->setFontSize(13); \
-		return bg; \
-	}
 
-	std::vector<ButtonComponent*> buttons = createListComponent<ButtonComponent>(
-		Layout(20 + mInstrumentPanelWidth + 10, mPianoControlHeight + 20, 300, 20),
-		{
-			InstrumentButtonCreater("Piano", &pianoGen, 0),
-			InstrumentButtonCreater("Piano2", &piano2Gen, 1),
-			InstrumentButtonCreater("Piano3", &piano3Gen, 2),
-			InstrumentButtonCreater("synth", &synthGen, 3), 
-			InstrumentButtonCreater("Organ", &organGen, 4),
-			InstrumentButtonCreater("Brass", &brassGen, 5),
-			InstrumentButtonCreater("Reed", &reedGen, 6),
-			InstrumentButtonCreater("Phone", &phoneGen, 7),
-		},
-		-1
-	);
-
-	for (ButtonComponent* c : buttons) {
-		c->on("Click", asFunction<int, int, int>([this, buttons](int, int, int) {
-			std::cout << mCurrentInstrument << "\n";
-			for (int i = 0; i < buttons.size(); i++) {
-				ButtonComponent* c = buttons[i];
-				if (i == mCurrentInstrument)
-					c->setBgColor(gConfig.accColor);
-				else
-					c->setBgColor(Colors::White);
-			}
-		}));
-	}
-
-	buttons[0]->setBgColor(gConfig.accColor);
-
-	int border = 10;
-	int width = 400;
-	int height = 300;
-
-	RectangleComponent* panelBg1 = new RectangleComponent(
-		Layout(
-			width + border * 2 + border, mPianoControlHeight + border * 2 - border,
-			width + border * 2, height + border * 2,
-			Layout::AnchorTopRight
-		),
-		gConfig.accColor
-	);
-
-	RectangleComponent* panelBg2 = new RectangleComponent(
-		Layout(
-			width + border * 2, mPianoControlHeight + border * 2,
-			width, height,
-			Layout::AnchorTopRight
-		),
-		Colors::White
-	);
-
-	ButtonComponent* menuButton = new ButtonComponent(
-		Layout(
-			10, 5,
-			50, mPianoControlHeight - 10,
-			Layout::AnchorTopRight
-		),
-		"#",
-		[](){},
-		gConfig.accColor, gConfig.fgColor
-	);
-
-	std::vector<Component*> instrumentPanel;
-
-	instrumentPanel.push_back(panelBg1);
-	instrumentPanel.push_back(panelBg2);
-
-	for (auto g : buttons) {
-		instrumentPanel.push_back(g);
-	}
-
-	for (auto g : instrumentPanel) {
-		g->setActive(!g->isActive());
-	}
-
-	menuButton->on("Click", asFunction([instrumentPanel](void) {
-		for (auto g : instrumentPanel) {
-			g->setActive(!g->isActive());
-		}
-	}));
-
-	panelBg1->on("OffClick", asFunction<int, int, int>([instrumentPanel](int button, int x, int y) {
-		for (auto g : instrumentPanel) {
-			g->setActive(false);
-		}
-	}));
-
-	mWindow.addComponent(menuButton);
-
-	for (auto g : instrumentPanel) {
-		mWindow.addComponent(g);
-	}
+//    std::vector<ButtonComponent*> buttons = createListComponent<ButtonComponent>(
+//        Layout(20 + mInstrumentPanelWidth + 10, mPianoControlHeight + 20, 300, 20),
+//        {
+//            InstrumentButtonCreater("Piano", &pianoGen, 0),
+//            InstrumentButtonCreater("Piano2", &piano2Gen, 1),
+//            InstrumentButtonCreater("Piano3", &piano3Gen, 2),
+//            InstrumentButtonCreater("synth", &synthGen, 3), 
+//            InstrumentButtonCreater("Organ", &organGen, 4),
+//            InstrumentButtonCreater("Brass", &brassGen, 5),
+//            InstrumentButtonCreater("Reed", &reedGen, 6),
+//            InstrumentButtonCreater("Phone", &phoneGen, 7),
+//        },
+//        -1
+//    );
+//
+//    for (ButtonComponent* c : buttons) {
+//        c->on("Click", asFunction<int, int, int>([this, buttons](int, int, int) {
+//            std::cout << mCurrentInstrument << "\n";
+//            for (int i = 0; i < buttons.size(); i++) {
+//                ButtonComponent* c = buttons[i];
+//                if (i == mCurrentInstrument)
+//                    c->setBgColor(gConfig.accColor);
+//                else
+//                    c->setBgColor(Colors::White);
+//            }
+//        }));
+//    }
+//
+//    buttons[0]->setBgColor(gConfig.accColor);
+//
+//    int border = 10;
+//    int width = 400;
+//    int height = 300;
+//
+//    RectangleComponent* panelBg1 = new RectangleComponent(
+//        Layout(
+//            width + border * 2 + border, mPianoControlHeight + border * 2 - border,
+//            width + border * 2, height + border * 2,
+//            Layout::AnchorTopRight
+//        ),
+//        gConfig.accColor
+//    );
+//
+//    RectangleComponent* panelBg2 = new RectangleComponent(
+//        Layout(
+//            width + border * 2, mPianoControlHeight + border * 2,
+//            width, height,
+//            Layout::AnchorTopRight
+//        ),
+//        Colors::White
+//    );
+//
+//    ButtonComponent* menuButton = new ButtonComponent(
+//        Layout(
+//            10, 5,
+//            50, mPianoControlHeight - 10,
+//            Layout::AnchorTopRight
+//        ),
+//        "#",
+//        [](){},
+//        gConfig.accColor, gConfig.fgColor
+//    );
+//
+//    std::vector<Component*> instrumentPanel;
+//
+//    instrumentPanel.push_back(panelBg1);
+//    instrumentPanel.push_back(panelBg2);
+//
+//    for (auto g : buttons) {
+//        instrumentPanel.push_back(g);
+//    }
+//
+//    for (auto g : instrumentPanel) {
+//        g->setActive(!g->isActive());
+//    }
+//
+//    menuButton->on("Click", asFunction([instrumentPanel](void) {
+//        for (auto g : instrumentPanel) {
+//            g->setActive(!g->isActive());
+//        }
+//    }));
+//
+//    panelBg1->on("OffClick", asFunction<int, int, int>([instrumentPanel](int button, int x, int y) {
+//        for (auto g : instrumentPanel) {
+//            g->setActive(false);
+//        }
+//    }));
+//
+//    mWindow.addComponent(menuButton);
+//
+//    for (auto g : instrumentPanel) {
+//        mWindow.addComponent(g);
+//    }
 }
 
 void App::generateInstrumentPanel(void) {
-#define InstrumentButtonCreater(text, gen, idx) \
-	[this](Layout layout) -> Component* { \
-		ButtonComponent* bg = new ButtonComponent(layout, (text), [this](void) { \
-			mActiveGen = (gen); \
-			mCurrentInstrument = (idx); \
-		}, Colors::White, Colors::Black); \
-		bg->setFontSize(13); \
-		return bg; \
-	}
+
+	int i = 0;
+	std::vector<ComponentCreater> creaters;
+	creaters.push_back(InstrumentButtonCreater("Piano", pianoGen, i)); i++;
+	creaters.push_back(InstrumentButtonCreater("Piano2", piano2Gen, i)); i++;
+	creaters.push_back(InstrumentButtonCreater("Piano3", piano3Gen, i)); i++;
+	creaters.push_back(InstrumentButtonCreater("synth", synthGen, i)); i++;
+	creaters.push_back(InstrumentButtonCreater("Organ", organGen, i)); i++;
+	creaters.push_back(InstrumentButtonCreater("Brass", brassGen, i)); i++;
+	creaters.push_back(InstrumentButtonCreater("Reed", reedGen, i)); i++;
+	creaters.push_back(InstrumentButtonCreater("Phone", phoneGen, i)); i++;
+
+	for (auto& s : instruments) {
+		Generator* gen = s.getGenerator();
+		std::string name = s.getName();
+		creaters.push_back(InstrumentButtonCreater(name, gen, i));
+		i++;
+	};
 
 	std::vector<ButtonComponent*> buttons = createListComponent<ButtonComponent>(
 		Layout(20 + mInstrumentPanelWidth + 10, mPianoControlHeight + 20, 300, 20),
-		{
-			InstrumentButtonCreater("Piano", &pianoGen, 0),
-			InstrumentButtonCreater("Piano2", &piano2Gen, 1),
-			InstrumentButtonCreater("Piano3", &piano3Gen, 2),
-			InstrumentButtonCreater("synth", &synthGen, 3), 
-			InstrumentButtonCreater("Organ", &organGen, 4),
-			InstrumentButtonCreater("Brass", &brassGen, 5),
-			InstrumentButtonCreater("Reed", &reedGen, 6),
-			InstrumentButtonCreater("Phone", &phoneGen, 7),
-		},
+		creaters,
 		-1
 	);
 
+
 	for (ButtonComponent* c : buttons) {
 		c->on("Click", asFunction<int, int, int>([this, buttons](int, int, int) {
-			std::cout << mCurrentInstrument << "\n";
 			for (int i = 0; i < buttons.size(); i++) {
 				ButtonComponent* c = buttons[i];
 				if (i == mCurrentInstrument)
@@ -639,7 +642,7 @@ void App::generateBpmControls(void) {
 		if (mMetronomeOn) {
 			metOn->getText().setColor(Colors::Green);
 			mRecorder.on("Beat", asFunction([this](void) {
-				mAudioPlayer.noteOn(&metronomeGen, Music::noteToFreq(66), 127, 50);
+				mAudioPlayer.noteOn(metronomeGen, Music::noteToFreq(66), 127, 50);
 			}), &mMetronomeOn);
 		} else {
 			metOn->getText().setColor(Colors::White);

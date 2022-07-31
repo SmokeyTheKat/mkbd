@@ -27,9 +27,17 @@ App::App(int argc, char** argv)
 int App::main(void) {
 	mWindow.setBgColor(RGB_ARGS(gConfig.bgColor));
 
-	pianoInstrument.load();
-	piano2Instrument.load();
-	piano2Instrument.setVolume(0.2);
+	auto folders = FileManager::getAllFolders(RESOURCE_DIR "/instruments");
+	for (auto path : folders) {
+		instruments.emplace_back(FileManager::getPathBaseName(path), path, 21, 88 + 21);
+		SampledInstrument& inst = instruments.back();
+		inst.load();
+		std::cout << inst.getWaveform()(1, 440, 127) << "\n";
+	}
+
+//    pianoInstrument.load();
+//    piano2Instrument.load();
+//    piano2Instrument.setVolume(0.2);
 
 //    mainMenuPage2(mWindow);
 

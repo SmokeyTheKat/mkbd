@@ -29,7 +29,7 @@ class App {
 	int mInstrumentPanelWidth = 60;
 	int mInstrumentPanelHeight = 110;
 
-	Generator* mActiveGen = &pianoGen;
+	Generator* mActiveGen = pianoGen;
 	int mCurrentInstrument = 0;
 
 	ComponentPage mSettingsPage;
