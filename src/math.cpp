@@ -6,6 +6,10 @@ double rmap(double v, double l1, double h1, double l2, double h2) {
 	return (v-l1) * ((h2-l2)/(h1-l1)) + l2;
 }
 
+double lerp(double a, double b, double t) {
+	return a + t * (b - a);
+}
+
 double roundTo(double value, double to) {
 	return value - std::fmod(value, to);
 }

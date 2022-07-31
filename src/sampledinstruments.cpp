@@ -26,7 +26,7 @@ double SampledInstrument::waveform(double t, double freq, double vel) {
 	if (note < mLowestNote || note >= mHighestNote)
 		return 0;
 
-	Sample* sample = &mSampleGroups[note][0];
+	Sample* sample = &mSampleGroups[note][1];
 	for (auto& s : mSampleGroups[note]) {
 		if (s.isVelocityInRange(vel)) {
 			sample = &s;
@@ -47,7 +47,7 @@ void SampledInstrument::load(void) {
 		SfzParser p("./test.sfz");
 		regions = p.parse();
 		for (auto& r : regions) {
-			if (r.has("sample") && r.tryGet<int>("seq_position", 0) == 1) {
+			if (r.has("sample")) {
 //            if (r.has("sample") && r.tryGet<std::string>("group_label", "") == "Velocity Layer 4" && r.tryGet<int>("seq_position", 0) == 1) {
 //            if (r.has("sample") && r.tryGet<int>("hivel", 0) == 127  && r.tryGet<int>("lovel", 0) >= 115 && r.tryGet<std::string>("group_label", "") == "Velocity Layer 4") {
 				int keyCenter;

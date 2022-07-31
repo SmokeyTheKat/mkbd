@@ -6,7 +6,7 @@
 #include <string>
 
 namespace SampleManager {
-	RawSample* loadSample(const std::string& path);
+	RawSample* loadSample(std::string path);
 	void unloadSample(std::string path);
 	void unloadSample(RawSample* sample);
 };

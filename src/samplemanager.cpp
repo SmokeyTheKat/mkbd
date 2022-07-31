@@ -5,7 +5,10 @@
 std::unordered_map<std::string, RawSample*> sampleMap;
 
 namespace SampleManager {
-	RawSample* loadSample(const std::string& path) {
+	RawSample* loadSample(std::string path) {
+		if (path.back() == '\r') {
+			path.pop_back();
+		}
 		if (sampleMap.count(path) > 0) {
 			return sampleMap[path];
 		}
