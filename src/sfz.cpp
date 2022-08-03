@@ -4,11 +4,6 @@
 
 #include <iostream>
 
-void sfztest(void) {
-//    SfzParser p("./test.sfz");
-//    p.parse();
-}
-
 SfzParser::SfzParser(std::string path)
 : mFile(path) {
 	mFile.open();
@@ -41,12 +36,16 @@ void SfzParser::parseHeader(void) {
 		current = &groups.back();
 		currentGroup = &groups.back();
 		current->merge(global);
+		current->merge(control);
 	} else if (header == "region") {
-		if (currentGroup) {
-			currentGroup->regions.push_back(SfzRegion());
-			current = &currentGroup->regions.back();
-			current->merge(*currentGroup);
+		if (!currentGroup) {
+			groups.push_back(SfzGroup());
+			currentGroup = &groups.back();
+			currentGroup->merge(global);
 		}
+		currentGroup->regions.push_back(SfzRegion());
+		current = &currentGroup->regions.back();
+		current->merge(*currentGroup);
 	}
 }
 
@@ -97,12 +96,6 @@ std::vector<SfzRegion> SfzParser::parse(void) {
 		}
 	}
 
-	auto& r = regions[0];
-	for (auto it = r.paramaters.begin(); it != r.paramaters.end(); it++) {
-		std::cout << it->first << ": " << r.get<std::string>(it->first) << "\n";
-	}
-
 	return regions;
-
 }
 

@@ -12,17 +12,24 @@ double Sample::get(double point) {
 	if (point > length()) 
 		return 0;
 
+	double bitRatio = std::pow(2, getBitRate()) / std::pow(2, 16);
+
 	int leftIdx = getChannelCount() * std::floor(point);
 	int rightIdx = getChannelCount() * std::ceil(point);
 
-	double leftSample = mData[leftIdx];
-	double rightSample = mData[rightIdx];
-	for (int i = 1; i < getChannelCount(); i++) {
-		leftSample += mData[leftIdx + i];
-		rightSample += mData[rightIdx + i];
+	double leftSample = 0;
+	double rightSample = 0;
+
+	for (int i = 0; i < getChannelCount(); i++) {
+		leftSample += mData.getNumberAt(getBitRate(), leftIdx + i);
+		rightSample += mData.getNumberAt(getBitRate(), rightIdx + i);
 	}
 
-	return lerp(leftSample, rightSample, point - leftIdx / getChannelCount()) * mVolume / 20000.0;
+	return
+		lerp(leftSample, rightSample, point - leftIdx / getChannelCount()) *
+		mVolume /
+		20000.0 /
+		bitRatio;
 }
 
 double Sample::getShiftFreqRatio(void) {

@@ -6,7 +6,7 @@
 
 #include <vector>
 
-extern std::vector<SampledInstrument> instruments;
+extern std::vector<SampledInstrument*> instruments;
 
 extern SampledInstrument pianoInstrument;
 extern Generator* pianoGen;

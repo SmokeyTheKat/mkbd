@@ -76,8 +76,6 @@ int main(int argc, char** argv) {
 		std::cout << "Could not initialize everyting lol! Error: " << SDL_GetError() << "\n";
 	}
 
-	sfztest();
-
 	srand(time(0));
 
 	App app(argc, argv);

@@ -8,8 +8,6 @@
 #include <sstream>
 #include <unordered_map>
 
-void sfztest(void);
-
 struct SfzParamaters {
 	std::unordered_map<std::string, std::string> paramaters;
 

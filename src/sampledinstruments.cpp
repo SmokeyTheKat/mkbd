@@ -14,11 +14,8 @@
 SampledInstrument::SampledInstrument(const std::string& name, const std::string& path, int low, int high, SampleFormat format)
 : mName(name), mPath(path), mLowestNote(low), mHighestNote(high), mFormat(format) {
 	mVolume = 1;
+	std::cout << name << "\n";
 	mSampleGroups.resize(mHighestNote);
-	mGen.waveform = std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-	mGen.attack = LinearAttack<5>;
-	mGen.release = Cutoff<3000>;
-	mGen.fadeOut = LinearRelease<200>;
 };
 
 double SampledInstrument::waveform(double t, double freq, double vel) {
@@ -44,6 +41,11 @@ double SampledInstrument::waveform(double t, double freq, double vel) {
 }
 
 void SampledInstrument::load(void) {
+	mGen.attack = LinearAttack<5>;
+	mGen.release = Cutoff<3000>;
+	mGen.fadeOut = LinearRelease<200>;
+	mGen.waveform = std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+
 	SfzParser p(mPath + "/sfz.sfz");
 	std::vector<SfzRegion> regions = p.parse();
 	for (auto& r : regions) {
@@ -68,8 +70,10 @@ void SampledInstrument::load(void) {
 			if (r.has("hikey"))
 				highKey = r.get<int>("hikey");
 
+			std::string defaultPath = r.tryGet<std::string>("default_path", "");
+
 			std::string path = r.get<std::string>("sample");
-			RawSample* rawSample = SampleManager::loadSample(mPath + "/" + path);
+			RawSample* rawSample = SampleManager::loadSample(mPath + "/" + defaultPath + path);
 
 
 			int offset = r.tryGet<int>("offset", 0);
@@ -77,6 +81,7 @@ void SampledInstrument::load(void) {
 
 			double lowVel = r.tryGet<double>("lovel", 0);
 			double highVel = r.tryGet<double>("hivel", 127);
+
 
 			for (int i = lowKey; i <= highKey; i++) {
 				Sample sample(rawSample);
@@ -136,6 +141,7 @@ int SampledInstrument::getClosestNoteTo(int to) {
 //    } else {
 //        return clUp;
 //    }
+
 	return 0;
 }
 

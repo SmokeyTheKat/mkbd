@@ -1,6 +1,6 @@
 #include <mkbd/instruments.hpp>
 
-std::vector<SampledInstrument> instruments;
+std::vector<SampledInstrument*> instruments;
 
 SampledInstrument pianoInstrument("Piano", RESOURCE_DIR "/sounds/piano/", 21, 88 + 21);
 Generator _pianoGen = {
@@ -30,7 +30,7 @@ Generator* piano3Gen = &_piano3Gen;
 
 Generator _synthGen {
 	.waveform = [](double t, double freq, double vel) -> double {
-		return Waves::synth(t, freq);
+		return Waves::synth(t, freq) * (vel * vel / 20);
 	},
 	.release = LinearRelease<800>,
 //    .release = LinearRelease<2000>,

@@ -34,6 +34,7 @@ public:
 
 	int length(void) { return mData.length(); };
 	int getChannelCount(void) { return mRawSample->spec.channels; };
+	int getBitRate(void) { return mRawSample->spec.format & SDL_AUDIO_MASK_BITSIZE; };
 	RawSample* getRawSample(void) { return mRawSample; };
 	double getShiftFreqRatio(void);
 	double getOffsetFreqRatio(void);
@@ -47,7 +48,11 @@ public:
 		mHighVel = high;
 	};
 	void setRange(int start, int end) {
-		mData = ArrayView(mRawSample->buffer, start, end);
+		if (getBitRate() > 0) {
+			mData = ArrayView(mRawSample->buffer, start * 16 / getBitRate(), end * 16 / getBitRate());
+		} else {
+			mData = ArrayView(mRawSample->buffer, start, end);
+		}
 	};
 
 	bool hasPitchOffset(void) { return mPitchOffset != 0; };

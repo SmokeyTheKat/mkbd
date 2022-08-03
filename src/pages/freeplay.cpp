@@ -19,13 +19,13 @@
 #include <mkbd/filemanager.hpp>
 //    [&, gen=gen, idx=idx](Layout layout) -> Component* { \
 
-
 #define InstrumentButtonCreater(text, gen, idx) \
 	[=, this](Layout layout) -> Component* { \
-		ButtonComponent* bg = new ButtonComponent(layout, (text), [=, this](void) { \
+		ButtonComponent* bg = new ButtonComponent(layout, (text), [](){}, Colors::White, Colors::Black); \
+		bg->on("Click", asFunction<int, int, int>([=, this](int x, int y, int b) { \
 			mActiveGen = (gen); \
 			mCurrentInstrument = (idx); \
-		}, Colors::White, Colors::Black); \
+		})); \
 		bg->setFontSize(13); \
 		return bg; \
 	}
@@ -471,18 +471,18 @@ void App::generateInstrumentPanel(void) {
 
 	int i = 0;
 	std::vector<ComponentCreater> creaters;
-	creaters.push_back(InstrumentButtonCreater("Piano", pianoGen, i)); i++;
-	creaters.push_back(InstrumentButtonCreater("Piano2", piano2Gen, i)); i++;
-	creaters.push_back(InstrumentButtonCreater("Piano3", piano3Gen, i)); i++;
+//    creaters.push_back(InstrumentButtonCreater("Piano", pianoGen, i)); i++;
+//    creaters.push_back(InstrumentButtonCreater("Piano2", piano2Gen, i)); i++;
+//    creaters.push_back(InstrumentButtonCreater("Piano3", piano3Gen, i)); i++;
 	creaters.push_back(InstrumentButtonCreater("synth", synthGen, i)); i++;
 	creaters.push_back(InstrumentButtonCreater("Organ", organGen, i)); i++;
 	creaters.push_back(InstrumentButtonCreater("Brass", brassGen, i)); i++;
 	creaters.push_back(InstrumentButtonCreater("Reed", reedGen, i)); i++;
-	creaters.push_back(InstrumentButtonCreater("Phone", phoneGen, i)); i++;
+//    creaters.push_back(InstrumentButtonCreater("Phone", phoneGen, i)); i++;
 
-	for (auto& s : instruments) {
-		Generator* gen = s.getGenerator();
-		std::string name = s.getName();
+	for (auto s : instruments) {
+		Generator* gen = s->getGenerator();
+		std::string name = s->getName();
 		creaters.push_back(InstrumentButtonCreater(name, gen, i));
 		i++;
 	};

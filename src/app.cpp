@@ -28,11 +28,11 @@ int App::main(void) {
 	mWindow.setBgColor(RGB_ARGS(gConfig.bgColor));
 
 	auto folders = FileManager::getAllFolders(RESOURCE_DIR "/instruments");
+	int i = 0;
 	for (auto path : folders) {
-		instruments.emplace_back(FileManager::getPathBaseName(path), path, 21, 88 + 21);
-		SampledInstrument& inst = instruments.back();
-		inst.load();
-		std::cout << inst.getWaveform()(1, 440, 127) << "\n";
+		SampledInstrument* inst = new SampledInstrument(FileManager::getPathBaseName(path), path, 21, 88 + 21);
+		instruments.push_back(inst);
+		inst->load();
 	}
 
 //    pianoInstrument.load();
