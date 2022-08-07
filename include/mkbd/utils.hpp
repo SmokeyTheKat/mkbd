@@ -118,13 +118,33 @@ public:
 		std::string str = popString(matchNextWhiteSpace());
 		skipWhiteSpace();
 		return str;
-	}
+	};
 
 	std::string popStringUntil(byte b) {
 		std::string str = popString(matchNextByte(b));
 		pop(1);
 		return str;
 	}
+
+	std::string getString(int count) {
+		std::string slice(mData.begin(), mData.begin() + count);
+		return slice;
+	};
+
+	std::string getWord(void) {
+		std::string str = getString(matchNextWhiteSpace());
+		return str;
+	};
+
+	std::string getStringAt(int at, int count) {
+		std::string slice(mData.begin() + at, mData.begin() + count);
+		return slice;
+	};
+
+	std::string getWordAt(int at) {
+		std::string str = getStringAt(at, matchNextWhiteSpace(at));
+		return str;
+	};
 
 	byte popByte(void) {
 		std::vector<byte> data = pop(1);

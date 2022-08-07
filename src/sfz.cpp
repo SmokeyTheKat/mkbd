@@ -15,7 +15,9 @@ bool SfzParser::isAtParamater(int at) {
 }
 
 bool SfzParser::isAtMacro(int at) {
-	return mFile[at] == '#';
+	std::string macro = mFile.getWordAt(at);
+	return macro == "#define" ||
+		   macro == "#include";
 }
 
 bool SfzParser::isAtHeader(int at) {
@@ -164,4 +166,3 @@ std::vector<SfzRegion> SfzParser::parse(void) {
 
 	return regions;
 }
-

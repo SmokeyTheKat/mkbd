@@ -92,6 +92,8 @@ void SampledInstrument::load(void) {
 			if (r.has("hikey"))
 				highKey = r.get<int>("hikey");
 
+			if (lowKey < 0) return;
+
 			std::string defaultPath = r.tryGet<std::string>("default_path", "");
 
 			std::string path = r.get<std::string>("sample");

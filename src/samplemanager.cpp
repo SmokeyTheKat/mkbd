@@ -26,6 +26,10 @@ namespace SampleManager {
 		SDL_LoadWAV(path.c_str(), &sample->spec, (uint8_t**)&sample->buffer, &sample->length);
 		sample->length /= sizeof(SampleInt);
 
+		if (sample->buffer == 0) {
+			exit(0);
+		}
+
 		sampleMap[path] = sample;
 
 		return sample;
@@ -47,8 +51,6 @@ namespace SampleManager {
 
 		if (it == sampleMap.end())
 			return;
-
-		std::cout << "bbbbbbbbbbbbbbbbb\n";
 
 		sampleMap.erase(it);
 
