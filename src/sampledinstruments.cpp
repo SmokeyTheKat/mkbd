@@ -15,13 +15,22 @@ SampledInstrument::SampledInstrument(const std::string& name, const std::string&
 : mName(name), mPath(path), mLowestNote(low), mHighestNote(high), mFormat(format) {
 	mVolume = 1;
 	std::cout << name << "\n";
+
 	mSampleGroups.resize(mHighestNote);
+
+	mGen.attack = LinearAttack<5>;
+	mGen.release = Cutoff<3000>;
+	mGen.fadeOut = LinearRelease<200>;
+	mGen.waveform = std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 };
 
 double SampledInstrument::waveform(double t, double freq, double vel) {
 	int note = Music::freqToNote(freq);
 
 	if (note < mLowestNote || note >= mHighestNote)
+		return 0;
+
+	if (mSampleGroups[note].size() == 0) 
 		return 0;
 
 	Sample* sample = &mSampleGroups[note][0];
@@ -40,11 +49,24 @@ double SampledInstrument::waveform(double t, double freq, double vel) {
 	return sample->get(idx) * mVolume;
 }
 
+int SampledInstrument::getLowestKey(void) {
+	for (int i = 0; i < mSampleGroups.size(); i++) {
+		if (mSampleGroups[i].size() > 0) 
+			return i;
+	}
+	return 21;
+}
+
+int SampledInstrument::getHighestKey(void) {
+	for (int i = mSampleGroups.size()-1; i >= 0; i--) {
+		if (mSampleGroups[i].size() > 0) 
+			return i;
+	}
+	return 108;
+}
+
 void SampledInstrument::load(void) {
-	mGen.attack = LinearAttack<5>;
-	mGen.release = Cutoff<3000>;
-	mGen.fadeOut = LinearRelease<200>;
-	mGen.waveform = std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+	unload();
 
 	SfzParser p(mPath + "/sfz.sfz");
 	std::vector<SfzRegion> regions = p.parse();
@@ -95,59 +117,13 @@ void SampledInstrument::load(void) {
 			}
 		}
 	}
-//    for (int i = mLowestNote; i < mSamples.size() && i < mHighestNote; i++) {
-//        NoteSample& ns = mSamples[i];
-//
-//        if (ns.path.length() == 0) {
-//            if (mFormat == SampleFormat::Names)
-//                ns.path = mSamplePath + "ff." + Music::getNoteFullName(i) + ".wav";
-//            else if (mFormat == SampleFormat::Numbers)
-//                ns.path = mSamplePath + std::to_string(i) + ".wav";
-//        }
-//        if (FileManager::fileExists(ns.path.c_str())) {
-//            SDL_LoadWAV(ns.path.c_str(), &ns.spec, (uint8_t**)&ns.buffer, &ns.length);
-//            ns.length /= sizeof(int16_t);
-//        }
-//    }
-//    for (int i = mLowestNote; i < mSamples.size() && i < mHighestNote; i++) {
-//        NoteSample& ns = mSamples[i];
-//        if (ns.length == 0) {
-//            ns.shift = getClosestNoteTo(i) - i;
-//        }
-//    }
-}
-
-int SampledInstrument::getClosestNoteTo(int to) {
-//    int clUp = 0;
-//    for (int i = to + 1; i < mSamples.size() && i < mHighestNote; i++) {
-//        NoteSample& ns = mSamples[i];
-//        if (ns.length > 0) {
-//            clUp = i;
-//            break;
-//        }
-//    }
-//
-//    int clDown = 0;
-//    for (int i = to - 1; i >= 0; i--) {
-//        NoteSample& ns = mSamples[i];
-//        if (ns.length > 0) {
-//            clDown = i;
-//            break;
-//        }
-//    }
-//
-//    if (to - clDown < clUp - to || clUp == 0) {
-//        return clDown;
-//    } else {
-//        return clUp;
-//    }
-
-	return 0;
 }
 
 void SampledInstrument::unload(void) {
-//    for (int i = mLowestNote; i < mSamples.size() && i < mHighestNote; i++) {
-//        const NoteSample& ns = mSamples[i];
-//        SDL_FreeWAV((uint8_t*)ns.buffer);
-//    }
+	for (auto& sg : mSampleGroups) {
+		for (auto& s : sg) {
+			SampleManager::unloadSample(s.getRawSample());
+		}
+		sg.clear();
+	}
 }

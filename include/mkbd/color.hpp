@@ -138,6 +138,15 @@ struct Color {
 		);
 	}
 
+	inline Color grayscale(double perc = 1.0) const {
+		double avg = (r + g + b) / 3.0;
+		return Color(
+			rmap(perc, 0, 1, r, avg),
+			rmap(perc, 0, 1, g, avg),
+			rmap(perc, 0, 1, b, avg)
+		);
+	}
+
 	inline Color darken(double perc = 0.2) const {
 		double value = 1.0 - perc;
 		return Color(r * value, g * value, b * value);

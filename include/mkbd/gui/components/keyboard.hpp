@@ -18,6 +18,8 @@ class KeyboardComponent : public Component {
 	int mPushDistance = 7;
 	bool mLatch = true;
 	int mVKey = -1;
+	int mLowestKey = 21;
+	int mHighestKey = 108;
 
 public:
 	KeyboardComponent(Layout layout, MidiRecorder* rcdr);
@@ -28,6 +30,7 @@ public:
 	void onDrag(int x, int y);
 	void onLeave(int x, int y);
 	void onResize(int width, int height);
+	void setKeyRange(int low, int high) { mLowestKey = low; mHighestKey = high; };
 	
 private:
 	void calculateSizes(void);

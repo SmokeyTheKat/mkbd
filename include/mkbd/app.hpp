@@ -6,6 +6,8 @@
 #include <mkbd/audioplayer.hpp>
 #include <mkbd/midi/recorder.hpp>
 #include <mkbd/instruments.hpp>
+#include <mkbd/sampledinstruments.hpp>
+#include <mkbd/gui/components/keyboard.hpp>
 
 #include <string>
 #include <vector>
@@ -29,7 +31,7 @@ class App {
 	int mInstrumentPanelWidth = 60;
 	int mInstrumentPanelHeight = 110;
 
-	Generator* mActiveGen = pianoGen;
+	SampledInstrument* mInstrument = 0;
 	int mCurrentInstrument = 0;
 
 	ComponentPage mSettingsPage;
@@ -37,6 +39,8 @@ class App {
 	bool mMetronomeOn = false;
 
 	int mMenuWidth = 300;
+
+	KeyboardComponent* mKeyboard;
 
 public:
 	App(int argc, char** argv);
@@ -64,6 +68,8 @@ private:
 	void generatePianoControls(void);
 	void generateInstrumentPanel(void);
 	void generateBpmControls(void);
+
+	void playPage(void);
 
 	void midiPlayerPage(std::string filePath);
 

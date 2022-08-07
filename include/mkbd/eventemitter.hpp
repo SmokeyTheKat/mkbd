@@ -21,7 +21,7 @@ auto asFunction(T&& f) {
 class EventEmitter {
 
 	struct GroupId {
-		std::uintptr_t mValue = 0;
+		uintptr_t mValue = 0;
 
 		GroupId(std::uintptr_t value) { mValue = value; };
 
@@ -42,7 +42,7 @@ class EventEmitter {
 		: vFunc(vFunc), group(group) {};
 
 		void free(void) {
-//            std::free(vFunc);
+			std::free(vFunc);
 		}
 	};
 

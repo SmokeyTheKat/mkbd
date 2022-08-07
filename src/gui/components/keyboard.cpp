@@ -75,19 +75,29 @@ void KeyboardComponent::init(void) {
 }
 
 Color KeyboardComponent::getWhiteKeyColor(int key) {
+	Color color = gConfig.whiteKeyColor;
 	if (gConfig.showKeyDownColor && mRcdr->getNoteState(key)) {
-		if (!Music::isBlackKey(key))
-			return gConfig.whiteKeyDownColor;
+		color = gConfig.whiteKeyDownColor;
 	}
-	return gConfig.whiteKeyColor;
+
+	if (key < mLowestKey || key > mHighestKey) {
+		color = color.darken().grayscale();
+	}
+
+	return color;
 }
 
 Color KeyboardComponent::getBlackKeyColor(int key) {
+	Color color = gConfig.blackKeyColor;
 	if (gConfig.showKeyDownColor && mRcdr->getNoteState(key)) {
-		if (Music::isBlackKey(key))
-			return gConfig.blackKeyDownColor;
+		color = gConfig.blackKeyDownColor;
 	}
-	return gConfig.blackKeyColor;
+
+	if (key < mLowestKey || key > mHighestKey) {
+		color = color.darken().grayscale();
+	}
+
+	return color;
 }
 
 void KeyboardComponent::drawKey3DPart(int key, Color color, int x, int width, int height) {

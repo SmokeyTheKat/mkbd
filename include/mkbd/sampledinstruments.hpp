@@ -38,13 +38,15 @@ public:
 		return std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 	};
 
+	int getLowestKey(void);
+	int getHighestKey(void);
+
 	void load(void);
 	void unload(void);
 
 	void setVolume(double volume) { mVolume = volume; };
 
 private:
-	int getClosestNoteTo(int to);
 	double waveform(double t, double freq, double vel);
 };
 

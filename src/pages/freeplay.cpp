@@ -19,13 +19,14 @@
 #include <mkbd/filemanager.hpp>
 //    [&, gen=gen, idx=idx](Layout layout) -> Component* { \
 
+//        bg->on("Click", asFunction<int, int, int>([=, this](int x, int y, int b) { \
+//            mActiveGen = (gen); \
+//            mCurrentInstrument = (idx); \
+//        })); \
+
 #define InstrumentButtonCreater(text, gen, idx) \
 	[=, this](Layout layout) -> Component* { \
 		ButtonComponent* bg = new ButtonComponent(layout, (text), [](){}, Colors::White, Colors::Black); \
-		bg->on("Click", asFunction<int, int, int>([=, this](int x, int y, int b) { \
-			mActiveGen = (gen); \
-			mCurrentInstrument = (idx); \
-		})); \
 		bg->setFontSize(13); \
 		return bg; \
 	}
@@ -70,6 +71,9 @@ void App::freePlayPage(void) {
 		),
 		&mRecorder
 	);
+
+	mKeyboard = kg;
+
 	TextComponent* tg = new TextComponent(
 		Layout(mInstrumentButtonWidth + 40, 50, 0, 100),
 		"Cmaj9",
@@ -279,10 +283,10 @@ void App::freePlayPage(void) {
 		Layout(100, 100, 300, 500)
 	);
 
-	c->addChild(cb);
-	c->addChild(mid);
-	c->addChild(off);
-	c->addChild(test);
+//    c->addChild(cb);
+//    c->addChild(mid);
+//    c->addChild(off);
+//    c->addChild(test);
 
 	ButtonComponent* tog = new ButtonComponent(
 		Layout(400, 200, 200, 30),
@@ -474,10 +478,10 @@ void App::generateInstrumentPanel(void) {
 //    creaters.push_back(InstrumentButtonCreater("Piano", pianoGen, i)); i++;
 //    creaters.push_back(InstrumentButtonCreater("Piano2", piano2Gen, i)); i++;
 //    creaters.push_back(InstrumentButtonCreater("Piano3", piano3Gen, i)); i++;
-	creaters.push_back(InstrumentButtonCreater("synth", synthGen, i)); i++;
-	creaters.push_back(InstrumentButtonCreater("Organ", organGen, i)); i++;
-	creaters.push_back(InstrumentButtonCreater("Brass", brassGen, i)); i++;
-	creaters.push_back(InstrumentButtonCreater("Reed", reedGen, i)); i++;
+//    creaters.push_back(InstrumentButtonCreater("synth", synthGen, i)); i++;
+//    creaters.push_back(InstrumentButtonCreater("Organ", organGen, i)); i++;
+//    creaters.push_back(InstrumentButtonCreater("Brass", brassGen, i)); i++;
+//    creaters.push_back(InstrumentButtonCreater("Reed", reedGen, i)); i++;
 //    creaters.push_back(InstrumentButtonCreater("Phone", phoneGen, i)); i++;
 
 	for (auto s : instruments) {
@@ -492,6 +496,18 @@ void App::generateInstrumentPanel(void) {
 		creaters,
 		-1
 	);
+
+	for (int i = 0; i < buttons.size(); i++) {
+		ButtonComponent* b = buttons[i];
+		SampledInstrument* inst = instruments[i];
+		b->on("Click", asFunction<int, int, int>([this, i, inst](int, int, int) {
+			mCurrentInstrument = i;
+			if (mInstrument) mInstrument->unload();
+			mInstrument = inst;
+			inst->load();
+			mKeyboard->setKeyRange(inst->getLowestKey(), inst->getHighestKey());
+		}));
+	}
 
 
 	for (ButtonComponent* c : buttons) {
