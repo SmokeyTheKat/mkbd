@@ -7,9 +7,13 @@
 #include <cstdio>
 
 void File::open(void) {
-	std::ifstream fs(mPath, std::ios::binary);
-	mData = std::vector<byte>(std::istreambuf_iterator<char>(fs), {});
-};
+	mData = File::readAll(mPath);
+}
+
+std::vector<byte> File::readAll(std::string path) {
+	std::ifstream fs(path, std::ios::binary);
+	return std::vector<byte>(std::istreambuf_iterator<char>(fs), {});
+}
 
 namespace Utils {
 	int getMillsFromTime(double time) {

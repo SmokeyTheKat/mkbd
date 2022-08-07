@@ -9,6 +9,7 @@ namespace FileManager {
 	bool fileExists(std::string path);
 	std::vector<std::string> getAllFolders(std::string path = ".");
 	std::string getPathBaseName(std::string path);
+	std::string getPathDirectory(std::string path);
 };
 
 

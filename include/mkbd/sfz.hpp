@@ -5,8 +5,11 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 #include <sstream>
 #include <unordered_map>
+
+using SfzDefine = std::pair<std::string, std::string>;
 
 struct SfzParamaters {
 	std::unordered_map<std::string, std::string> paramaters;
@@ -92,6 +95,8 @@ class SfzParser {
 	SfzGroup* currentGroup = 0;
 
 	std::vector<SfzGroup> groups;
+
+	std::vector<SfzDefine> mDefines;
 	
 public:
 	SfzParser(std::string path);
@@ -103,7 +108,17 @@ private:
 
 	int getParamaterEnd(void);
 
+	void parseMacro(void);
+
+	void includeFile(void);
+
+	void registerDefine(void);
+	std::vector<SfzDefine>::iterator getDefineByName(std::string name);
+	void applyDefines(std::string& data);
+	std::string applyDefines(const std::string&& data);
+
 	bool isAtParamater(int at = 0);
+	bool isAtMacro(int at = 0);
 	bool isAtHeader(int at = 0);
 	bool isAtComment(int at = 0);
 

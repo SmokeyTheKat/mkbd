@@ -220,7 +220,7 @@ void App::attachRecorderToAudioPlayer(void) {
 	}));
 
 	mRecorder.on("NoteOn", asFunction<byte, byte>([this](byte note, byte velocity) {
-		mAudioPlayer.noteOn(mInstrument->getGenerator(), Music::noteToFreq(note), velocity, rmap(velocity, 0, 127, 5, 40));
+		mAudioPlayer.noteOn(mInstrument->getGenerator(), Music::noteToFreq(note), velocity, rmap(velocity, 0, 127, 10, 50));
 	}));
 
 	mRecorder.on("NoteOff", asFunction<byte>([this](byte note) {

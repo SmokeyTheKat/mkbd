@@ -1,6 +1,7 @@
 #include <mkbd/sfz.hpp>
 
 #include <mkbd/utils.hpp>
+#include <mkbd/filemanager.hpp>
 
 #include <iostream>
 
@@ -11,6 +12,10 @@ SfzParser::SfzParser(std::string path)
 
 bool SfzParser::isAtParamater(int at) {
 	return mFile.matchNextByte('=', at) < mFile.matchNextWhiteSpace(at);
+}
+
+bool SfzParser::isAtMacro(int at) {
+	return mFile[at] == '#';
 }
 
 bool SfzParser::isAtHeader(int at) {
@@ -54,16 +59,75 @@ int SfzParser::getParamaterEnd(void) {
 	while (
 		i < mFile.length() &&
 		!isAtParamater(i) &&
+		!isAtMacro(i) &&
 		mFile[i-1] != '\n'
 	) i++;
 	return i - 1;
 }
 
 void SfzParser::parseParamater(void) {
-	std::string name = mFile.popStringUntil('=');
-	std::string value = mFile.popString(getParamaterEnd());
+	std::string name = applyDefines(mFile.popStringUntil('='));
+	std::string value = applyDefines(mFile.popString(getParamaterEnd()));
 	current->set<std::string>(name, value);
 
+}
+
+void SfzParser::parseMacro(void) {
+	mFile.pop(1);
+	std::string macro = mFile.popWord();
+
+	if (macro == "define") {
+		registerDefine();
+	}
+	else if (macro == "include") {
+		includeFile();
+	}
+}
+
+void SfzParser::includeFile(void) {
+	mFile.pop(1);
+	std::string path = applyDefines(mFile.popStringUntil('"'));
+	mFile.insert(File::readAll(FileManager::getPathDirectory(mFile.getPath()) + "/" + path));
+}
+
+void SfzParser::registerDefine(void) {
+	std::string name = mFile.popWord();
+	std::string value = mFile.popWord();
+
+	auto it = getDefineByName(name);
+	if (it == mDefines.end()) {
+		mDefines.push_back(make_pair(name, value));
+	} else {
+		it->second = value;
+	}
+}
+
+std::vector<SfzDefine>::iterator SfzParser::getDefineByName(std::string name) {
+	for (auto it = mDefines.begin(); it != mDefines.end(); it++) {
+		if (it->first == name) {
+			return it;
+		}
+	}
+	return mDefines.end();
+}
+
+std::string SfzParser::applyDefines(const std::string&& data) {
+	std::string out = data;
+	applyDefines(out);
+	return out;
+}
+
+void SfzParser::applyDefines(std::string& data) {
+	for (auto def : mDefines) {
+		const std::string& name = def.first;
+		const std::string& value = def.second;
+
+		int pos = data.find(name);
+		while (pos != std::string::npos) {
+			data.replace(pos, name.length(), value);
+			pos = data.find(name);
+		}
+	}
 }
 
 void SfzParser::nextLine(void) {
@@ -76,6 +140,8 @@ std::vector<SfzRegion> SfzParser::parse(void) {
 		mFile.skipWhiteSpace();
 		if (isAtComment()) {
 			nextLine();
+		} else if (isAtMacro()) {
+			parseMacro();
 		} else if (isAtHeader()) {
 			parseHeader();
 		} else if (isAtParamater()) {

@@ -45,8 +45,6 @@ namespace SampleManager {
 			return it.second == sample;
 		});
 
-		std::cout << "aaaaaaaaaaaaaaaaa\n";
-
 		if (it == sampleMap.end())
 			return;
 

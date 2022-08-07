@@ -65,12 +65,22 @@ public:
 
 	int length(void) { return mData.size(); };
 
+	std::string getPath(void) { return mPath; };
+
+	std::vector<byte>& getData(void) { return mData; };
+
 	byte& front(void) { return mData[0]; };
 
 	int getPosition(void) { return mPosition; };
 
 	byte& operator[](int idx) {
 		return mData[idx];
+	};
+
+	static std::vector<byte> readAll(std::string path);
+
+	void insert(std::vector<byte> data) {
+		mData.insert(mData.begin(), data.begin(), data.end());
 	};
 
 	void skipWhiteSpace(void) {
@@ -106,6 +116,7 @@ public:
 
 	std::string popWord(void) {
 		std::string str = popString(matchNextWhiteSpace());
+		skipWhiteSpace();
 		return str;
 	}
 
