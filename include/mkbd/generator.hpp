@@ -5,7 +5,14 @@
 #include <mkbd/utils.hpp>
 
 #include <functional>
-#include <iostream>
+#include <vector>
+
+struct GeneratorContext {
+	double t;
+	double vel;
+	double freq;
+	double sustain;
+};
 
 typedef std::function<double(double, double, double)> Waveform;
 typedef std::function<double(double)> Modifyer;
@@ -21,6 +28,8 @@ static double Constant(double t);
 
 struct Generator {
 	Waveform waveform = 0;
+	std::vector<Modifyer> modifyers;
+
 	Modifyer attack = Constant<1>;
 	Modifyer release = Constant<1>;
 	Modifyer fadeOut = Constant<0>;

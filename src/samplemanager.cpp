@@ -4,6 +4,15 @@
 #include <algorithm>
 #include <iostream>
 
+#define CONVERT_TO(bits) \
+	if (bitRate == bits) { \
+		double bitRatio = std::pow(2, 16) / std::pow(2, bitRate); \
+		int##bits##_t* bufn = (int##bits##_t*)sample->buffer; \
+		int16_t* buf16 = (int16_t*)sample->buffer; \
+		for (int i = 0; i < sample->length; i++) 
+			buf16[i] = (double)bufn[i] * bitRatio; \
+	}
+
 std::unordered_map<std::string, RawSample*> sampleMap;
 
 static void fixPath(std::string& path) {
@@ -24,11 +33,15 @@ namespace SampleManager {
 
 		sample->path = path;
 		SDL_LoadWAV(path.c_str(), &sample->spec, (uint8_t**)&sample->buffer, &sample->length);
-		sample->length /= sizeof(SampleInt);
 
-		if (sample->buffer == 0) {
-			exit(0);
-		}
+		if (sample->buffer == 0) exit(0);
+
+		int bitRate = sample->getBitRate();
+		sample->length /= bitRate / 8;
+
+		CONVERT_TO(8);
+		CONVERT_TO(32);
+		CONVERT_TO(64);
 
 		sampleMap[path] = sample;
 

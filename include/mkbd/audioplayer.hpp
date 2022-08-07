@@ -29,7 +29,7 @@ class AudioPlayer {
 		double fadeOutTime = -1;
 
 		AudioSample(Generator* generator, double freq, double vel, double gain)
-		: generator(generator), freq(freq), vel(vel), gain(gain * 100.0), id(count) {
+		: generator(generator), freq(freq), vel(vel), gain(gain), id(count) {
 			count++;
 		};
 
@@ -85,7 +85,7 @@ private:
 	static void audioCallback(void* vSelf, uint8_t* u8Buffer, int length);
 	void fillAudioBuffer(int16_t* buffer, int length);
 
-	int16_t generateSample(AudioSample& s);
+	double generateSample(AudioSample& s);
 
 	void removeInaudiableSamples(void);
 };

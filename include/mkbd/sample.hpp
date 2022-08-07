@@ -15,6 +15,8 @@ struct RawSample {
 	int mKeyCenter;
 	uint32_t length = 0;
 	SampleInt* buffer = 0;
+
+	int getBitRate(void) { return spec.format & SDL_AUDIO_MASK_BITSIZE; };
 };
 
 

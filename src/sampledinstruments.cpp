@@ -16,9 +16,9 @@ SampledInstrument::SampledInstrument(const std::string& name, const std::string&
 	mVolume = 1;
 	std::cout << name << "\n";
 
-	mSampleGroups.resize(mHighestNote);
+	mSampleGroups.resize(mHighestNote * 2);
 
-//    mGen.attack = LinearAttack<5>;
+	mGen.attack = LinearAttack<5>;
 	mGen.release = Cutoff<3000>;
 	mGen.fadeOut = LinearRelease<200>;
 	mGen.waveform = std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
@@ -99,13 +99,11 @@ void SampledInstrument::load(void) {
 			std::string path = r.get<std::string>("sample");
 			RawSample* rawSample = SampleManager::loadSample(mPath + "/" + defaultPath + path);
 
-
 			int offset = r.tryGet<int>("offset", 0);
 			int end = r.tryGet<int>("end", rawSample->length);
 
 			double lowVel = r.tryGet<double>("lovel", 0);
 			double highVel = r.tryGet<double>("hivel", 127);
-
 
 			for (int i = lowKey; i <= highKey; i++) {
 				Sample sample(rawSample);
