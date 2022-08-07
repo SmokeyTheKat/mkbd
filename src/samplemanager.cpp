@@ -9,7 +9,7 @@
 		double bitRatio = std::pow(2, 16) / std::pow(2, bitRate); \
 		int##bits##_t* bufn = (int##bits##_t*)sample->buffer; \
 		int16_t* buf16 = (int16_t*)sample->buffer; \
-		for (int i = 0; i < sample->length; i++) 
+		for (int i = 0; i < sample->length; i++) \
 			buf16[i] = (double)bufn[i] * bitRatio; \
 	}
 
