@@ -79,7 +79,7 @@ void AudioPlayer::removeInaudiableSamples(void) {
 void AudioPlayer::fillAudioBuffer(int16_t* buffer, int length) {
 	int sampleCount = length / (sizeof(int16_t));
 
-	mMtx.lock();
+//    mMtx.lock();
 
 	for (int i = 0; i < sampleCount; i++) {
 		intmax_t sample = 0;
@@ -92,7 +92,7 @@ void AudioPlayer::fillAudioBuffer(int16_t* buffer, int length) {
 
 	removeInaudiableSamples();
 
-	mMtx.unlock();
+//    mMtx.unlock();
 }
 
 void AudioPlayer::audioCallback(void* vSelf, uint8_t* buffer, int length) {
@@ -113,15 +113,15 @@ void AudioPlayer::deleteSample(long id) {
 }
 
 void AudioPlayer::noteOn(Generator* generator, double freq, double vel, double gain) {
-	mMtx.lock();
+//    mMtx.lock();
 
 	mSamples.push_back(AudioSample(generator, freq, vel, gain));
 
-	mMtx.unlock();
+//    mMtx.unlock();
 }
 
 void AudioPlayer::noteOff(double freq) {
-	mMtx.lock();
+//    mMtx.lock();
 
 	for (auto& s : mSamples) {
 		if (isAbout(s.freq, freq, 0.01)) {
@@ -131,6 +131,6 @@ void AudioPlayer::noteOff(double freq) {
 		}
 	}
 
-	mMtx.unlock();
+//    mMtx.unlock();
 }
 

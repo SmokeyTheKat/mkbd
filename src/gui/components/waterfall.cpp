@@ -105,39 +105,16 @@ void WaterfallComponent::drawLines(void) {
 	double barLength = beatLength * 4.0;
 
 
-//    setColor(125, 125, 125);
-//    for (int i = 0; i < 4; i++) {
-//        double y = std::fmod(time - i * beatLength, barLength);
-//        y = rmap(y, 0, barLength, mHeight, 0);
-//        drawLine(0, y, mWidth, y);
-//    }
-//
-//    setColor(255, 255, 255);
-//    double y = std::fmod(time, barLength);
-//    y = rmap(y, 0, barLength, mHeight, 0);
-//    drawLine(0, y, mWidth, y);
-//
-//    setColor(125, 125, 125);
-//    for (int i = 24; i < 109; i += 12) {
-//        int x = mKeyPositions[i];
-//        drawLine(x, 0, x, mHeight);
-//    }
-//
-//    setColor(80, 80, 80);
-//    for (int i = 29; i < 109; i += 12) {
-//        int x = mKeyPositions[i];
-//        drawLine(x, 0, x, mHeight);
-//    }
 	setColor(125, 125, 125);
 	for (int i = 0; i < 4; i++) {
 		double y = std::fmod(time - i * beatLength, barLength);
-		y = rmap(y, 0, barLength, 0, mHeight);
+		y = rmap(y, 0, barLength, mHeight, 0);
 		drawLine(0, y, mWidth, y);
 	}
 
 	setColor(255, 255, 255);
 	double y = std::fmod(time, barLength);
-	y = rmap(y, 0, barLength, 0, mHeight);
+	y = rmap(y, 0, barLength, mHeight, 0);
 	drawLine(0, y, mWidth, y);
 
 	setColor(125, 125, 125);
@@ -151,6 +128,29 @@ void WaterfallComponent::drawLines(void) {
 		int x = mKeyPositions[i];
 		drawLine(x, 0, x, mHeight);
 	}
+//    setColor(125, 125, 125);
+//    for (int i = 0; i < 4; i++) {
+//        double y = std::fmod(time - i * beatLength, barLength);
+//        y = rmap(y, 0, barLength, 0, mHeight);
+//        drawLine(0, y, mWidth, y);
+//    }
+//
+//    setColor(255, 255, 255);
+//    double y = std::fmod(time, barLength);
+//    y = rmap(y, 0, barLength, 0, mHeight);
+//    drawLine(0, y, mWidth, y);
+//
+//    setColor(125, 125, 125);
+//    for (int i = 24; i < 109; i += 12) {
+//        int x = mKeyPositions[i];
+//        drawLine(x, 0, x, mHeight);
+//    }
+//
+//    setColor(80, 80, 80);
+//    for (int i = 29; i < 109; i += 12) {
+//        int x = mKeyPositions[i];
+//        drawLine(x, 0, x, mHeight);
+//    }
 }
 
 void WaterfallComponent::drawBackground(void) {
@@ -269,6 +269,6 @@ void WaterfallComponent::draw(void) {
 	drawBackground();
 
 	drawLines();
-//    drawInput();
-	drawTracks();
+	drawInput();
+//    drawTracks();
 }

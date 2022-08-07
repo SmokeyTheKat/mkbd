@@ -6,6 +6,16 @@ double rmap(double v, double l1, double h1, double l2, double h2) {
 	return (v-l1) * ((h2-l2)/(h1-l1)) + l2;
 }
 
+double qlmap(double v, double l1, double h1, double l2, double h2) {
+	double a = (h2 - l1) / ((h1 - l1) * (h1 - l1));
+	return a * (v - l1) * (v - l1) + l2;
+}
+
+double qhmap(double v, double l1, double h1, double l2, double h2) {
+	double a = (h2 - l1) / ((h1 - l1) * (h1 - l1));
+	return -a * (v - h1) * (v - h1) + h2;
+}
+
 double lerp(double a, double b, double t) {
 	return a + t * (b - a);
 }

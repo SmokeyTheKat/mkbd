@@ -18,7 +18,7 @@ SampledInstrument::SampledInstrument(const std::string& name, const std::string&
 
 	mSampleGroups.resize(mHighestNote);
 
-	mGen.attack = LinearAttack<5>;
+//    mGen.attack = LinearAttack<5>;
 	mGen.release = Cutoff<3000>;
 	mGen.fadeOut = LinearRelease<200>;
 	mGen.waveform = std::bind(&SampledInstrument::waveform, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
