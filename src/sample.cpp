@@ -9,8 +9,9 @@ Sample::Sample(RawSample* rawSample)
 }
 
 double Sample::get(double point) {
-	if (point > length()) 
+	if (point * getChannelCount() > mData.length()) {
 		return 0;
+	}
 
 	int leftIdx = getChannelCount() * std::floor(point);
 	int rightIdx = getChannelCount() * std::ceil(point);
