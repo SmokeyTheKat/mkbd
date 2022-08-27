@@ -1,0 +1,9 @@
+
+<group>
+<region>
+sample=yo.wav
+pitch_keycenter=60
+lokey=21
+hikey=108
+volume=20
+
