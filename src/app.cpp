@@ -48,7 +48,7 @@ int App::main(void) {
 std::string App::getChord(void) {
 	std::vector<int> notes;
 	for (int i = 0; i < 256; i++) {
-		if (mRecorder.getSustainedNoteState(i))
+		if (mRecorder.getNoteState(i))
 			notes.push_back(i);
 	}
 

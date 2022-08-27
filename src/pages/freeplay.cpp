@@ -123,11 +123,11 @@ void App::freePlayPage(void) {
 	}));
 
 	mRecorder.on("NoteOn", asFunction<byte, byte>([this, &tg](byte note, byte velocity) {
-//        tg->setText(getChord());
+		tg->setText(getChord());
 	}));
 
 	mRecorder.on("NoteOff", asFunction<byte>([this, &tg](byte note) {
-//        tg->setText(getChord());
+		tg->setText(getChord());
 	}));
 
 //    std::vector<MidiTrack>* tracks = new std::vector<MidiTrack>(MidiReader::load("./test.mid"));
