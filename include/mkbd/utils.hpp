@@ -5,7 +5,6 @@
 
 #include <string>
 #include <vector>
-#include <string_view>
 #include <cctype>
 
 typedef unsigned char byte;
@@ -47,7 +46,7 @@ namespace Utils {
 	int getMinsFromTime(double time);
 	std::string timeToString(double time);
 	int getVarIntLength(const std::vector<byte>& data);
-	std::string runCommand(std::string_view cmd);
+	std::string runCommand(std::string cmd);
 	bool stringIsNumber(std::string str);
 };
 

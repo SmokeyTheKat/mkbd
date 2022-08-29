@@ -111,7 +111,7 @@ void AudioPlayer::deleteSample(long id) {
 	);
 
 	if (mSamples.size() == 0)
-		AudioSample::resetCount();
+		gCount = 0;
 }
 
 void AudioPlayer::noteOn(Generator* generator, double freq, double vel, double gain) {

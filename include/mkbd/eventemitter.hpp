@@ -55,8 +55,8 @@ public:
 	EventEmitter(void) {};
 
 	~EventEmitter(void) {
-		for (const auto &[key, value] : events) {
-			clearEvent(key);
+		for (EventMap::iterator it = events.begin(); it != events.end(); it++) {
+			clearEvent(it->first);
 		}
 	};
 

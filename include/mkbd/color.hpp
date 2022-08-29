@@ -40,7 +40,7 @@ struct Color {
 	Color(void) : r(0), g(0), b(0) {};
 
 	operator int() const {
-		char data[4] = {
+		unsigned char data[4] = {
 			r, g, b, 0xff
 		};
 		return *(int*)data;

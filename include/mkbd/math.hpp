@@ -17,9 +17,16 @@ constexpr double logn(double value, double base) {
 	return std::log(value) / std::log(base);
 }
 
+template<class T>
+T clamp(T value, T low, T high) {
+	value = std::min(value, high);
+	value = std::max(value, low);
+	return value;
+}
+
 template<class B, class S>
 S shrink(B value) {
-	return std::clamp(value, (B)std::numeric_limits<S>::min(), (B)std::numeric_limits<S>::max());
+	return clamp(value, (B)std::numeric_limits<S>::min(), (B)std::numeric_limits<S>::max());
 }
 
 #endif

@@ -51,9 +51,9 @@ public:
 	};
 	void setRange(int start, int end) {
 		if (getBitRate() > 0) {
-			mData = ArrayView(mRawSample->buffer, start * 16 / getBitRate(), end * 16 / getBitRate());
+			mData = ArrayView<SampleInt>(mRawSample->buffer, start * 16 / getBitRate(), end * 16 / getBitRate());
 		} else {
-			mData = ArrayView(mRawSample->buffer, start, end);
+			mData = ArrayView<SampleInt>(mRawSample->buffer, start, end);
 		}
 	};
 

@@ -10,17 +10,15 @@
 #include <mutex>
 #include <SDL2/SDL.h>
 
-
 constexpr double audioCutoff = 0.001;
+
+static int gCount = 0;
 
 class AudioPlayer {
 	struct AudioSample {
-	private:
-		inline static long count = 0;
-
 	public:
 		Generator* generator;
-		long id;
+		int id;
 		double freq;
 		double gain;
 		double vel = 127;
@@ -29,8 +27,8 @@ class AudioPlayer {
 		double fadeOutTime = -1;
 
 		AudioSample(Generator* generator, double freq, double vel, double gain)
-		: generator(generator), freq(freq), vel(vel), gain(gain), id(count) {
-			count++;
+		: generator(generator), freq(freq), vel(vel), gain(gain), id(gCount) {
+			gCount++;
 		};
 
 		double getFadeOutTime(void) { return t - fadeOutTime; };
@@ -46,8 +44,6 @@ class AudioPlayer {
 		bool isAudiable(void) {
 			return generator->getModifyers(t) > audioCutoff && ((!isFadingOut && fadeOutTime < 0) || fadeOut() > audioCutoff);
 		};
-
-		static void resetCount(void) { count = 0; };
 	};
 
 	SDL_AudioDeviceID mAudioDevice;

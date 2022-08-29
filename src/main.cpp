@@ -71,7 +71,19 @@
 #include <mkbd/arrayview.hpp>
 #include <mkbd/filemanager.hpp>
 
-int main(int argc, char** argv) {
+#ifdef _WIN64
+//#include <windows/wininfo.h>
+int WINAPI WinMain(HINSTANCE _hinstance,
+				   HINSTANCE hprev_instance,
+				   LPSTR cmd_line,
+				   int cmd_show)
+{
+	int argc = 1;
+	char** argv = new char*("omg");
+#else
+int main(int argc, char** argv)
+{
+#endif
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		std::cout << "Could not initialize everyting lol! Error: " << SDL_GetError() << "\n";
 	}

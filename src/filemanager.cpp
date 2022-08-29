@@ -6,6 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+
 #include <filesystem>
 
 namespace FileManager {
@@ -30,7 +31,7 @@ namespace FileManager {
 	std::vector<std::string> getAllFolders(std::string path) {
 		std::vector<std::string> folders;
 		for (const auto& entry : std::filesystem::directory_iterator(path)) {
-			folders.insert(folders.begin(), entry.path());
+			folders.insert(folders.begin(), entry.path().string());
 		}
 		return folders;
 	}

@@ -54,7 +54,7 @@ namespace Utils {
 		return count;
 	}
 
-	std::string runCommand(std::string_view cmd) {
+	std::string runCommand(std::string cmd) {
 		std::string result;
 
 		FILE* fp = popen(cmd.data(), "r");

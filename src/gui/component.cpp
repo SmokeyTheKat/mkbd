@@ -1,8 +1,14 @@
 #include <mkbd/gui/component.hpp>
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
 #include <mkbd/gui/window.hpp>
 
-#include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_opengl.h>
 #include <GL/gl.h>
 

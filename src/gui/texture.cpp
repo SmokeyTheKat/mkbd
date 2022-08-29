@@ -4,6 +4,12 @@
 
 #include <iostream>
 
+#include <GL/gl.h>
+
+#define GL_CLAMP_TO_EDGE 0x812F
+#define GL_BGR 0x80E0
+#define GL_BGRA 0x80E1
+
 Texture::Texture(std::string path)
 : mPath(path) { load(path); };
 
